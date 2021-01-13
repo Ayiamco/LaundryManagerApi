@@ -8,12 +8,13 @@ using static LaundryApi.Services.HelperMethods;
 
 namespace LaundryApi.Interfaces
 {
-    public interface ILaundryContext
+    public interface ILaundryDbService
     {
         public  Task<Laundry> Create(NewLaundryDto newLaundry);
+        public  Task<Laundry> FindAsync(Guid laundryId);
+        public Laundry GetLaundry(string laundryUsername);
 
-        //public async Laundry GetLaundry(Guid laundryId);
 
-        //public 
+
     }
 }

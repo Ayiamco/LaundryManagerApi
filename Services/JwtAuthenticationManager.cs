@@ -21,7 +21,7 @@ namespace LaundryApi.Services
             this.encryptionKey = encryptionKey;
         }
 
-        public string Authenticate(UserLoginDto _user)
+        public string GetToken(UserLoginDto _user)
         {
             //create security token handler
             var tokenHandler = new JwtSecurityTokenHandler();

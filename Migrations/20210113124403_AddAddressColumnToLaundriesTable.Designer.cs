@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    [Migration("20210104174637_IntialMigration")]
-    partial class IntialMigration
+    [Migration("20210113124403_AddAddressColumnToLaundriesTable")]
+    partial class AddAddressColumnToLaundriesTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -60,6 +60,10 @@ namespace LaundryApi.Migrations
                     b.Property<Guid>("LaundryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");

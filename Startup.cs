@@ -18,13 +18,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using LaundryApi.Interfaces;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace LaundryApi
 {
     public class Startup
     {
-        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-        readonly LaundryApiContext laundryApiContext = new LaundryApiContext(new DbContextOptions<LaundryApiContext>());
+        private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        private readonly LaundryApiContext laundryApiContext = new LaundryApiContext(new DbContextOptions<LaundryApiContext>());
 
         public Startup(IConfiguration configuration)
         {
@@ -36,11 +37,9 @@ namespace LaundryApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<LaundryApiContext>(opt =>
-            //                                   opt.UseInMemoryDatabase("LaundryList"));
-
-            services.AddDbContext<LaundryApiContext>(c => c.UseSqlServer(Configuration.
-                                                GetConnectionString("LaundryDB")));
+            
+            services.AddDbContext<LaundryApiContext>(options =>
+                        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             //allow my react app
             services.AddCors(options =>
@@ -74,8 +73,9 @@ namespace LaundryApi
                     ValidateAudience = false,
                 };
             });
+
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
-            services.AddSingleton<ILaundryContext>(new LaundryDBContext(laundryApiContext));
+            services.AddTransient<ILaundryDbService, LaundryDBService>();
 
 
             services.AddControllers();
@@ -95,7 +95,8 @@ namespace LaundryApi
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LaundryApi v1"));
             }
 
-            db.Database.EnsureCreated();
+            //creates the db migration if it does not exist 
+            //db.Database.EnsureCreated();
 
             app.UseHttpsRedirection();
 

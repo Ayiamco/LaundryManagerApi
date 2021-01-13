@@ -29,5 +29,8 @@ namespace LaundryApi.Models
         [Required]
         public DateTime CreatedAt { get; set; }
 
+        [Required]
+        public string Address { get; set;}
+
     }
 }

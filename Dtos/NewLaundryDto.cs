@@ -12,5 +12,6 @@ namespace LaundryApi.Dtos
         public string ConfirmPassword { get; set; }
         public string LaundryName { get; set; }
         public string PhoneNumber { get; set; }
+        public string Address { set; get; }
     }
 }

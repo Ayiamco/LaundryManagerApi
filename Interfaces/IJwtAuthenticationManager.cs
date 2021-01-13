@@ -8,6 +8,6 @@ namespace LaundryApi.Interfaces
 {
     public interface IJwtAuthenticationManager
     {
-        public string Authenticate(UserLoginDto _user);
+        public string GetToken(UserLoginDto _user);
     }
 }

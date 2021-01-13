@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LaundryApi.Services
 {
-    public class LaundryDBContext: ControllerBase, ILaundryContext
+    public class LaundryDBService: ControllerBase, ILaundryDbService
     {
         private readonly LaundryApiContext _context;
 
-        public LaundryDBContext(LaundryApiContext _context)
+        public LaundryDBService(LaundryApiContext _context)
         {
             this._context = _context;
         }
@@ -27,7 +27,9 @@ namespace LaundryApi.Services
                     Username = newLaundryDto.Username,
                     Password = HashPassword(newLaundryDto.Password),
                     LaundryName = newLaundryDto.LaundryName,
-                    CreatedAt=DateTime.Now,
+                    CreatedAt = DateTime.Now,
+                    PhoneNumber = newLaundryDto.PhoneNumber,
+                    Address=newLaundryDto.Address
                 };
                 await _context.Laundries.AddAsync(newLaundry);
                 await _context.SaveChangesAsync();
@@ -40,6 +42,18 @@ namespace LaundryApi.Services
             }
            
             
+        }
+
+        public async Task<Laundry> FindAsync (Guid id)
+        {
+           var laundry =await  _context.Laundries.FindAsync(id);
+            return laundry;
+        }
+
+        public Laundry GetLaundry(string laundryUsername)
+        {
+            var laundry= _context.Laundries.FirstOrDefault(_user => _user.Username == laundryUsername);
+            return laundry;
         }
     }
 }

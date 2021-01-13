@@ -27,5 +27,13 @@ namespace LaundryApi.Services
                .HasIndex(c => c.Email)
                .IsUnique();
         }
+        //protected  override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    if (optionsBuilder.IsConfigured)
+        //    {
+        //        optionsBuilder.UseSqlServer("aspnet5-laundryApi", builder => builder.EnableRetryOnFailure());
+        //    }
+
+        //}
     }
 }
