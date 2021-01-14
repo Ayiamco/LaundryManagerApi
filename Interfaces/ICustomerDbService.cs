@@ -9,7 +9,7 @@ namespace LaundryApi.Interfaces
     public interface ICustomerDbService
     {
         public  Task<Customer> AddCustomer(CustomerDto newCustomer,string username);
-        public  void DeleteCustomer(string customerEmail);
+        public  void DeleteCustomer(Guid customerId);
         public void UpdateCustomer(CustomerDto customerDto);
         public CustomerDto GetCustomer(Guid customerId);
     }

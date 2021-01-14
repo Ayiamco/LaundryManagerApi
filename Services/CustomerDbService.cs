@@ -53,9 +53,10 @@ namespace LaundryApi.Services
         {
             try
             {
-                if (customerDto == null)
+                
+                Customer customerInDb = _context.Customers.FirstOrDefault(x => x.Email == customerDto.Email);
+                if (customerInDb == null)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
-                Customer customerInDb = _context.Customers.Single(x => x.Email == customerDto.Email);
                 mapper.Map(customerDto, customerInDb);
                 await _context.SaveChangesAsync();
                 return;
@@ -67,18 +68,21 @@ namespace LaundryApi.Services
             
         }
 
-        public async void DeleteCustomer(string customerEmail)
+        public  void DeleteCustomer(Guid customerId)
         {
             try
             {
-                var customer = _context.Customers.FirstOrDefault(c => c.Email == customerEmail);
+                var customer = _context.Customers.SingleOrDefault(c => c.CustomerId == customerId);
+                //_context.SaveChanges();
                 if (customer == null)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
+
+                _context.Customers.Attach(customer);
                 _context.Customers.Remove(customer);
-               await  _context.SaveChangesAsync();
+                _context.SaveChanges();
                 return;
             }
-            catch 
+            catch (Exception e)
             {
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }

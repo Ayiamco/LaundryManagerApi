@@ -24,6 +24,7 @@ namespace LaundryApi.Controllers
             dbService = context;
         }
 
+        //POST: api/customer
         [HttpPost("new")]
         public async Task<ActionResult<Customer>> AddCustomer([FromBody] CustomerDto newCustomer)
         {
@@ -78,6 +79,7 @@ namespace LaundryApi.Controllers
            
         }
 
+        //GET: api/customer/{id}
         [HttpGet("{id}")]
         public ActionResult<Customer> GetCustomer(Guid id)
         {
@@ -93,6 +95,44 @@ namespace LaundryApi.Controllers
                 else
                     return StatusCode(500);
             }
+        }
+
+        //PUT: api/customer
+        [HttpPut]
+        public ActionResult<Customer> UpdateCustomer([FromBody] CustomerDto customer)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            try
+            {
+                dbService.UpdateCustomer(customer);
+                return Ok();
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.UserDoesNotExist)
+                    return StatusCode(404);
+                return StatusCode(500);
+            }
+            
+        }
+
+        //DELETE: api/customer/{customerId}
+        [HttpDelete("{customerId}")]
+        public ActionResult DeleteCustomer(string customerId)
+        {
+            Guid customerIdGuid = new Guid(customerId);
+            try {
+                dbService.DeleteCustomer(customerIdGuid);
+                return Ok();
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.UserDoesNotExist)
+                    return NotFound();
+                return StatusCode(500);
+            }
+            
         }
     }
 }

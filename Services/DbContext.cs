@@ -16,6 +16,8 @@ namespace LaundryApi.Services
 
         public DbSet<Laundry> Laundries { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
