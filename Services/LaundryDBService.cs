@@ -29,7 +29,9 @@ namespace LaundryApi.Services
                     LaundryName = newLaundryDto.LaundryName,
                     CreatedAt = DateTime.Now,
                     PhoneNumber = newLaundryDto.PhoneNumber,
-                    Address=newLaundryDto.Address
+                    Address=newLaundryDto.Address,
+                    NoOfCustomers=0,
+                    TotalRevenue=0,
                 };
                 await _context.Laundries.AddAsync(newLaundry);
                 await _context.SaveChangesAsync();

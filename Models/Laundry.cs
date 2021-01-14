@@ -32,5 +32,12 @@ namespace LaundryApi.Models
         [Required]
         public string Address { get; set;}
 
+        [Required]
+        public Int64 NoOfCustomers { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal TotalRevenue { get; set; }
+
     }
 }

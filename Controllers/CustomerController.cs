@@ -17,11 +17,11 @@ namespace LaundryApi.Controllers
     [Authorize]
     public class CustomerController : ControllerBase
     {
-        private readonly ICustomerDbService _context;
+        private readonly ICustomerDbService dbService;
 
         public CustomerController(ICustomerDbService context)
         {
-            _context = context;
+            dbService = context;
         }
 
         [HttpPost("new")]
@@ -29,8 +29,10 @@ namespace LaundryApi.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest();
+
                 var currentUser = HttpContext.User;
-                
                 Customer customer;
                 string username;
                 
@@ -39,8 +41,7 @@ namespace LaundryApi.Controllers
                     username = Convert.ToString(currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value);
                     try
                     {
-                        customer = await _context.AddCustomer(newCustomer, username);
-                       
+                        customer = await dbService.AddCustomer(newCustomer, username);
                         ResponseDto<CustomerDto> response = new ResponseDto<CustomerDto>()
                         {
                             statusCode = "201",
@@ -66,7 +67,6 @@ namespace LaundryApi.Controllers
                     statusCode = "401",
                     message = ErrorMessage.InvalidToken
                 };
-
                 return BadRequest(errorResponse);
 
             }
@@ -76,6 +76,23 @@ namespace LaundryApi.Controllers
             }
             
            
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Customer> GetCustomer(Guid id)
+        {
+            try
+            {
+                var customer = dbService.GetCustomer(id);
+                return Ok(customer);
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.UserDoesNotExist)
+                    return StatusCode(404);
+                else
+                    return StatusCode(500);
+            }
         }
     }
 }

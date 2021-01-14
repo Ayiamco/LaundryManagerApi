@@ -32,6 +32,8 @@ namespace LaundryApi.Models
         [Required]
         public DateTime CreatedAt { get; set; }
 
-       
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal TotalPurchase { get; set; }
     }
 }
