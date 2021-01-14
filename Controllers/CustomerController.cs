@@ -7,54 +7,75 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LaundryApi.Interfaces;
+using static LaundryApi.Services.HelperMethods;
 
 namespace LaundryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CustomerController : ControllerBase
     {
-        private readonly LaundryApiContext _context;
-        //private readonly IJwtAuthenticationManager jwtManager;
+        private readonly ICustomerDbService _context;
 
-        public CustomerController(LaundryApiContext context)
+        public CustomerController(ICustomerDbService context)
         {
             _context = context;
-            //this.jwtManager = jwtManager;
-
         }
-       [HttpPost("add")]
-        public async Task<ActionResult<Customer>> AddCustomer([FromBody] CustomerDto customer)
+
+        [HttpPost("new")]
+        public async Task<ActionResult<Customer>> AddCustomer([FromBody] CustomerDto newCustomer)
         {
             try
             {
                 var currentUser = HttpContext.User;
-                Laundry laundry;
+                
+                Customer customer;
                 string username;
-                if (currentUser.HasClaim(c => c.Type == "Name"))
+                
+                if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"))
                 {
-                    username = Convert.ToString(currentUser.Claims.FirstOrDefault(c => c.Type == "Name").Value);
-                    laundry = (Laundry)_context.Laundries.Where(u => u.Username == username);
-                    await _context.Customers.AddAsync(new Customer()
+                    username = Convert.ToString(currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value);
+                    try
                     {
-                        Name = customer.Name,
-                        Address = customer.Address,
-                        CreatedAt = DateTime.Now,
-                        LaundryId = laundry.LaundryId,
-                        Email = customer.Email,
-                    });
+                        customer = await _context.AddCustomer(newCustomer, username);
+                       
+                        ResponseDto<CustomerDto> response = new ResponseDto<CustomerDto>()
+                        {
+                            statusCode = "201",
+                            data = newCustomer,
+                            message = "successfully created new customer"
+                        };
+                        return Created("", response);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e.Message == ErrorMessage.InvalidToken)
+                        {
+                            // request does not contain valid jwt token.
+                            return BadRequest();
+                        }
+                        return BadRequest();
 
-                    await _context.SaveChangesAsync();
+                    }
+
                 }
+                ResponseDto<Customer> errorResponse = new ResponseDto<Customer>()
+                {
+                    statusCode = "401",
+                    message = ErrorMessage.InvalidToken
+                };
 
+                return BadRequest(errorResponse);
 
             }
             catch
             {
-                // request does not contain authorization header.
-                return BadRequest();
+                 return StatusCode(500);
             }
-            return Ok();
+            
+           
         }
     }
 }

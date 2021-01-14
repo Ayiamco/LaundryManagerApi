@@ -38,6 +38,7 @@ namespace LaundryApi.Controllers
         }
 
         //POST: /login
+        [AllowAnonymous]
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] UserLoginDto user)
         {
@@ -68,6 +69,7 @@ namespace LaundryApi.Controllers
 
         }
 
+        [AllowAnonymous]
         //POST: /register
         [HttpPost("register")]
         public async Task<ActionResult<Laundry>> PostAdminUser([FromBody] NewLaundryDto user)

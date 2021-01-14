@@ -12,6 +12,12 @@ namespace LaundryApi.Services
         {
             Successful, Unsuccessful
         }
+
+        public static class ErrorMessage
+        {
+            public static string  InvalidToken = "invalid jwt token";
+           
+        }
         public static string HashPassword(string password)
         {
             //byte[] salt = new byte[128 / 8];

@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using LaundryApi.Models;
+using LaundryApi.Dtos;
+
+
+namespace LaundryApi.Services
+{
+    public class AutoMapperProfile:Profile
+    {
+            public AutoMapperProfile()
+            {
+                CreateMap<CustomerDto, Customer>().ReverseMap();
+                CreateMap<NewLaundryDto, Laundry>();
+            }
+        
+    }
+}

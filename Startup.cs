@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using LaundryApi.Interfaces;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+using AutoMapper;
 
 namespace LaundryApi
 {
@@ -76,7 +77,8 @@ namespace LaundryApi
 
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
             services.AddTransient<ILaundryDbService, LaundryDBService>();
-
+            services.AddTransient<ICustomerDbService, CustomerDbService>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
