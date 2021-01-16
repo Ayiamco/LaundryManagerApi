@@ -22,7 +22,7 @@ namespace LaundryApi.Services
             this.mapper = mapper;
         }
 
-        public async Task<Customer> AddCustomer(CustomerDto customerDto,string username)
+        public async Task<CustomerDto> AddCustomer(CustomerDto customerDto,string username)
         {
             try
             {
@@ -39,7 +39,8 @@ namespace LaundryApi.Services
                 mapper.Map(laundry,laundryInDb);
 
                 await _context.SaveChangesAsync();
-                return customer;
+                var returnObj = mapper.Map<CustomerDto>(customer);
+                return returnObj;
             }
             catch
             {

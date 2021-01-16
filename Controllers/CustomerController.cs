@@ -34,7 +34,7 @@ namespace LaundryApi.Controllers
                     return BadRequest();
 
                 var currentUser = HttpContext.User;
-                Customer customer;
+                CustomerDto customer;
                 string username;
                 
                 if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"))
@@ -46,7 +46,7 @@ namespace LaundryApi.Controllers
                         ResponseDto<CustomerDto> response = new ResponseDto<CustomerDto>()
                         {
                             statusCode = "201",
-                            data = newCustomer,
+                            data = customer,
                             message = "successfully created new customer"
                         };
                         return Created("", response);
