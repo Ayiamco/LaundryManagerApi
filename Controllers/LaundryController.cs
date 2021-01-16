@@ -42,30 +42,37 @@ namespace LaundryApi.Controllers
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] UserLoginDto user)
         {
-            //get password hash
-            string hashedPassword = HelperMethods.HashPassword(user.Password);
+            try
+            {
+                //get password hash
+                string hashedPassword = HelperMethods.HashPassword(user.Password);
 
-            var _user = _context.GetLaundry(user.Username);
-            var response = new ResponseDto<string>()
-            {
-                statusCode = "400",
-                message = "User does not exist",
-            };
-            if (_user == null)
-                return BadRequest(response);
-             
-            if(_user.Password != hashedPassword)
-            {
-                response.message = "password is incorrect";
-                return BadRequest(response);
+                var _user = _context.GetLaundry(user.Username);
+                var response = new ResponseDto<string>()
+                {
+                    statusCode = "400",
+                    message = "User does not exist",
+                };
+                if (_user == null)
+                    return BadRequest(response);
+
+                if (_user.Password != hashedPassword)
+                {
+                    response.message = "password is incorrect";
+                    return BadRequest(response);
+                }
+
+                //get jwt token
+                string token = jwtManager.GetToken(user);
+                response.statusCode = "200";
+                response.message = "login details are correct";
+                response.data = token;
+                return Ok(response);
             }
-         
-            //get jwt token
-            string token = jwtManager.GetToken(user);
-            response.statusCode = "200";
-            response.message = "login details are correct";
-            response.data = token;
-            return Ok(response);
+            catch
+            {
+                return StatusCode(500);
+            }
 
         }
 
@@ -74,7 +81,7 @@ namespace LaundryApi.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<Laundry>> PostAdminUser([FromBody] NewLaundryDto user)
         {
-            if (user == null)
+            if (!ModelState.IsValid)
                 return BadRequest();
             if ( user.Password != user.ConfirmPassword)
                 return BadRequest(new { message="Password do not match" });

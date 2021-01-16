@@ -33,6 +33,7 @@ namespace LaundryApi.Services
                     NoOfCustomers=0,
                     TotalRevenue=0,
                 };
+                
                 await _context.Laundries.AddAsync(newLaundry);
                 await _context.SaveChangesAsync();
                 

@@ -8,11 +8,7 @@ namespace LaundryApi.Services
 {
     static public class HelperMethods
     {
-        public enum TaskStatusCode
-        {
-            Successful, Unsuccessful
-        }
-
+        
         public static class ErrorMessage
         {
             public static string  InvalidToken = "invalid jwt token";
