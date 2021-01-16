@@ -14,11 +14,13 @@ namespace LaundryApi.Services
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
+        private readonly ICustomerDbService customerDbService;
 
-        public InvoiceDbServcie(LaundryApiContext _context, IMapper mapper)
+        public InvoiceDbServcie(LaundryApiContext _context, IMapper mapper,ICustomerDbService customerDbService)
         {
             this._context = _context;
             this.mapper = mapper;
+            this.customerDbService = customerDbService;
         }
 
         public async Task<InvoiceDto> ReadInvoice(Guid invoiceId)
@@ -36,6 +38,9 @@ namespace LaundryApi.Services
             invoice.Date = DateTime.Now;
             await _context.Invoices.AddAsync(invoice);
             await _context.SaveChangesAsync();
+
+            //update customer object
+            customerDbService.UpdateTotalPurchase(invoiceDto.CustomerId, invoiceDto.Amount);
 
             invoiceDto = mapper.Map<InvoiceDto>(invoice);
             return invoiceDto;
@@ -64,5 +69,7 @@ namespace LaundryApi.Services
             }
             return obj;
         }
+
+        
     }
 }

@@ -79,6 +79,7 @@ namespace LaundryApi
             services.AddTransient<ILaundryDbService, LaundryDBService>();
             services.AddTransient<ICustomerDbService, CustomerDbService>();
             services.AddTransient<IInvoiceDbService,InvoiceDbServcie>();
+            services.AddTransient<IInvoiceItemDbService,InvoiceItemDbService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();

@@ -68,6 +68,24 @@ namespace LaundryApi.Services
             }
             
         }
+        public async void UpdateTotalPurchase(Guid customerId,decimal amt)
+        {
+            try
+            {
+
+                Customer customerInDb = await _context.Customers.FindAsync(customerId);
+                if (customerInDb == null)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+                customerInDb.TotalPurchase = customerInDb.TotalPurchase + amt;
+                await _context.SaveChangesAsync();
+                return;
+            }
+            catch
+            {
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+
+        }
 
         public  void DeleteCustomer(Guid customerId)
         {
@@ -83,7 +101,7 @@ namespace LaundryApi.Services
                 _context.SaveChanges();
                 return;
             }
-            catch (Exception e)
+            catch 
             {
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
