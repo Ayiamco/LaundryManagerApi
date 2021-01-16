@@ -14,18 +14,34 @@ namespace LaundryApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    
-    public class InvoiceController : Controller
+
+    public class InvoiceController : ControllerBase
     {
 
-        IInvoiceDbService dbService;
-        
+        private readonly IInvoiceDbService dbService;
+
         public InvoiceController(IInvoiceDbService dbService)
         {
             this.dbService = dbService;
         }
 
-        //GET: api/Invoice/{}
+        //GET: api/Invoice/{invoiceId}
+        [HttpGet("{invoiceId}")]
+        public async Task<ActionResult<InvoiceDto>> ReadInvoice(Guid invoiceId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            var invoice=await dbService.ReadInvoice(invoiceId);
+            return Ok(invoice);
+        }
+
+        //GET: api/Invoice
+        [HttpGet]
+        public ActionResult<IEnumerable<InvoiceDto>> GetInvoices()
+        {
+            var returnObj = dbService.GetInvoices();
+            return Ok(returnObj);
+        }
 
         //POST: api/Invoice/add
         [HttpPost("add")]
@@ -34,7 +50,7 @@ namespace LaundryApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
             invoiceDto=await dbService.AddInvoice(invoiceDto);
-            return CreatedAtAction("", new { invoiceId=invoiceDto.InvoiceId}, invoiceDto);
+            return CreatedAtAction(nameof(ReadInvoice), new { invoiceId=invoiceDto.InvoiceId}, invoiceDto);
         }
     }
 }

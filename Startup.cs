@@ -78,7 +78,7 @@ namespace LaundryApi
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
             services.AddTransient<ILaundryDbService, LaundryDBService>();
             services.AddTransient<ICustomerDbService, CustomerDbService>();
-            services.AddTransient<IInvoiceDbService, InvoiceDbService>();
+            services.AddTransient<IInvoiceDbService,InvoiceDbServcie>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();
