@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    [Migration("20210114103941_AddNoOfCustomersandTotalRevenueToLaundriesTable")]
-    partial class AddNoOfCustomersandTotalRevenueToLaundriesTable
+    [Migration("20210120142620_AddServicesTable")]
+    partial class AddServicesTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -45,6 +45,9 @@ namespace LaundryApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("TotalPurchase")
+                        .HasColumnType("decimal(18,4)");
+
                     b.HasKey("CustomerId");
 
                     b.HasIndex("Email")
@@ -53,6 +56,52 @@ namespace LaundryApi.Migrations
                     b.HasIndex("LaundryId");
 
                     b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.Invoice", b =>
+                {
+                    b.Property<Guid>("InvoiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("InvoiceId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.InvoiceItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoiceItems");
                 });
 
             modelBuilder.Entity("LaundryApi.Models.Laundry", b =>
@@ -99,6 +148,33 @@ namespace LaundryApi.Migrations
                     b.ToTable("Laundries");
                 });
 
+            modelBuilder.Entity("LaundryApi.Models.Service", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Description")
+                        .IsUnique();
+
+                    b.ToTable("Services");
+                });
+
             modelBuilder.Entity("LaundryApi.Models.Customer", b =>
                 {
                     b.HasOne("LaundryApi.Models.Laundry", "Laundry")
@@ -108,6 +184,28 @@ namespace LaundryApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Laundry");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.Invoice", b =>
+                {
+                    b.HasOne("LaundryApi.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.InvoiceItem", b =>
+                {
+                    b.HasOne("LaundryApi.Models.Invoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
                 });
 #pragma warning restore 612, 618
         }

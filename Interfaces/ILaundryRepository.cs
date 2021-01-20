@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static LaundryApi.Services.HelperMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
 
 namespace LaundryApi.Interfaces
 {

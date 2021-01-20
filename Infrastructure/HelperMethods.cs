@@ -14,6 +14,7 @@ namespace LaundryApi.Infrastructure
             public static string  InvalidToken = "invalid jwt token";
             public static string FailedDbOperation = "failed to access database";
             public static string UserDoesNotExist = "user does not exist ";
+            public static string EntityDoesNotExist = " data was not found ";
            
         }
         public static string HashPassword(string password)

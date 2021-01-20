@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using LaundryApi.Services;
+using LaundryApi.Infrastructure;
 using LaundryApi.Models;
 using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
-using static LaundryApi.Services.HelperMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using LaundryApi.Interfaces;
 using LaundryApi.Models;
 using LaundryApi.Dtos;
-using static LaundryApi.Services.HelperMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
 
 namespace LaundryApi.Controllers
 {

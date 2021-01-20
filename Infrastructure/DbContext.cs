@@ -18,6 +18,7 @@ namespace LaundryApi.Infrastructure
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<Service> Services { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -28,14 +29,11 @@ namespace LaundryApi.Infrastructure
             builder.Entity<Customer>()
                .HasIndex(c => c.Email)
                .IsUnique();
-        }
-        //protected  override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    if (optionsBuilder.IsConfigured)
-        //    {
-        //        optionsBuilder.UseSqlServer("aspnet5-laundryApi", builder => builder.EnableRetryOnFailure());
-        //    }
 
-        //}
+            builder.Entity<Service>()
+               .HasIndex(s => s.Description)
+               .IsUnique();
+        }
+       
     }
 }

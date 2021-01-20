@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using LaundryApi.Interfaces;
 using LaundryApi.Dtos;
 using LaundryApi.Models;
-using static LaundryApi.Services.HelperMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
 using Microsoft.AspNetCore.Mvc;
+using LaundryApi.Infrastructure;
 
-namespace LaundryApi.Services
+namespace LaundryApi.Repositories
 {
     public class LaundryRepository: ControllerBase, ILaundryRepository
     {

@@ -6,10 +6,11 @@ using LaundryApi.Interfaces;
 using LaundryApi.Models;
 using LaundryApi.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using static LaundryApi.Services.HelperMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Infrastructure;
 using AutoMapper;
 
-namespace LaundryApi.Services
+namespace LaundryApi.Repositories
 {
     public class CustomerRespository:ControllerBase, ICustomerRepository
     {

@@ -13,13 +13,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using LaundryApi.Models;
-using LaundryApi.Services;
+using LaundryApi.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using LaundryApi.Interfaces;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
+using LaundryApi.Repositories;
 
 namespace LaundryApi
 {
@@ -80,6 +81,7 @@ namespace LaundryApi
             services.AddTransient<ICustomerRepository, CustomerRespository>();
             services.AddTransient<IInvoiceRepository,InvoiceDbServcie>();
             services.AddTransient<IInvoiceItemRepository,InvoiceItemRepository>();
+            services.AddTransient<IServiceRepository,ServiceRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();

@@ -5,11 +5,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LaundryApi.Models
+namespace LaundryApi.Dtos
 {
-    public class Service
+    public class ServiceDto
     {
-        [Key]
         public Guid Id { get; set; }
 
         [Required]
@@ -19,16 +18,8 @@ namespace LaundryApi.Models
         [Column(TypeName = "decimal(18,4)")]
         public decimal Price { get; set; }
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
-
-        [Required]
-        public DateTime UpdatedAt { get; set; }
-
-        public Laundry Laundry { get; set; }
-
-        [Required]
-        [ForeignKey("Laundry")]
         public Guid LaundryId { get; set; }
+
+
     }
 }

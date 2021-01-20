@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
-using LaundryApi.Services;
+using LaundryApi.Infrastructure;
 using AutoMapper;
 using LaundryApi.Models;
 
-namespace LaundryApi.Services
+namespace LaundryApi.Repositories
 {
     public class InvoiceDbServcie : IInvoiceRepository
     {

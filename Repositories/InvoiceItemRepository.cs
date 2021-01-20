@@ -6,9 +6,10 @@ using LaundryApi.Interfaces;
 using AutoMapper;
 using LaundryApi.Dtos;
 using LaundryApi.Models;
-using static LaundryApi.Services.HelperMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Infrastructure;
 
-namespace LaundryApi.Services
+namespace LaundryApi.Repositories
 {
     public class InvoiceItemRepository:IInvoiceItemRepository
     {
