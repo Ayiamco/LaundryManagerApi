@@ -7,7 +7,7 @@ using LaundryApi.Models;
 using LaundryApi.Dtos;
 
 
-namespace LaundryApi.Services
+namespace LaundryApi.Infrastructure
 {
     public class AutoMapperProfile:Profile
     {

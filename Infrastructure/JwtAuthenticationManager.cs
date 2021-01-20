@@ -11,7 +11,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
-namespace LaundryApi.Services
+namespace LaundryApi.Infrastructure
 {
     public class JwtAuthenticationManager: IJwtAuthenticationManager
     {

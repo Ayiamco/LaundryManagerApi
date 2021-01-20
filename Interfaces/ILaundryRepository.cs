@@ -8,7 +8,7 @@ using static LaundryApi.Services.HelperMethods;
 
 namespace LaundryApi.Interfaces
 {
-    public interface ILaundryDbService
+    public interface ILaundryRepository
     {
         public  Task<Laundry> Create(NewLaundryDto newLaundry);
         public  Task<Laundry> FindAsync(Guid laundryId);

@@ -11,12 +11,12 @@ using AutoMapper;
 
 namespace LaundryApi.Services
 {
-    public class CustomerDbService:ControllerBase, ICustomerDbService
+    public class CustomerRespository:ControllerBase, ICustomerRepository
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
 
-        public CustomerDbService(LaundryApiContext _context, IMapper mapper)
+        public CustomerRespository(LaundryApiContext _context, IMapper mapper)
         {
             this._context = _context;
             this.mapper = mapper;

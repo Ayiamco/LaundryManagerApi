@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using LaundryApi.Models;
 
-namespace LaundryApi.Services
+namespace LaundryApi.Infrastructure
 {
     public class LaundryApiContext: DbContext
     {

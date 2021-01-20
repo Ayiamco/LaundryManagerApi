@@ -10,13 +10,13 @@ using LaundryApi.Models;
 
 namespace LaundryApi.Services
 {
-    public class InvoiceDbServcie : IInvoiceDbService
+    public class InvoiceDbServcie : IInvoiceRepository
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        private readonly ICustomerDbService customerDbService;
+        private readonly ICustomerRepository customerDbService;
 
-        public InvoiceDbServcie(LaundryApiContext _context, IMapper mapper,ICustomerDbService customerDbService)
+        public InvoiceDbServcie(LaundryApiContext _context, IMapper mapper,ICustomerRepository customerDbService)
         {
             this._context = _context;
             this.mapper = mapper;

@@ -7,7 +7,7 @@ using LaundryApi.Models;
 
 namespace LaundryApi.Interfaces
 {
-    public interface IInvoiceItemDbService
+    public interface IInvoiceItemRepository
     {
         public void AddInvoiceItem(List<InvoiceItemDto> invoiceItemDto);
     }

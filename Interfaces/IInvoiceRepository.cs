@@ -7,7 +7,7 @@ using LaundryApi.Models;
 
 namespace LaundryApi.Interfaces
 {
-    public interface IInvoiceDbService
+    public interface IInvoiceRepository
     {
         public Task<InvoiceDto> AddInvoice(InvoiceDto invoiceDto);
 

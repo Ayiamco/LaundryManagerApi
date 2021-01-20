@@ -76,10 +76,10 @@ namespace LaundryApi
             });
 
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
-            services.AddTransient<ILaundryDbService, LaundryDBService>();
-            services.AddTransient<ICustomerDbService, CustomerDbService>();
-            services.AddTransient<IInvoiceDbService,InvoiceDbServcie>();
-            services.AddTransient<IInvoiceItemDbService,InvoiceItemDbService>();
+            services.AddTransient<ILaundryRepository, LaundryRepository>();
+            services.AddTransient<ICustomerRepository, CustomerRespository>();
+            services.AddTransient<IInvoiceRepository,InvoiceDbServcie>();
+            services.AddTransient<IInvoiceItemRepository,InvoiceItemRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();
@@ -90,7 +90,7 @@ namespace LaundryApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LaundryApiContext db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -98,9 +98,6 @@ namespace LaundryApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LaundryApi v1"));
             }
-
-            //creates the db migration if it does not exist 
-            //db.Database.EnsureCreated();
 
             app.UseHttpsRedirection();
 

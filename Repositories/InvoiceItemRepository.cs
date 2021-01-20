@@ -10,11 +10,11 @@ using static LaundryApi.Services.HelperMethods;
 
 namespace LaundryApi.Services
 {
-    public class InvoiceItemDbService:IInvoiceItemDbService
+    public class InvoiceItemRepository:IInvoiceItemRepository
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        public InvoiceItemDbService(IMapper mapper,LaundryApiContext context)
+        public InvoiceItemRepository(IMapper mapper,LaundryApiContext context)
         {
             this.mapper = mapper;
             _context = context;

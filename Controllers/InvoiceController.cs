@@ -18,9 +18,9 @@ namespace LaundryApi.Controllers
     public class InvoiceController : ControllerBase
     {
 
-        private readonly IInvoiceDbService dbService;
+        private readonly IInvoiceRepository dbService;
 
-        public InvoiceController(IInvoiceDbService dbService)
+        public InvoiceController(IInvoiceRepository dbService)
         {
             this.dbService = dbService;
         }

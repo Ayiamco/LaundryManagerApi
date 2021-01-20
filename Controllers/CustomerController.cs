@@ -17,9 +17,9 @@ namespace LaundryApi.Controllers
     [Authorize]
     public class CustomerController : ControllerBase
     {
-        private readonly ICustomerDbService dbService;
+        private readonly ICustomerRepository dbService;
 
-        public CustomerController(ICustomerDbService context)
+        public CustomerController(ICustomerRepository context)
         {
             dbService = context;
         }
@@ -58,7 +58,7 @@ namespace LaundryApi.Controllers
                             // request does not contain valid jwt token.
                             return BadRequest();
                         }
-                        return BadRequest();
+                        return StatusCode(500);
 
                     }
 

@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LaundryApi.Services
 {
-    public class LaundryDBService: ControllerBase, ILaundryDbService
+    public class LaundryRepository: ControllerBase, ILaundryRepository
     {
         private readonly LaundryApiContext _context;
 
-        public LaundryDBService(LaundryApiContext _context)
+        public LaundryRepository(LaundryApiContext _context)
         {
             this._context = _context;
         }

@@ -17,13 +17,13 @@ namespace LaundryApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class LaundryController : ControllerBase
+    public class LaundryController : Controller
     {
-        private readonly ILaundryDbService _context;
+        private readonly ILaundryRepository _context;
         private readonly IJwtAuthenticationManager jwtManager ;
-        private LaundryApiContext context= new LaundryApiContext(new DbContextOptions<LaundryApiContext>());
+        
 
-        public LaundryController(ILaundryDbService _context, IJwtAuthenticationManager jwtManager )
+        public LaundryController(ILaundryRepository _context, IJwtAuthenticationManager jwtManager )
         {
             this._context = _context;
             this.jwtManager = jwtManager;
@@ -31,6 +31,12 @@ namespace LaundryApi.Controllers
         }
 
         [HttpGet]
+        public ActionResult<string> Index()
+        {
+            return "Hello World";
+        }
+
+        [HttpGet("{id}")]
         public async Task<ActionResult<Laundry>> GetLaundry(Guid id)
         {
             var user = await _context.FindAsync(id);
