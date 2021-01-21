@@ -2,27 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace LaundryApi.Dtos
 {
-    public class InvoiceItemDto
+    public class NewInvoiceItemDto
     {
-        public int Id { get; set; }
-
-        public Invoice Invoice { get; set; }
-
-        
-        [ForeignKey("Invoice")]
-        public Guid InvoiceId { get; set; }
-
         [Required]
-        [ForeignKey("Service")]
         public Guid ServiceId { get; set; }
 
-        public Service Service { get; set; }
+        [Required]
+        public decimal Price { get; set; }
 
         [Required]
         public int Quantity { get; set; }

@@ -10,6 +10,7 @@ namespace LaundryApi.Dtos
 {
     public class InvoiceDto
     {
+
         public Guid InvoiceId { set; get; }
 
         [Required]
@@ -17,10 +18,11 @@ namespace LaundryApi.Dtos
         public decimal Amount { get; set; }
 
         [Required]
+        public DateTime CreatedAt { get; set; }
+
+        public Customer Customer { get; set; }
+
+        [Required]
         public Guid CustomerId { get; set; }
-
-        public DateTime Date { get; set; }
-
     }
 }
-

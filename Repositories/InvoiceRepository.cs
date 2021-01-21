@@ -7,21 +7,24 @@ using LaundryApi.Interfaces;
 using LaundryApi.Infrastructure;
 using AutoMapper;
 using LaundryApi.Models;
+using static LaundryApi.Infrastructure.LaundryApiExtenstionMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
 
 namespace LaundryApi.Repositories
 {
-    public class InvoiceDbServcie : IInvoiceRepository
+    public class InvoiceRepository : IInvoiceRepository
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        private readonly ICustomerRepository customerDbService;
+        private readonly ICustomerRepository customerRepository;
 
-        public InvoiceDbServcie(LaundryApiContext _context, IMapper mapper,ICustomerRepository customerDbService)
+        public InvoiceRepository(LaundryApiContext _context, IMapper mapper,ICustomerRepository customerRepository)
+
         {
             this._context = _context;
             this.mapper = mapper;
-            this.customerDbService = customerDbService;
-        }
+            this.customerRepository = customerRepository;
+        } 
 
         public async Task<InvoiceDto> ReadInvoice(Guid invoiceId)
         {
@@ -31,19 +34,51 @@ namespace LaundryApi.Repositories
             return invoiceDto;
         }
 
-        public async Task<InvoiceDto> AddInvoice(InvoiceDto invoiceDto)
+        public InvoiceDto AddInvoice(NewInvoiceDto newInvoiceDto,string laundryUsername)
         {
+            if (customerRepository.GetCustomer(newInvoiceDto.CustomerId) == null)
+                throw new Exception(ErrorMessage.EntityDoesNotExist);
+            //get invoice total 
+            decimal invoiceTotal=newInvoiceDto.InvoiceItems.GetInvoiceTotal();
 
-            var invoice = mapper.Map<Invoice>(invoiceDto);
-            invoice.Date = DateTime.Now;
-            await _context.Invoices.AddAsync(invoice);
-            await _context.SaveChangesAsync();
+            Invoice invoice = new Invoice()
+            {
+                Amount = invoiceTotal,
+                CustomerId=newInvoiceDto.CustomerId,
+                CreatedAt=DateTime.Now,
+            };
 
-            //update customer object
-            customerDbService.UpdateTotalPurchase(invoiceDto.CustomerId, invoiceDto.Amount);
+            //add invoice to db
+             _context.Invoices.Add(invoice);
 
-            invoiceDto = mapper.Map<InvoiceDto>(invoice);
+            //update customer  total purchase
+            var customerInDb=_context.Customers.SingleOrDefault(x => x.CustomerId == newInvoiceDto.CustomerId);
+            customerInDb.TotalPurchase += invoiceTotal;
+
+            //update laundry total revenue
+            var laundryInDb = _context.Laundries.SingleOrDefault(x => x.Username == laundryUsername);
+            laundryInDb.TotalRevenue = laundryInDb.TotalRevenue + invoiceTotal;
+
+            //add invoice items to db
+            List<InvoiceItem> invoiceItems=new List<InvoiceItem>();
+            foreach(NewInvoiceItemDto item in newInvoiceDto.InvoiceItems)
+            {
+                invoiceItems.Add(new InvoiceItem() {
+                    ServiceId=item.ServiceId,
+                    Quantity=item.Quantity,
+                    InvoiceId=invoice.InvoiceId
+                });
+            }
+            _context.AddRange(invoiceItems);
+
+            //persist changes
+            _context.SaveChanges();
+
+            //map entity to Dto
+            InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
+
             return invoiceDto;
+            
         }
 
         public IEnumerable<InvoiceDto> GetInvoices()

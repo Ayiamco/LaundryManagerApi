@@ -105,6 +105,7 @@ namespace LaundryApi.Repositories
         {
             try
             {
+                
                 var laundryServices = _context.Services.ToList();
                 List<ServiceDto> serviceDtos = new List<ServiceDto>();
                 laundryServices.ForEach(service =>

@@ -20,14 +20,14 @@ namespace LaundryApi.Controllers
         }
 
         //POST: api/InvoiceItem
-        public ActionResult<InvoiceDto> CreateInvoiceItem(List<InvoiceItemDto> invoiceDtoList)
+        public ActionResult<NewInvoiceDto> CreateInvoiceItem(List<InvoiceItemDto> invoiceItemDtoList)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
             try
             {
-                invoiceItemRepository.AddInvoiceItem(invoiceDtoList);
+                invoiceItemRepository.AddInvoiceItem(invoiceItemDtoList);
                 return StatusCode(201);
             }
             catch

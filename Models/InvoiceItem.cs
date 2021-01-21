@@ -21,11 +21,13 @@ namespace LaundryApi.Models
         public Guid InvoiceId { get; set; }
 
         [Required]
-        public string Description { get; set; }
+        [ForeignKey("Service")]
+        public Guid ServiceId { get; set; }
+
+        public Service Service { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(18,4)")]
-        public decimal Price { get; set; }
+        public int Quantity { get; set; }
 
     }
 }

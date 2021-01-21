@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using LaundryApi.Dtos;
 using LaundryApi.Models;
 using AutoMapper;
+using static LaundryApi.Infrastructure.HelperMethods;
 
 namespace LaundryApi.Controllers
 {
@@ -31,26 +32,58 @@ namespace LaundryApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            var invoice=await invoiceRepository.ReadInvoice(invoiceId);
-            return Ok(invoice);
+            try
+            {
+                var invoice = await invoiceRepository.ReadInvoice(invoiceId);
+                return Ok(invoice);
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    return BadRequest();
+
+                //IF you got to this point an unforseen error occurred
+                return StatusCode(500);
+            }
         }
 
         //GET: api/Invoice
         [HttpGet]
         public ActionResult<IEnumerable<InvoiceDto>> GetInvoices()
         {
-            var returnObj = invoiceRepository.GetInvoices();
-            return Ok(returnObj);
+            try
+            {
+                var returnObj = invoiceRepository.GetInvoices();
+                return Ok(returnObj);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+            
         }
 
         //POST: api/Invoice/add
-        [HttpPost("add")]
-        public async Task<ActionResult<InvoiceDto>> CreateInvoice(InvoiceDto invoiceDto)
+        [HttpPost("new")]
+        public ActionResult<NewInvoiceDto> CreateInvoice(NewInvoiceDto newInvoiceDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            invoiceDto=await invoiceRepository.AddInvoice(invoiceDto);
-            return CreatedAtAction(nameof(ReadInvoice), new { invoiceId=invoiceDto.InvoiceId}, invoiceDto);
+            try
+            {
+                InvoiceDto invoiceDto = invoiceRepository.AddInvoice(newInvoiceDto, HttpContext.User.Identity.Name);
+                return CreatedAtAction(nameof(ReadInvoice), new { invoiceId = invoiceDto.InvoiceId }, invoiceDto);
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    return BadRequest();
+
+                //if you got this point some unforseen error occured
+                return StatusCode(500);
+
+            }
+            
         }
     }
 }

@@ -32,10 +32,23 @@ namespace LaundryApi.Controllers
 
         //GET: api/laundry/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Laundry>> GetLaundry(Guid id)
+        public async Task<ActionResult<LaundryDto>> GetLaundry(Guid id)
         {
-            var user = await laundryRepository.FindAsync(id);
-            return user;
+            try
+            {
+                var user = await laundryRepository.FindAsync(id);
+                return user;
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    return BadRequest();
+
+                //if you got to this point an unforseen error occured
+                return StatusCode(500);
+            }
+            
+            
         }
 
         //POST: api/laundry/login
@@ -50,7 +63,7 @@ namespace LaundryApi.Controllers
                 //get password hash
                 string hashedPassword = HashPassword(user.Password);
 
-                var _user = laundryRepository.GetLaundry(user.Username);
+                var _user = laundryRepository.GetLaundryByUsername(user.Username);
                 var response = new ResponseDto<string>()
                 {
                     statusCode = "400",
@@ -82,7 +95,7 @@ namespace LaundryApi.Controllers
         [AllowAnonymous]
         //POST: api/laundry/register
         [HttpPost("register")]
-        public async Task<ActionResult<Laundry>> PostAdminUser([FromBody] NewLaundryDto user)
+        public async Task<ActionResult<LaundryDto>> PostAdminUser([FromBody] NewLaundryDto user)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -92,12 +105,12 @@ namespace LaundryApi.Controllers
             try
             {
                 //save new laundry to database
-                Laundry laundry = await laundryRepository.Create(user);
+                LaundryDto laundryDto = await laundryRepository.Create(user);
 
                 //override password hash
-                laundry.Password = user.Password;
+                laundryDto.Password = user.Password;
 
-                return CreatedAtAction(nameof(GetLaundry),new { id=laundry.LaundryId},laundry);
+                return CreatedAtAction(nameof(GetLaundry),new { id=laundryDto.LaundryId},laundryDto);
             }
           
            catch

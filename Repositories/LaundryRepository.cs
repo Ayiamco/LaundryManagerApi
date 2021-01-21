@@ -8,18 +8,20 @@ using LaundryApi.Models;
 using static LaundryApi.Infrastructure.HelperMethods;
 using Microsoft.AspNetCore.Mvc;
 using LaundryApi.Infrastructure;
+using AutoMapper;
 
 namespace LaundryApi.Repositories
 {
     public class LaundryRepository: ControllerBase, ILaundryRepository
     {
         private readonly LaundryApiContext _context;
-
-        public LaundryRepository(LaundryApiContext _context)
+        private readonly IMapper mapper;
+        public LaundryRepository(LaundryApiContext _context,IMapper mapper)
         {
             this._context = _context;
+            this.mapper = mapper;
         }
-        public async Task<Laundry> Create(NewLaundryDto newLaundryDto  )
+        public async Task<LaundryDto> Create(NewLaundryDto newLaundryDto  )
         {
             try
             {
@@ -37,8 +39,9 @@ namespace LaundryApi.Repositories
                 
                 await _context.Laundries.AddAsync(newLaundry);
                 await _context.SaveChangesAsync();
-                
-                return newLaundry;
+
+                var laundryDto=mapper.Map<LaundryDto>(newLaundry);
+                return laundryDto;
             }
             catch
             {
@@ -48,16 +51,41 @@ namespace LaundryApi.Repositories
             
         }
 
-        public async Task<Laundry> FindAsync (Guid id)
+        public async Task<LaundryDto> FindAsync (Guid id)
         {
-           var laundry =await  _context.Laundries.FindAsync(id);
-            return laundry;
+            try
+            {
+                var laundry = await _context.Laundries.FindAsync(id);
+                if (laundry == null)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+
+                var laundryDto =mapper.Map<LaundryDto>(laundry);
+                return laundryDto;
+            }
+            catch
+            {
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+          
         }
 
-        public Laundry GetLaundry(string laundryUsername)
+        public LaundryDto GetLaundryByUsername(string laundryUsername)
         {
-            var laundry= _context.Laundries.FirstOrDefault(_user => _user.Username == laundryUsername);
-            return laundry;
+            try
+            {
+                var laundryInDb = _context.Laundries.SingleOrDefault(_user => _user.Username == laundryUsername);
+                if (laundryInDb == null)
+                    throw new Exception(ErrorMessage.FailedDbOperation);
+
+                var laundryDto = mapper.Map<LaundryDto>(laundryInDb);
+                return laundryDto;
+            }
+            catch
+            {
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+            
+            
         }
     }
 }

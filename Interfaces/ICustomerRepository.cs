@@ -12,6 +12,6 @@ namespace LaundryApi.Interfaces
         public  void DeleteCustomer(Guid customerId);
         public void UpdateCustomer(CustomerDto customerDto);
         public CustomerDto GetCustomer(Guid customerId);
-        public void UpdateTotalPurchase(Guid customerId, decimal amt);
+        
     }
 }

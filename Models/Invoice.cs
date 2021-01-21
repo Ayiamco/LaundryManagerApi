@@ -18,7 +18,7 @@ namespace LaundryApi.Models
         public decimal Amount { get; set; }
 
         [Required]
-        public DateTime Date { get; set; }
+        public DateTime CreatedAt{ get; set; }
 
         public Customer Customer { get; set; }
 
