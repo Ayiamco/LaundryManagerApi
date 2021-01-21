@@ -8,7 +8,7 @@ namespace LaundryApi.Interfaces
 {
     public interface IServiceRepository
     {
-        public Task<ServiceDto> AddService(ServiceDto serviceDto);
+        public Task<ServiceDto> AddService(ServiceDto serviceDto,string laundryUsername);
         public void UpdateService(ServiceDto serviceDto);
         public void DeleteService(Guid serviceId);
         public ServiceDto GetService(Guid id);

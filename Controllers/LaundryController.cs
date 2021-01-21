@@ -19,41 +19,38 @@ namespace LaundryApi.Controllers
     [Authorize]
     public class LaundryController : Controller
     {
-        private readonly ILaundryRepository _context;
+        private readonly ILaundryRepository laundryRepository;
         private readonly IJwtAuthenticationManager jwtManager ;
         
 
-        public LaundryController(ILaundryRepository _context, IJwtAuthenticationManager jwtManager )
+        public LaundryController(ILaundryRepository laundryRepository, IJwtAuthenticationManager jwtManager )
         {
-            this._context = _context;
+            this.laundryRepository = laundryRepository;
             this.jwtManager = jwtManager;
 
         }
 
-        [HttpGet]
-        public ActionResult<string> Index()
-        {
-            return "Hello World";
-        }
-
+        //GET: api/laundry/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Laundry>> GetLaundry(Guid id)
         {
-            var user = await _context.FindAsync(id);
+            var user = await laundryRepository.FindAsync(id);
             return user;
         }
 
-        //POST: /login
+        //POST: api/laundry/login
         [AllowAnonymous]
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] UserLoginDto user)
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
             try
             {
                 //get password hash
-                string hashedPassword = HelperMethods.HashPassword(user.Password);
+                string hashedPassword = HashPassword(user.Password);
 
-                var _user = _context.GetLaundry(user.Username);
+                var _user = laundryRepository.GetLaundry(user.Username);
                 var response = new ResponseDto<string>()
                 {
                     statusCode = "400",
@@ -83,7 +80,7 @@ namespace LaundryApi.Controllers
         }
 
         [AllowAnonymous]
-        //POST: /register
+        //POST: api/laundry/register
         [HttpPost("register")]
         public async Task<ActionResult<Laundry>> PostAdminUser([FromBody] NewLaundryDto user)
         {
@@ -95,7 +92,7 @@ namespace LaundryApi.Controllers
             try
             {
                 //save new laundry to database
-                Laundry laundry = await _context.Create(user);
+                Laundry laundry = await laundryRepository.Create(user);
 
                 //override password hash
                 laundry.Password = user.Password;

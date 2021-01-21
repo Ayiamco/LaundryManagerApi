@@ -21,18 +21,20 @@ namespace LaundryApi.Repositories
             this._context = _context;
         }
 
-        public async Task<ServiceDto> AddService (ServiceDto serviceDto)
+        public async Task<ServiceDto> AddService (ServiceDto serviceDto,string laundryUsername)
         {
             try
             {
+                var laundry=_context.Laundries.FirstOrDefault(laundry => laundry.Username == laundryUsername);
+                serviceDto.LaundryId = laundry.LaundryId;
                 Service service = mapper.Map<Service>(serviceDto);
-                service.CreatedAt = DateTime.Now;
+                service.CreatedAt = DateTime.Now;   
                 service.UpdatedAt = DateTime.Now;
                 await _context.Services.AddAsync(service);
                 await _context.SaveChangesAsync();
 
                 serviceDto.Id = service.Id;
-                return serviceDto;
+                 return serviceDto;
             }
             catch 
             {
@@ -41,17 +43,19 @@ namespace LaundryApi.Repositories
             
         }
 
-        public async void UpdateService(ServiceDto serviceDto)
+        public void UpdateService(ServiceDto serviceDto)
         {
             try
             {
-                Service service = mapper.Map<Service>(serviceDto);
-                var serviceInDb = _context.Services.FirstOrDefault(s => s.Id == serviceDto.Id);
+                
+                var serviceInDb = _context.Services.SingleOrDefault(s => s.Id == serviceDto.Id);
                 if (serviceInDb == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-                serviceInDb = mapper.Map<Service>(service);
-                await _context.SaveChangesAsync();
+                serviceInDb.UpdatedAt = DateTime.Now;
+                serviceInDb.Description = serviceDto.Description;
+                serviceInDb.Price = serviceDto.Price;
+                 _context.SaveChanges();
                 return;
             }
             catch
@@ -68,6 +72,7 @@ namespace LaundryApi.Repositories
                 if (service == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
                 _context.Remove(service);
+                _context.SaveChanges();
             }
             catch
             {

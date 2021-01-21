@@ -13,6 +13,7 @@ namespace LaundryApi.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid LaundryId { get; set; }
 
+        //Username is an alternate key
         [EmailAddress]
         public string Username { get; set; }
 

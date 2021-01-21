@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,24 +14,41 @@ namespace LaundryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ServiceController : ControllerBase
     {
-        private IServiceRepository repository;
-        private IMapper mapper;
-        public ServiceController(IServiceRepository repository, IMapper mapper)
+        private readonly  IServiceRepository serviceRepository;
+        private readonly IMapper mapper;
+        public ServiceController(IServiceRepository serviceRepository, IMapper mapper)
         {
-            this.repository = repository;
+            this.serviceRepository = serviceRepository;
             this.mapper = mapper;
         }
 
+        //GET: api/service
+        [HttpGet]
+        public ActionResult<IEnumerable<ServiceDto>> Index()
+        {
+            try
+            {
+                var laundryServices=serviceRepository.GetAllLaundryServices();
+                return Ok(laundryServices);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
 
+        //GET: api/service/{customerId}
         [HttpGet("{id}")]
         public  ActionResult<ServiceDto> GetService(Guid id)
         {
             ServiceDto serviceDto = new ServiceDto();
             try
             {
-                serviceDto = repository.GetService(id);
+
+                serviceDto = serviceRepository.GetService(id);
                 return Ok(serviceDto);
             }
             catch(Exception e)
@@ -51,10 +69,14 @@ namespace LaundryApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
+            
             try
             {
-                serviceDto = await repository.AddService(serviceDto);
-                return CreatedAtAction("", new { id = serviceDto.Id }, serviceDto);
+
+                var laundryEmail = HttpContext.User.Identity.Name;
+                
+                serviceDto = await serviceRepository.AddService(serviceDto,laundryEmail);
+                return CreatedAtAction(nameof(GetService), new { id = serviceDto.Id }, serviceDto);
             }
             catch
             {
@@ -62,6 +84,52 @@ namespace LaundryApi.Controllers
             }
             
 
+        }
+
+
+        //PUT: api/customer
+        [HttpPut]
+        public ActionResult UpdateService(ServiceDto serviceDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            try
+            {
+                serviceRepository.UpdateService(serviceDto);
+                return StatusCode(204);
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    return StatusCode(400);
+                
+                //if you get to this point something unusual occurred
+                return StatusCode(500);
+            }
+            
+        }
+
+        //DELETE: api/customer/{serviceId}
+        [Route("{serviceId}")]
+        [HttpDelete]
+        public ActionResult DeleteService(Guid serviceId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            try
+            {
+                serviceRepository.DeleteService(serviceId);
+                return StatusCode(204);
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    return StatusCode(400);
+
+                //if you get to this point something unusual occured
+                return StatusCode(500);
+            }
+           
         }
     }
 }

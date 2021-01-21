@@ -12,11 +12,11 @@ namespace LaundryApi.Controllers
 {
     public class InvoiceItemController : Controller
     {
-        private readonly IInvoiceItemRepository dbService;
+        private readonly IInvoiceItemRepository invoiceItemRepository;
 
-        public InvoiceItemController(IInvoiceItemRepository  dbService)
+        public InvoiceItemController(IInvoiceItemRepository invoiceItemRepository)
         {
-            this.dbService = dbService;
+            this.invoiceItemRepository = invoiceItemRepository;
         }
 
         //POST: api/InvoiceItem
@@ -27,7 +27,7 @@ namespace LaundryApi.Controllers
 
             try
             {
-                dbService.AddInvoiceItem(invoiceDtoList);
+                invoiceItemRepository.AddInvoiceItem(invoiceDtoList);
                 return StatusCode(201);
             }
             catch

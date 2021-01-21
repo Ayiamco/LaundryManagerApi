@@ -18,11 +18,11 @@ namespace LaundryApi.Controllers
     [Authorize]
     public class CustomerController : ControllerBase
     {
-        private readonly ICustomerRepository dbService;
+        private readonly ICustomerRepository customerRepository;
 
-        public CustomerController(ICustomerRepository context)
+        public CustomerController(ICustomerRepository customerRepository)
         {
-            dbService = context;
+            this.customerRepository = customerRepository;
         }
 
         //POST: api/customer
@@ -43,7 +43,7 @@ namespace LaundryApi.Controllers
                     username = Convert.ToString(currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value);
                     try
                     {
-                        customer = await dbService.AddCustomer(newCustomer, username);
+                        customer = await customerRepository.AddCustomer(newCustomer, username);
                         ResponseDto<CustomerDto> response = new ResponseDto<CustomerDto>()
                         {
                             statusCode = "201",
@@ -86,7 +86,7 @@ namespace LaundryApi.Controllers
         {
             try
             {
-                var customer = dbService.GetCustomer(id);
+                var customer = customerRepository.GetCustomer(id);
                 return Ok(customer);
             }
             catch(Exception e)
@@ -106,7 +106,7 @@ namespace LaundryApi.Controllers
                 return BadRequest();
             try
             {
-                dbService.UpdateCustomer(customer);
+                customerRepository.UpdateCustomer(customer);
                 return Ok();
             }
             catch(Exception e)
@@ -120,17 +120,19 @@ namespace LaundryApi.Controllers
 
         //DELETE: api/customer/{customerId}
         [HttpDelete("{customerId}")]
-        public ActionResult DeleteCustomer(string customerId)
+        public ActionResult DeleteCustomer(Guid customerId)
         {
-            Guid customerIdGuid = new Guid(customerId);
+            
             try {
-                dbService.DeleteCustomer(customerIdGuid);
+                customerRepository.DeleteCustomer(customerId);
                 return Ok();
             }
             catch(Exception e)
             {
                 if (e.Message == ErrorMessage.UserDoesNotExist)
                     return NotFound();
+
+                //if you get to this point something ususual occured
                 return StatusCode(500);
             }
             

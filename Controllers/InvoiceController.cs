@@ -18,11 +18,11 @@ namespace LaundryApi.Controllers
     public class InvoiceController : ControllerBase
     {
 
-        private readonly IInvoiceRepository dbService;
+        private readonly IInvoiceRepository invoiceRepository;
 
-        public InvoiceController(IInvoiceRepository dbService)
+        public InvoiceController(IInvoiceRepository invoiceRepository)
         {
-            this.dbService = dbService;
+            this.invoiceRepository = invoiceRepository;
         }
 
         //GET: api/Invoice/{invoiceId}
@@ -31,7 +31,7 @@ namespace LaundryApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            var invoice=await dbService.ReadInvoice(invoiceId);
+            var invoice=await invoiceRepository.ReadInvoice(invoiceId);
             return Ok(invoice);
         }
 
@@ -39,7 +39,7 @@ namespace LaundryApi.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<InvoiceDto>> GetInvoices()
         {
-            var returnObj = dbService.GetInvoices();
+            var returnObj = invoiceRepository.GetInvoices();
             return Ok(returnObj);
         }
 
@@ -49,7 +49,7 @@ namespace LaundryApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            invoiceDto=await dbService.AddInvoice(invoiceDto);
+            invoiceDto=await invoiceRepository.AddInvoice(invoiceDto);
             return CreatedAtAction(nameof(ReadInvoice), new { invoiceId=invoiceDto.InvoiceId}, invoiceDto);
         }
     }
