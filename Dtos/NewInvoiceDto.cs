@@ -13,7 +13,8 @@ namespace LaundryApi.Dtos
        public  IEnumerable<NewInvoiceItemDto> InvoiceItems { get; set; }
 
        public Guid CustomerId { get; set; }
-
+        
+       
     }
 }
 

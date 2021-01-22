@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,9 +10,11 @@ namespace LaundryApi.Models
 {
     public class Laundry
     {
+        
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid LaundryId { get; set; }
+        public Guid Id { get; set; }
 
         //Username is an alternate key
         [EmailAddress]
@@ -21,7 +24,10 @@ namespace LaundryApi.Models
         public string LaundryName { get; set; }
 
         [Required]
-        public string Password { get; set; }
+        public string FullName { get ; set ; }
+
+        [Required]
+        public string PasswordHash { get; set; }
 
         [Required]
         [StringLength(11)]
@@ -31,14 +37,22 @@ namespace LaundryApi.Models
         public DateTime CreatedAt { get; set; }
 
         [Required]
-        public string Address { get; set;}
+        public string Address { get; set; }
 
         [Required]
-        public Int64 NoOfCustomers { get; set; }
+        public int NoOfCustomers { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,4)")]
         public decimal TotalRevenue { get; set; }
+
+        public DateTime ForgotPasswordTime { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
+
+        public int NoOfEmployees { get; set; }
+
+        public string TempPassword { get; set; }
 
     }
 }

@@ -10,7 +10,7 @@ namespace LaundryApi.Dtos
     public class LaundryDto
     {
         
-        public Guid LaundryId { get; set; }
+        public Guid Id { get; set; }
 
        
         [EmailAddress]
@@ -29,10 +29,8 @@ namespace LaundryApi.Dtos
         [Required]
         public string Address { get; set; }
 
-        public Int64 NoOfCustomers { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(18,4)")]
-        public decimal TotalRevenue { get; set; }
+        public int NoOfCustomers { get; set; }
+        public int NoOfEmployees { get; set; }
+        public decimal Revenue { get; set; }
     }
 }

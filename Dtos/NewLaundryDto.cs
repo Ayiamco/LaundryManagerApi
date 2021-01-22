@@ -14,7 +14,7 @@ namespace LaundryApi.Dtos
 
         
         [Required(ErrorMessage = "Username is required")]
-        [StringLength(11 ,ErrorMessage="password must be at least 8 characters")]
+        [StringLength(11 ,ErrorMessage="password must be at least 11 characters")]
         public string Password { get; set; }
 
         [Required]
@@ -23,6 +23,9 @@ namespace LaundryApi.Dtos
 
         [Required]
         public string LaundryName { get; set; }
+
+        [Required]
+        public string FullName { get; set; }
 
         [Required]
         [StringLength(11,ErrorMessage ="Exceeds max number of characters")]

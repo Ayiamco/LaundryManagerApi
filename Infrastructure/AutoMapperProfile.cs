@@ -13,6 +13,10 @@ namespace LaundryApi.Infrastructure
     {
             public AutoMapperProfile()
             {
+
+                CreateMap<ApplicationUser, LaundryDto>().ReverseMap();
+                CreateMap<NewLaundryDto,ApplicationUser>();
+
                 CreateMap<CustomerDto, Customer>().ReverseMap();
                 CreateMap<NewLaundryDto, Laundry>();
                 CreateMap<LaundryDto, Laundry>().ReverseMap();

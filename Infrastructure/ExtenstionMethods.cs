@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LaundryApi.Models;
 using LaundryApi.Dtos;
+using Microsoft.AspNetCore.Http;
 
 namespace LaundryApi.Infrastructure
 {
@@ -17,6 +18,18 @@ namespace LaundryApi.Infrastructure
                 total += item.Price * item.Quantity;
             }
             return total;
+        }
+
+        public static string GetUserRole(this HttpContext httpContext)
+        {
+            var currentUser = httpContext.User;
+           string userRole = Convert.ToString(currentUser.Claims.SingleOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role").Value);
+            return userRole;
+        }
+        
+        public static bool IsInRole(this HttpContext httpContext, string role)
+        {
+            return role == httpContext.GetUserRole();
         }
     }
 }

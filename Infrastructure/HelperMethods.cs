@@ -8,15 +8,21 @@ namespace LaundryApi.Infrastructure
 {
     static public class HelperMethods
     {
-        
+       
+
         public static class ErrorMessage
         {
             public static string  InvalidToken = "invalid jwt token";
             public static string FailedDbOperation = "failed to access database";
             public static string UserDoesNotExist = "user does not exist ";
             public static string EntityDoesNotExist = " data was not found ";
-           
+
+            
+
         }
+
+        
+
         public static string HashPassword(string password)
         {
             //byte[] salt = new byte[128 / 8];

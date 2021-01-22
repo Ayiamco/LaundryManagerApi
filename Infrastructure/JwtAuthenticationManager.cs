@@ -32,7 +32,8 @@ namespace LaundryApi.Infrastructure
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, _user.Username)
+                    new Claim(ClaimTypes.Name, _user.Username),
+                    new Claim(ClaimTypes.Role, "")
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(
@@ -40,6 +41,7 @@ namespace LaundryApi.Infrastructure
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            
             return tokenHandler.WriteToken(token);
 
         }
