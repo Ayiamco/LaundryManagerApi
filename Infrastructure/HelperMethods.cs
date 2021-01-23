@@ -21,6 +21,8 @@ namespace LaundryApi.Infrastructure
             public static string UsernameAlreadyExist = "user email already exist";
             public static string ServiceAlreadyExist = "service already exist";
             public static string LinkExpired = "link has expired";
+            public static string InCorrectPassword = "password is incorrect";
+
 
             
 

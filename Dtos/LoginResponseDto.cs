@@ -7,8 +7,7 @@ namespace LaundryApi.Dtos
 {
     public class LoginResponseDto
     {
-        public LaundryDto Laundry { get; set; }
-        public string PasswordHash { get; set; }
+        public ApplicationUserDto User { get; set; }
         public string UserRole { get; set; }
     }
 }

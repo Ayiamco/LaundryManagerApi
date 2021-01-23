@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LaundryApi.Dtos;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -24,7 +25,7 @@ namespace LaundryApi.Models
         [Required]
         public string Address { get; set; }
 
-        public Laundry Laundry { get; set; }
+        public LaundryDto Laundry { get; set; }
 
         [Required]
         [ForeignKey("Laundry")]

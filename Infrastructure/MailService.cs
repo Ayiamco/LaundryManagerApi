@@ -8,7 +8,7 @@ namespace LaundryApi.Infrastructure
 {
     public class MailService
     {
-        public static void SendMail(string recieverEmail, string messageBody, string messageSubject)
+        public static async Task SendMailAsync(string recieverEmail, string messageBody, string messageSubject)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace LaundryApi.Infrastructure
                     IsBodyHtml=true
                 };
 
-                smtpClient.Send(mailMessage);
+                await smtpClient.SendMailAsync(mailMessage);
                 smtpClient.Dispose();
                 return;
             }

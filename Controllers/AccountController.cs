@@ -34,44 +34,45 @@ namespace LaundryApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
+
+            var response = new ResponseDto<string>() {  };
             try
             {
-                //get password hash
-                string hashedPassword = HashPassword(user.Password);
-
-                var _user = managerRepository.GetUserByUsername(user.Username);
-                var response = new ResponseDto<string>()
-                {
-                    statusCode = "400",
-                    message = "User does not exist",
-                };
-                if (_user == null)
-                    return BadRequest(response);
-
-                if (_user.PasswordHash != hashedPassword)
-                {
-                    response.message = "password is incorrect";
-                    return BadRequest(response);
-                }
-
+                //get login resp
+                var resp = managerRepository.GetLoginResponse(user.Username, user.Password);
+               
                 //get jwt token
-                string token = jwtManager.GetToken(user,_user.UserRole);
+                string token = jwtManager.GetToken(user,resp.UserRole);
 
                 //create response body
                 response.statusCode = "200";
                 response.message = "login details are correct";
                 response.data = token;
-                if (_user.UserRole==RoleNames.LaundryOwner)
+                if (resp.UserRole==RoleNames.LaundryOwner)
                     response.role = RoleNames.LaundryOwner;
-                else if(_user.UserRole==RoleNames.LaundryEmployee)
+                else if(resp.UserRole==RoleNames.LaundryEmployee)
                     response.role = RoleNames.LaundryEmployee;
                 else
                     response.role = RoleNames.Admin;
 
                 return Ok(response);
             }
-            catch
+            catch(Exception e)
             {
+
+                response.statusCode = "400";
+                if (e.Message == ErrorMessage.InCorrectPassword)
+                {
+                    response.message = ErrorMessage.InCorrectPassword;
+                    return BadRequest(response);
+                }
+                else if (e.Message == ErrorMessage.UserDoesNotExist)
+                {
+                    response.message = ErrorMessage.UserDoesNotExist;
+                    return BadRequest(response);
+                }
+
+                //if you get to this point something unforseen occured
                 return StatusCode(500);
             }
 
@@ -107,16 +108,60 @@ namespace LaundryApi.Controllers
             }
         }
 
+        
+        
+        [HttpPost]
+        public async Task<ActionResult<EmployeeDto>> RegisterEmployee([FromBody] NewEmployeeDto newEmployee)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner))
+                return Unauthorized(new ResponseDto<EmployeeDto>
+                {
+                    message = "User is not a laundry owner",
+                    statusCode = "401"
+                });
+            if (newEmployee.Password != newEmployee.ConfirmPassword)
+                return BadRequest(new ResponseDto<EmployeeDto>{ 
+                    message = "Password do not match" ,
+                    statusCode="400"
+                });
+
+            try
+            {
+                //Tag employee to laundry owner 
+                newEmployee.LaundryId = managerRepository.GetUserByUsername(HttpContext.User.Identity.Name).Id;
+
+                //save new employee to database
+                EmployeeDto employeeDto = await managerRepository.CreateEmployeeAsync(newEmployee);
+                return CreatedAtAction("GetEmployee", "Employee", new { id = employeeDto.Id }, employeeDto);
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.UsernameAlreadyExist)
+                    return BadRequest(new ResponseDto<ApplicationUserDto>()
+                    {
+                        message = ErrorMessage.UsernameAlreadyExist,
+                        statusCode = "400"
+                    });
+
+                //if you got this pointan unforseen error occurred
+                return StatusCode(500);
+
+            }
+        }
+
 
         //POST: api/account/forgotpassword
         [Route("forgotpassword")]
         [HttpPost]
-        public ActionResult<string> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        public async Task<ActionResult<string>> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
             try
             {
                 //send passwoord reset link to email
-                managerRepository.SendPasswordReset(dto.Username);
+                await managerRepository.SendPasswordReset(dto.Username);
             }
             catch (Exception e)
             {

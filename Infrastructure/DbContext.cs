@@ -18,6 +18,7 @@ namespace LaundryApi.Infrastructure
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Service> Services { get; set; }
+        
 
         //public DbSet<Customer> Customers { get; set; }
         //public DbSet<Invoice> Invoices { get; set; }
@@ -37,9 +38,6 @@ namespace LaundryApi.Infrastructure
             builder.Entity<Service>()
                 .HasAlternateKey(s => new { s.Description, s.ApplicationUserId });
 
-            //builder.Entity<Customer>()
-            //   .HasIndex(c => c.Email)
-            //   .IsUnique();
 
 
         }
