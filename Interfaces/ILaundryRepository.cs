@@ -10,13 +10,7 @@ namespace LaundryApi.Interfaces
 {
     public interface ILaundryRepository
     {
-        public Task<LaundryDto> CreateAsync(NewLaundryDto newLaundryDto);
-        public  Task<LaundryDto> FindAsync(Guid laundryId);
-        public LoginResponseDto GetUserByUsername(string username);
-
-   
-
-
+        public  Task<LaundryDto> FindLaundryAsync(Guid laundryId);
 
     }
 }

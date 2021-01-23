@@ -39,7 +39,7 @@ namespace LaundryApi.Models
 
         public DateTime? ForgotPasswordTime { get; set; }
 
-        public string TempPassword { get; set; }
+        public string PasswordResetId { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

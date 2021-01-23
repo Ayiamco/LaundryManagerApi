@@ -36,7 +36,7 @@ namespace LaundryApi.Controllers
         {
             try
             {
-                var user = await laundryRepository.FindAsync(id);
+                var user = await laundryRepository.FindLaundryAsync(id);
                 return user;
             }
             catch (Exception e)

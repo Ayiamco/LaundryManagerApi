@@ -29,13 +29,19 @@ namespace LaundryApi.Infrastructure
             builder.Entity<ApplicationUser>()
                 .HasIndex(x => x.Username)
                 .IsUnique();
+            builder.Entity<ApplicationUser>()
+                .HasIndex(x => x.PasswordResetId)
+                .IsUnique();
+
+
+            builder.Entity<Service>()
+                .HasAlternateKey(s => new { s.Description, s.ApplicationUserId });
 
             //builder.Entity<Customer>()
             //   .HasIndex(c => c.Email)
             //   .IsUnique();
 
-            builder.Entity<Service>()
-                .HasAlternateKey(s => new { s.Description, s.ApplicationUserId });
+
         }
        
     }

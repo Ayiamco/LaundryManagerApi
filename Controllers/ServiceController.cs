@@ -66,7 +66,7 @@ namespace LaundryApi.Controllers
 
         //POST: api/service/new
         [HttpPost("new")]
-        public async Task<ActionResult<ServiceDto>> Create(ServiceDto serviceDto)
+        public  ActionResult<ServiceDto> Create(ServiceDto serviceDto)
         {
             if (! HttpContext.User.IsInRole(RoleNames.LaundryOwner))
                 return Unauthorized();
