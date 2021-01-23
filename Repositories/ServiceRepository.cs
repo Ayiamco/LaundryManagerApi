@@ -21,23 +21,29 @@ namespace LaundryApi.Repositories
             this._context = _context;
         }
 
-        public async Task<ServiceDto> CreateServiceAsync(ServiceDto serviceDto, string username)
+        public  ServiceDto CreateService(ServiceDto serviceDto, string username)
         {
             try
             {
                 var applicationUser = _context.ApplicationUsers.FirstOrDefault(x => x.Username == username);
+                if (applicationUser == null)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
                 serviceDto.ApplicationUserId = applicationUser.Id;
                 Service service = mapper.Map<Service>(serviceDto);
                 service.CreatedAt = DateTime.Now;
                 service.UpdatedAt = DateTime.Now;
-                await _context.Services.AddAsync(service);
-                await _context.SaveChangesAsync();
+                 _context.Services.Add(service);
+                 _context.SaveChanges();
 
                 serviceDto.Id = service.Id;
                 return serviceDto;
             }
-            catch
+            catch(Exception e)
             {
+                string errorMessage = e.InnerException.ToString();
+                if (errorMessage.Contains("Violation of PRIMARY KEY constraint 'PK_Services'"))
+                    throw new Exception(ErrorMessage.ServiceAlreadyExist);
+                    
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
 
@@ -124,3 +130,26 @@ namespace LaundryApi.Repositories
         }
     }
 }
+
+
+
+
+//using Microsoft.EntityFrameworkCore.Migrations;
+
+//namespace LaundryApi.Migrations
+//{
+//    public partial class seedingApplicationUserRoles : Migration
+//    {
+//        protected override void Up(MigrationBuilder migrationBuilder)
+//        {
+//            migrationBuilder.Sql("INSERT INTO [dbo].[Roles] ([Id], [Name]) VALUES (N'dd17cb53-2416-439a-3593-08d8beeb7a6a', N'LaundryOwner')");
+//            migrationBuilder.Sql("INSERT INTO[dbo].[Roles]([Id], [Name]) VALUES(N'61d47b86-34b2-42da-3594-08d8beeb7a6a', N'LaundryEmployee')");
+//            migrationBuilder.Sql("INSERT INTO[dbo].[Roles] ([Id], [Name]) VALUES(N'c802c039-8f04-4258-3595-08d8beeb7a6a', N'Admin')");
+//        }
+
+//        protected override void Down(MigrationBuilder migrationBuilder)
+//        {
+//            migrationBuilder.Sql("DELETE * FROM [dbo].[Roles]");
+//        }
+//    }
+//}

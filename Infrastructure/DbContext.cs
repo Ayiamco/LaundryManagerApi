@@ -26,17 +26,16 @@ namespace LaundryApi.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            //builder.Entity<Laundry>()
-            //    .HasIndex(l => l.Username)
-            //    .IsUnique();
+            builder.Entity<ApplicationUser>()
+                .HasIndex(x => x.Username)
+                .IsUnique();
 
             //builder.Entity<Customer>()
             //   .HasIndex(c => c.Email)
             //   .IsUnique();
 
             builder.Entity<Service>()
-              .HasIndex(s => s.Description)
-               .IsUnique();
+                .HasAlternateKey(s => new { s.Description, s.ApplicationUserId });
         }
        
     }

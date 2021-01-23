@@ -42,8 +42,11 @@ namespace LaundryApi.Controllers
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EntityDoesNotExist)
-                    return BadRequest();
-
+                    return BadRequest(new ResponseDto<LaundryDto>() { 
+                        message=ErrorMessage.UserDoesNotExist,
+                        statusCode="400"
+                    });
+                
                 //if you got to this point an unforseen error occured
                 return StatusCode(500);
             }

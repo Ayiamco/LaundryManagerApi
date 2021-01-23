@@ -79,11 +79,15 @@ namespace LaundryApi.Controllers
 
                 var userEmail = HttpContext.User.Identity.Name;
                 
-                serviceDto = await serviceRepository.CreateServiceAsync(serviceDto,userEmail);
+                serviceDto =  serviceRepository.CreateService(serviceDto,userEmail);
                 return CreatedAtAction(nameof(GetService), new { id = serviceDto.Id }, serviceDto);
             }
-            catch
+            catch(Exception e)
             {
+                if (e.Message == ErrorMessage.ServiceAlreadyExist)
+                    return BadRequest( new ResponseDto<ServiceDto>() { 
+                        message=ErrorMessage.ServiceAlreadyExist
+                    });
                 return StatusCode(500);
             }
             

@@ -51,9 +51,12 @@ namespace LaundryApi.Repositories
                 laundryDto.Password = newLaundryDto.Password;
                 return laundryDto;
             }
-            catch
+            catch(Exception e)
             {
-                return null;
+                if(e.InnerException.ToString().Contains("Cannot insert duplicate key row in object 'dbo.ApplicationUsers' with unique index 'IX_ApplicationUsers_Username'"))
+                    throw new Exception(ErrorMessage.UsernameAlreadyExist);
+                 
+                throw new Exception(ErrorMessage.FailedDbOperation);
             }
 
 

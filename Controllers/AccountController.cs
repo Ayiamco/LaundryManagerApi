@@ -95,9 +95,15 @@ namespace LaundryApi.Controllers
                 LaundryDto laundryDto = await laundryRepository.CreateAsync(user);
                 return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, laundryDto);
             }
-            catch
+            catch(Exception e)
             {
-                //log error
+                if (e.Message == ErrorMessage.UsernameAlreadyExist)
+                    return BadRequest(new ResponseDto<ApplicationUserDto>() {
+                        message=ErrorMessage.UsernameAlreadyExist,
+                        statusCode="400"
+                    });
+                
+                //if you got this pointan unforseen error occurred
                 return StatusCode(500);
 
             }
