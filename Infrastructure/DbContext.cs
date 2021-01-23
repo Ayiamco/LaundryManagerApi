@@ -17,11 +17,12 @@ namespace LaundryApi.Infrastructure
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Role> Roles { get; set; }
-          
+        public DbSet<Service> Services { get; set; }
+
         //public DbSet<Customer> Customers { get; set; }
         //public DbSet<Invoice> Invoices { get; set; }
         //public DbSet<InvoiceItem> InvoiceItems { get; set; }
-        //public DbSet<Service> Services { get; set; }
+        //
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -33,9 +34,9 @@ namespace LaundryApi.Infrastructure
             //   .HasIndex(c => c.Email)
             //   .IsUnique();
 
-            //builder.Entity<Service>()
-            //   .HasIndex(s => s.Description)
-            //   .IsUnique();
+            builder.Entity<Service>()
+              .HasIndex(s => s.Description)
+               .IsUnique();
         }
        
     }

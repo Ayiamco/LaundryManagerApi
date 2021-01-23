@@ -4,14 +4,16 @@ using LaundryApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    partial class LaundryApiContextModelSnapshot : ModelSnapshot
+    [Migration("20210123110453_AddServicesTable")]
+    partial class AddServicesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,7 +105,7 @@ namespace LaundryApi.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,4)");
@@ -114,9 +116,6 @@ namespace LaundryApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("Description")
-                        .IsUnique();
 
                     b.ToTable("Services");
                 });

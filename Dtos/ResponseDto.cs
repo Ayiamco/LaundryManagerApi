@@ -10,6 +10,7 @@ namespace LaundryApi.Dtos
         public string statusCode { get; set; }
         public string message { get; set; }
         public T data { get; set; }
+        public string role {get;set;}
 
     }
 }

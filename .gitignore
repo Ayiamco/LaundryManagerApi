@@ -340,4 +340,5 @@ ASALocalRun/
 healthchecksdb
 
 #mock data
+/MockData
 newLaundryData.js

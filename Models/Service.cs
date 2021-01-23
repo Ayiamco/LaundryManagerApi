@@ -10,6 +10,7 @@ namespace LaundryApi.Models
     public class Service
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         [Required]
@@ -25,10 +26,10 @@ namespace LaundryApi.Models
         [Required]
         public DateTime UpdatedAt { get; set; }
 
-        public Laundry Laundry { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
 
         [Required]
-        [ForeignKey("Laundry")]
-        public Guid LaundryId { get; set; }
+        [ForeignKey("ApplicationUser")]
+        public Guid ApplicationUserId { get; set; }
     }
 }

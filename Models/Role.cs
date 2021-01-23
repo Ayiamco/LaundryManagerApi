@@ -7,6 +7,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LaundryApi.Models
 {
+    //creating user roles
+    //List<Role> applicationRoles = new List<Role>();
+    //applicationRoles.Add(new Role() { Name = RoleNames.LaundryOwner });
+    //applicationRoles.Add( new Role() { Name = RoleNames.LaundryEmployee });
+    //applicationRoles.Add( new Role() { Name = RoleNames.Admin });
+    //_context.Roles.AddRange(applicationRoles);
+
+
     public static class RoleNames
     {
         public static string LaundryOwner = "LaundryOwner";

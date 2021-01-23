@@ -21,7 +21,7 @@ namespace LaundryApi.Infrastructure
             this.encryptionKey = encryptionKey;
         }
 
-        public string GetToken(UserLoginDto _user)
+        public string GetToken(UserLoginDto _user,string roleName)
         {
             //create security token handler
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -33,9 +33,9 @@ namespace LaundryApi.Infrastructure
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, _user.Username),
-                    new Claim(ClaimTypes.Role, "")
+                    new Claim(ClaimTypes.Role, roleName)
                 }),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddDays(60),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256)
             };

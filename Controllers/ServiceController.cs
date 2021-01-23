@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
+using LaundryApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -67,15 +68,18 @@ namespace LaundryApi.Controllers
         [HttpPost("new")]
         public async Task<ActionResult<ServiceDto>> Create(ServiceDto serviceDto)
         {
+            if (! HttpContext.User.IsInRole(RoleNames.LaundryOwner))
+                return Unauthorized();
+            
             if (!ModelState.IsValid)
                 return BadRequest();
             
             try
             {
 
-                var laundryEmail = HttpContext.User.Identity.Name;
+                var userEmail = HttpContext.User.Identity.Name;
                 
-                serviceDto = await serviceRepository.AddService(serviceDto,laundryEmail);
+                serviceDto = await serviceRepository.CreateServiceAsync(serviceDto,userEmail);
                 return CreatedAtAction(nameof(GetService), new { id = serviceDto.Id }, serviceDto);
             }
             catch

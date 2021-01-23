@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LaundryApi.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,7 +19,9 @@ namespace LaundryApi.Dtos
         [Column(TypeName = "decimal(18,4)")]
         public decimal Price { get; set; }
 
-        public Guid LaundryId { get; set; }
+        public ApplicationUserDto ApplicationUser { get; set; }
+
+        public Guid ApplicationUserId { get; set; }
 
 
     }
