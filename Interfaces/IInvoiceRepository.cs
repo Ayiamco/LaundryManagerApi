@@ -9,7 +9,7 @@ namespace LaundryApi.Interfaces
 {
     public interface IInvoiceRepository
     {
-        public InvoiceDto AddInvoice(NewInvoiceDto newInvoice, string laundryUsername);
+        public InvoiceDto AddInvoice(NewInvoiceDto newInvoice);
 
         public Task<InvoiceDto> ReadInvoice(Guid invoiceId);
 

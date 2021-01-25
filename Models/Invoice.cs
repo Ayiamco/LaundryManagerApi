@@ -11,7 +11,7 @@ namespace LaundryApi.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid InvoiceId { set; get; }
+        public Guid Id { set; get; }
 
         [Required]
         [Column(TypeName = "decimal(18,4)")]
@@ -23,7 +23,6 @@ namespace LaundryApi.Models
         public Customer Customer { get; set; }
 
         [Required]
-        [ForeignKey("Customer")]
         public Guid CustomerId { get; set; }
     }
 }

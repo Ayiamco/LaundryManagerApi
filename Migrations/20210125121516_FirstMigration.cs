@@ -20,7 +20,7 @@ namespace LaundryApi.Migrations
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Revenue = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
                     ForgotPasswordTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    TempPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PasswordResetId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NoOfCustomers = table.Column<int>(type: "int", nullable: true),
@@ -44,19 +44,44 @@ namespace LaundryApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Services",
+                name: "Customers",
                 columns: table => new
                 {
-                    Description = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    TotalPurchase = table.Column<decimal>(type: "decimal(18,4)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Services", x => new { x.Description, x.ApplicationUserId });
+                    table.PrimaryKey("PK_Customers", x => x.Id);
+                    table.UniqueConstraint("AK_Customers_Username_ApplicationUserId", x => new { x.Username, x.ApplicationUserId });
+                    table.ForeignKey(
+                        name: "FK_Customers_ApplicationUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "ApplicationUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Services",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Services", x => x.Id);
+                    table.UniqueConstraint("AK_Services_Description_ApplicationUserId", x => new { x.Description, x.ApplicationUserId });
                     table.ForeignKey(
                         name: "FK_Services_ApplicationUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
@@ -91,12 +116,49 @@ namespace LaundryApi.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Invoices",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Invoices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Invoices_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUsers_PasswordResetId",
+                table: "ApplicationUsers",
+                column: "PasswordResetId",
+                unique: true,
+                filter: "[PasswordResetId] IS NOT NULL");
+
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUsers_Username",
                 table: "ApplicationUsers",
                 column: "Username",
                 unique: true,
                 filter: "[Username] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_ApplicationUserId",
+                table: "Customers",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Invoices_CustomerId",
+                table: "Invoices",
+                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Services_ApplicationUserId",
@@ -117,16 +179,22 @@ namespace LaundryApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Invoices");
+
+            migrationBuilder.DropTable(
                 name: "Services");
 
             migrationBuilder.DropTable(
                 name: "UserRoles");
 
             migrationBuilder.DropTable(
-                name: "ApplicationUsers");
+                name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationUsers");
         }
     }
 }

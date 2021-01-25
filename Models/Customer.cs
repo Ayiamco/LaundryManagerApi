@@ -13,23 +13,23 @@ namespace LaundryApi.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CustomerId { get; set; }
+        public Guid Id { get; set; }
 
         //Email is an alternate key
         [Required]
-        public string Email { get; set; }
+        [EmailAddress]
+        public string Username { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string FullName { get; set; }
 
         [Required]
         public string Address { get; set; }
 
-        public LaundryDto Laundry { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
 
         [Required]
-        [ForeignKey("Laundry")]
-        public Guid LaundryId { get; set; }
+        public Guid ApplicationUserId { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

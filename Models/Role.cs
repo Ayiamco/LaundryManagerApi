@@ -17,9 +17,9 @@ namespace LaundryApi.Models
 
     public static class RoleNames
     {
-        public static string LaundryOwner = "LaundryOwner";
-        public static string LaundryEmployee = "LaundryEmployee";
-        public static string Admin = "Admin";
+        public const string LaundryOwner = "LaundryOwner";
+        public const string LaundryEmployee = "LaundryEmployee";
+        public const string Admin = "Admin";
     }
        
     public class Role

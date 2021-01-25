@@ -14,14 +14,16 @@ namespace LaundryApi.Infrastructure
 
         public static class ErrorMessage
         {
-            public static string  InvalidToken = "invalid jwt token";
-            public static string FailedDbOperation = "failed to access database";
-            public static string UserDoesNotExist = "user does not exist ";
-            public static string EntityDoesNotExist = "data was not found ";
-            public static string UsernameAlreadyExist = "user email already exist";
-            public static string ServiceAlreadyExist = "service already exist";
-            public static string LinkExpired = "link has expired";
-            public static string InCorrectPassword = "password is incorrect";
+            public const string  InvalidToken = "invalid jwt token";
+            public const  string FailedDbOperation = "failed to access database";
+            public const  string UserDoesNotExist = "user does not exist ";
+            public const string EntityDoesNotExist = "data was not found ";
+            public const string UsernameAlreadyExist = "user email already exist";
+            public const string ServiceAlreadyExist = "service already exist";
+            public const string LinkExpired = "link has expired";
+            public const string InCorrectPassword = "password is incorrect";
+            public const string InvalidModel = "reqeust body is invalid";
+
 
 
             

@@ -17,12 +17,11 @@ namespace LaundryApi.Infrastructure
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Customer> Customers { get; set; }
         public DbSet<Service> Services { get; set; }
-        
+        public DbSet<Invoice> Invoices { get; set; }
 
-        //public DbSet<Customer> Customers { get; set; }
-        //public DbSet<Invoice> Invoices { get; set; }
-        //public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
         //
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -30,13 +29,16 @@ namespace LaundryApi.Infrastructure
             builder.Entity<ApplicationUser>()
                 .HasIndex(x => x.Username)
                 .IsUnique();
+
             builder.Entity<ApplicationUser>()
                 .HasIndex(x => x.PasswordResetId)
                 .IsUnique();
 
-
             builder.Entity<Service>()
                 .HasAlternateKey(s => new { s.Description, s.ApplicationUserId });
+
+            builder.Entity<Customer>()
+                .HasAlternateKey(s => new { s.Username, s.ApplicationUserId });
 
 
 

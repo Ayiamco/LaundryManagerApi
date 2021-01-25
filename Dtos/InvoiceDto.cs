@@ -11,18 +11,20 @@ namespace LaundryApi.Dtos
     public class InvoiceDto
     {
 
-        public Guid InvoiceId { set; get; }
+        public Guid Id { set; get; }
 
         [Required]
         [Column(TypeName = "decimal(18,4)")]
         public decimal Amount { get; set; }
 
-        [Required]
+
         public DateTime CreatedAt { get; set; }
 
         public Customer Customer { get; set; }
 
         [Required]
         public Guid CustomerId { get; set; }
+
+        public IEnumerable<InvoiceItemDto> InvoiceItems { get;set;}
     }
 }
