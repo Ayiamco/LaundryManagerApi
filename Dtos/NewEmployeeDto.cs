@@ -17,10 +17,11 @@ namespace LaundryApi.Dtos
         [EmailAddress]
         public string Username { get; set; }
 
-
         [Required]
+        public string FullName { get; set; }
+        
         [ForeignKey("Laundry")]
-        public Guid LaundryId { get; set; }
+        public Guid LaundryId { get; set; } 
 
         [Required]
         public string Password { get; set; }

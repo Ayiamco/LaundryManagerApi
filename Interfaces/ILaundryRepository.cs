@@ -11,6 +11,7 @@ namespace LaundryApi.Interfaces
     public interface ILaundryRepository
     {
         public  Task<LaundryDto> FindLaundryAsync(Guid laundryId);
+        
 
     }
 }

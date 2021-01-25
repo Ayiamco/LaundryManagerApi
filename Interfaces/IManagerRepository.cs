@@ -13,7 +13,7 @@ namespace LaundryApi.Interfaces
         public ApplicationUser GetUserByUsername(string username);
         public LoginResponseDto GetLoginResponse(string username,string password);
         public Task<LaundryDto> CreateLaundryAsync(NewLaundryDto newLaundryDto);
-        public Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDto);
+        public Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDtou,string username );
         public Task<bool> SendPasswordReset(string username);
 
         public bool IsPasswordResetLinkValid(string username, string resetLinkId);

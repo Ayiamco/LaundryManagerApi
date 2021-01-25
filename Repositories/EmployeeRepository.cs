@@ -1,37 +1,38 @@
 ﻿using AutoMapper;
 using LaundryApi.Dtos;
 using LaundryApi.Infrastructure;
-using LaundryApi.Interfaces;
-using LaundryApi.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Interfaces;
 
 namespace LaundryApi.Repositories
 {
-    public class LaundryRepository  : ControllerBase, ILaundryRepository
+    public class EmployeeRepository: IEmployeeRepository
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        public LaundryRepository(LaundryApiContext _context, IMapper mapper)
+        public EmployeeRepository(LaundryApiContext _context, IMapper mapper)
         {
             this._context = _context;
             this.mapper = mapper;
         }
-        
-        public async Task<LaundryDto> FindLaundryAsync(Guid id)
+
+       
+
+        public async Task<EmployeeDto> FindEmployeeAsync(Guid id)
         {
             try
             {
-                var laundry = await _context.ApplicationUsers.FindAsync(id);
-                if (laundry == null)
+                
+                var employee = await _context.ApplicationUsers.FindAsync(id);
+                if (employee == null)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
 
-                var laundryDto = mapper.Map<LaundryDto>(laundry);
-                return laundryDto;
+                var employeeDto = mapper.Map<EmployeeDto>(employee);
+                return employeeDto;
             }
             catch(Exception e)
             {
@@ -43,7 +44,6 @@ namespace LaundryApi.Repositories
 
         }
 
-            
+
     }
 }
-

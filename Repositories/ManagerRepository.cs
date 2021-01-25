@@ -3,6 +3,7 @@ using LaundryApi.Dtos;
 using LaundryApi.Infrastructure;
 using LaundryApi.Interfaces;
 using LaundryApi.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -24,19 +25,23 @@ namespace LaundryApi.Repositories
             this._context = _context;
         }
 
-        public  async Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDto)
+        public  async Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDto,string username)
         {
             try
             {
+                ApplicationUser laundry = GetUserByUsername(username);
+
                 ApplicationUser user = mapper.Map<ApplicationUser>(newEmployeeDto);
                 user.PasswordHash = HashPassword(newEmployeeDto.Password);
                 user.CreatedAt = DateTime.Now;
-                user.NoOfCustomers = 0;
+                user.NoOfCustomers = null;
                 user.Revenue = 0;
                 user.NoOfEmployees = null;
                 user.UpdatedAt = DateTime.Now;
                 user.ForgotPasswordTime = null;
                 user.PasswordResetId = null;
+                user.LaundryName = laundry.FullName;
+                
 
 
                 await _context.ApplicationUsers.AddAsync(user);
@@ -56,7 +61,7 @@ namespace LaundryApi.Repositories
             }
             catch (Exception e)
             {
-                if (e.InnerException.ToString().Contains("Cannot insert duplicate key row in object 'dbo.ApplicationUsers'"))
+                    if (e.InnerException.ToString().Contains("Cannot insert duplicate key row in object 'dbo.ApplicationUsers'"))
                     throw new Exception(ErrorMessage.UsernameAlreadyExist);
 
                 throw new Exception(ErrorMessage.FailedDbOperation);

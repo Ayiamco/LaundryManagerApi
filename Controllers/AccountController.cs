@@ -21,9 +21,9 @@ namespace LaundryApi.Controllers
         private readonly IManagerRepository managerRepository;
         private readonly IJwtAuthenticationManager jwtManager;
 
-        public AccountController(IManagerRepository laundryRepository, IJwtAuthenticationManager jwtManager)
+        public AccountController(IManagerRepository managerRepository, IJwtAuthenticationManager jwtManager)
         {
-            this.managerRepository = laundryRepository;
+            this.managerRepository = managerRepository;
             this.jwtManager = jwtManager;
 
         }
@@ -76,80 +76,6 @@ namespace LaundryApi.Controllers
                 return StatusCode(500);
             }
 
-        }
-
-        
-        //POST: api/account/register
-        [HttpPost("register")]
-        public async Task<ActionResult<LaundryDto>> RegisterLaundry([FromBody] NewLaundryDto user)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-            if (user.Password != user.ConfirmPassword)
-                return BadRequest(new { message = "Password do not match" });
-
-            try
-            {
-                //save new laundry to database
-                LaundryDto laundryDto = await managerRepository.CreateLaundryAsync(user);
-                return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, laundryDto);
-            }
-            catch(Exception e)
-            {
-                if (e.Message == ErrorMessage.UsernameAlreadyExist)
-                    return BadRequest(new ResponseDto<ApplicationUserDto>() {
-                        message=ErrorMessage.UsernameAlreadyExist,
-                        statusCode="400"
-                    });
-                
-                //if you got this pointan unforseen error occurred
-                return StatusCode(500);
-
-            }
-        }
-
-        
-        
-        [HttpPost]
-        public async Task<ActionResult<EmployeeDto>> RegisterEmployee([FromBody] NewEmployeeDto newEmployee)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner))
-                return Unauthorized(new ResponseDto<EmployeeDto>
-                {
-                    message = "User is not a laundry owner",
-                    statusCode = "401"
-                });
-            if (newEmployee.Password != newEmployee.ConfirmPassword)
-                return BadRequest(new ResponseDto<EmployeeDto>{ 
-                    message = "Password do not match" ,
-                    statusCode="400"
-                });
-
-            try
-            {
-                //Tag employee to laundry owner 
-                newEmployee.LaundryId = managerRepository.GetUserByUsername(HttpContext.User.Identity.Name).Id;
-
-                //save new employee to database
-                EmployeeDto employeeDto = await managerRepository.CreateEmployeeAsync(newEmployee);
-                return CreatedAtAction("GetEmployee", "Employee", new { id = employeeDto.Id }, employeeDto);
-            }
-            catch (Exception e)
-            {
-                if (e.Message == ErrorMessage.UsernameAlreadyExist)
-                    return BadRequest(new ResponseDto<ApplicationUserDto>()
-                    {
-                        message = ErrorMessage.UsernameAlreadyExist,
-                        statusCode = "400"
-                    });
-
-                //if you got this pointan unforseen error occurred
-                return StatusCode(500);
-
-            }
         }
 
 

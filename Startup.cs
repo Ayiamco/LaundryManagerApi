@@ -78,6 +78,7 @@ namespace LaundryApi
 
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
             services.AddTransient<IManagerRepository, ManagerRepository>();
+            services.AddTransient <IEmployeeRepository, EmployeeRepository>();
             //services.AddTransient<ICustomerRepository, CustomerRespository>();
             //services.AddTransient<IInvoiceRepository,InvoiceRepository>();
             //services.AddTransient<IInvoiceItemRepository,InvoiceItemRepository>();

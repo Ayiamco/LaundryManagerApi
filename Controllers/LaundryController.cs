@@ -21,12 +21,14 @@ namespace LaundryApi.Controllers
     {
         private readonly ILaundryRepository laundryRepository;
         private readonly IJwtAuthenticationManager jwtManager;
+        private readonly IManagerRepository managerRepository;
 
 
-        public LaundryController(ILaundryRepository laundryRepository, IJwtAuthenticationManager jwtManager)
+        public LaundryController(ILaundryRepository laundryRepository, IJwtAuthenticationManager jwtManager,IManagerRepository managerRepository)
         {
             this.laundryRepository = laundryRepository;
             this.jwtManager = jwtManager;
+            this.managerRepository = managerRepository;
 
         }
 
@@ -41,7 +43,7 @@ namespace LaundryApi.Controllers
             }
             catch (Exception e)
             {
-                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                if (e.Message == ErrorMessage.UserDoesNotExist)
                     return BadRequest(new ResponseDto<LaundryDto>() { 
                         message=ErrorMessage.UserDoesNotExist,
                         statusCode="400"
@@ -54,7 +56,38 @@ namespace LaundryApi.Controllers
 
         }
 
-        
+        //POST: api/laundry/register
+        [HttpPost("register")]
+        public async Task<ActionResult<LaundryDto>> RegisterLaundry([FromBody] NewLaundryDto user)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            if (user.Password != user.ConfirmPassword)
+                return BadRequest(new { message = "Password do not match" });
+
+            try
+            {
+                //save new laundry to database
+                LaundryDto laundryDto = await managerRepository.CreateLaundryAsync(user);
+                return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, laundryDto);
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.UsernameAlreadyExist)
+                    return BadRequest(new ResponseDto<ApplicationUserDto>()
+                    {
+                        message = ErrorMessage.UsernameAlreadyExist,
+                        statusCode = "400"
+                    });
+
+                //if you got this pointan unforseen error occurred
+                return StatusCode(500);
+
+            }
+        }
+
+
+
 
 
 
