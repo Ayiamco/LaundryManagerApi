@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using LaundryApi.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,9 +67,24 @@ namespace LaundryApi.Infrastructure
                 stringChars[i] = chars[random.Next(chars.Length)];
             }
 
-            var finalString = new String(stringChars);
+            var finalString = new string(stringChars);
 
             return finalString;
+        }
+
+        public static string GetResetLink(string username, string role = "")
+        {
+            string linkId = GenerateRandomString(10);
+            string userClaim = HashPassword(username);
+            linkId += userClaim;
+            if (string.IsNullOrWhiteSpace(role))
+                linkId = "n" + linkId;
+            else if (role == RoleNames.LaundryEmployee)
+                linkId = "e" + linkId;
+            else if (role == RoleNames.LaundryOwner)
+                linkId = "l" + linkId;
+
+            return linkId;
         }
     }
 }

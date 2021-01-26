@@ -1,151 +1,153 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
-//using LaundryApi.Dtos;
-//using LaundryApi.Interfaces;
-//using LaundryApi.Infrastructure;
-//using AutoMapper;
-//using LaundryApi.Models;
-//using static LaundryApi.Infrastructure.LaundryApiExtenstionMethods;
-//using static LaundryApi.Infrastructure.HelperMethods;
-//using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using LaundryApi.Dtos;
+using LaundryApi.Interfaces;
+using LaundryApi.Infrastructure;
+using AutoMapper;
+using LaundryApi.Models;
+using static LaundryApi.Infrastructure.LaundryApiExtenstionMethods;
+using static LaundryApi.Infrastructure.HelperMethods;
+using Microsoft.EntityFrameworkCore;
 
-//namespace LaundryApi.Repositories
-//{
-//    public class InvoiceRepository : IInvoiceRepository
-//    {
-//        private readonly LaundryApiContext _context;
-//        private readonly IMapper mapper;
-//        private readonly ICustomerRepository customerRepository;
+namespace LaundryApi.Repositories
+{
+    public class InvoiceRepository : IInvoiceRepository
+    {
+        private readonly LaundryApiContext _context;
+        private readonly IMapper mapper;
+        private readonly ICustomerRepository customerRepository;
 
-//        public InvoiceRepository(LaundryApiContext _context, IMapper mapper, ICustomerRepository customerRepository)
+        public InvoiceRepository(LaundryApiContext _context, IMapper mapper, ICustomerRepository customerRepository)
 
-//        {
-//            this._context = _context;
-//            this.mapper = mapper;
-//            this.customerRepository = customerRepository;
-//        }
+        {
+            this._context = _context;
+            this.mapper = mapper;
+            this.customerRepository = customerRepository;
+        }
 
-//        public async Task<InvoiceDto> ReadInvoice(Guid invoiceId)
-//        {
+        public async Task<InvoiceDto> ReadInvoice(Guid invoiceId)
+        {
 
-//            var invoice = await _context.Invoices.Include("Customer").FirstOrDefaultAsync(x=> x.Id==invoiceId);
-//            var invoiceDto = mapper.Map<InvoiceDto>(invoice);
-//            return invoiceDto;
-//        }
+            var invoice = await _context.Invoices.Include("Customer").FirstOrDefaultAsync(x => x.Id == invoiceId);
+            var invoiceDto = mapper.Map<InvoiceDto>(invoice);
+            return invoiceDto;
+        }
 
-//        public InvoiceDto AddInvoice(NewInvoiceDto newInvoiceDto)
-//        {
-//            try
-//            {
-//                if (customerRepository.GetCustomer(newInvoiceDto.CustomerId) == null)
-//                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+        public InvoiceDto AddInvoice(NewInvoiceDto newInvoiceDto)
+        {
+            try
+            {
+                //check if customer exist
+                if (customerRepository.GetCustomer(newInvoiceDto.CustomerId) == null)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-//                //get invoice total 
-//                decimal invoiceTotal = newInvoiceDto.InvoiceItems.GetInvoiceTotal();
+                //get invoice total 
+                decimal invoiceTotal = newInvoiceDto.InvoiceItems.GetInvoiceTotal();
 
-//                //create invoice object
-//                Invoice invoice = new Invoice()
-//                {
-//                    Amount = invoiceTotal,
-//                    CustomerId = newInvoiceDto.CustomerId,
-//                    CreatedAt = DateTime.Now,
-//                };
+                //create invoice object
+                Invoice invoice = new Invoice()
+                {
+                    Amount = invoiceTotal,
+                    CustomerId = newInvoiceDto.CustomerId,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt=DateTime.Now,
+                    IsCollected=newInvoiceDto.IsCollected,
+                    IsPaidFor=newInvoiceDto.IsPaidFor
+                };
 
-//                //add invoice to db context
-//                _context.Invoices.Add(invoice);
+                //add invoice to db context
+                _context.Invoices.Add(invoice);
 
-//                //update customer  total purchase
-//                var customerInDb = _context.Customers.SingleOrDefault(x => x.Id == newInvoiceDto.CustomerId);
-//                customerInDb.TotalPurchase += invoiceTotal;
+                //update customer  total purchase
+                var customerInDb = _context.Customers.SingleOrDefault(x => x.Id == newInvoiceDto.CustomerId);
+                customerInDb.TotalPurchase += invoiceTotal;
 
-//                //update laundry total revenue
-//                var laundryInDb = _context.ApplicationUsers.SingleOrDefault(x => x.Id == customerInDb.ApplicationUserId);
-//                laundryInDb.Revenue += invoiceTotal;
+                //update laundry total revenue
+                var laundryInDb = _context.Laundries.SingleOrDefault(x => x.Id == customerInDb.LaundryId);
+                laundryInDb.Revenue += invoiceTotal;
 
-//                //add invoice items to db context
-//                List<InvoiceItem> invoiceItems = new List<InvoiceItem>();
-//                foreach (NewInvoiceItemDto item in newInvoiceDto.InvoiceItems)
-//                {
-//                    invoiceItems.Add(new InvoiceItem()
-//                    {
-//                        ServiceId = item.ServiceId,
-//                        Quantity = item.Quantity,
-//                        InvoiceId = invoice.Id
-//                    });
-//                }
-//                _context.AddRange(invoiceItems);
+                //add invoice items to db context
+                List<InvoiceItem> invoiceItems = new List<InvoiceItem>();
+                foreach (NewInvoiceItemDto item in newInvoiceDto.InvoiceItems)
+                {
+                    invoiceItems.Add(new InvoiceItem()
+                    {
+                        ServiceId = item.ServiceId,
+                        Quantity = item.Quantity,
+                        InvoiceId = invoice.Id
+                    });
+                }
 
-//                //coomplete transaction
-//                _context.SaveChanges();
+                //add invoice items to the context
+                _context.AddRange(invoiceItems);
 
-//                //map entity to Dto
-//                InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
+                //coomplete transaction
+                _context.SaveChanges();
 
-//                return invoiceDto;
-//            }
-//            catch(Exception e)
-//            {
-//                if (e.Message == ErrorMessage.EntityDoesNotExist)
-//                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+                //map entity to Dto
+                InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
+                invoiceDto.CustomerName = customerInDb.Name;
+                return invoiceDto;
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-//                throw new Exception(ErrorMessage.FailedDbOperation);
-//            }
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+
+
+        }
+
+        public IEnumerable<InvoiceDto> GetInvoices()
+        {
+            var invoicesList = _context.Invoices;
+            IEnumerable<InvoiceDto> obj = (IEnumerable<InvoiceDto>)mapper.Map<InvoiceDto>(invoicesList);
             
+            return obj;
+        }
 
-//        }
+        public IEnumerable<InvoiceDto> GetInvoices(int batchNumber, int batchQuantity)
+        {
+            var invoicesList = _context.Invoices.ToList().Skip((batchNumber - 1) * batchQuantity).Take(batchQuantity);
+            List<InvoiceDto> obj = new List<InvoiceDto>();
+            foreach (Invoice invoice in invoicesList)
+            {
+                var objDto = mapper.Map<InvoiceDto>(invoice);
+                obj.Add(objDto);
+            }
+            return obj;
+        }
 
-//        public IEnumerable<InvoiceDto> GetInvoices()
-//        {
-//            var invoicesList = _context.Invoices.ToList();
-//            List<InvoiceDto> obj = new List<InvoiceDto>();
-//            foreach (Invoice invoice in invoicesList)
-//            {
-//                var objDto = mapper.Map<InvoiceDto>(invoice);
-//                obj.Add(objDto);
-//            }
-//            return obj;
-//        }
+        public async Task<InvoiceDto> ReadCompleteInvoiceAsync(Guid invoiceId)
+        {
+            try
+            {
+                //read all the invoice items that match the invoiceId
+                var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDto>>(_context.InvoiceItems.Where(x => x.InvoiceId == invoiceId).ToList());
 
-//        public IEnumerable<InvoiceDto> GetInvoices(int batchNumber, int batchQuantity)
-//        {
-//            var invoicesList = _context.Invoices.ToList().Skip((batchNumber - 1) * batchQuantity).Take(batchQuantity);
-//            List<InvoiceDto> obj = new List<InvoiceDto>();
-//            foreach (Invoice invoice in invoicesList)
-//            {
-//                var objDto = mapper.Map<InvoiceDto>(invoice);
-//                obj.Add(objDto);
-//            }
-//            return obj;
-//        }
+                //get the invoice that matches the invoice Id 
+                var invoice = await _context.Invoices.FindAsync(invoiceId);
 
-//        public async Task<InvoiceDto> ReadCompleteInvoiceAsync(Guid invoiceId)
-//        {
-//            try
-//            {
-//                //read all the invoice items that match the invoiceId
-//                var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDto>>(_context.InvoiceItems.Where(x => x.InvoiceId == invoiceId).ToList());
+                //map concrete Invoice object to Dto
+                InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
+                invoiceDto.InvoiceItems = invoiceItems;
 
-//                //get the invoice that matches the invoice Id 
-//                var invoice = await _context.Invoices.FindAsync(invoiceId);
+                return invoiceDto;
+            }
+            catch (Exception e)
+            {
+                //if exception is thrown because id does not exist
+                //throw new Exception(ErrorMessage.EntityDoesNotExist)
 
-//                //map concrete Invoice object to Dto
-//                InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
-//                invoiceDto.InvoiceItems = invoiceItems;
-
-//                return invoiceDto;
-//            }
-//            catch(Exception e)
-//            {
-//                //if exception is thrown because id does not exist
-//                //throw new Exception(ErrorMessage.EntityDoesNotExist)
-
-//                throw new Exception(ErrorMessage.FailedDbOperation);
-//            }
-            
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
 
 
-//        }
-//    }
-//}
+
+        }
+    }
+}

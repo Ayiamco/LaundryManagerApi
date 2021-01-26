@@ -69,9 +69,6 @@ namespace LaundryApi.Controllers
         }
         
 
-
-     
-
         //GET: api/customer/{id}
         [HttpGet("{id}")]
         public ActionResult<CustomerDto> GetCustomer(Guid id)
@@ -132,6 +129,11 @@ namespace LaundryApi.Controllers
                 return StatusCode(500);
             }
 
+        }
+
+        public ActionResult GetCustomerByName (string name)
+        {
+            return Ok();
         }
     }
 }

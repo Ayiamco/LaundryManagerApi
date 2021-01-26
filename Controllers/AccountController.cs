@@ -35,7 +35,11 @@ namespace LaundryApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var response = new ResponseDto<string>() {  };
+            ResponseDto<string> response = new ResponseDto<string>()
+            { 
+                statusCode = "200",
+                message = "login details are correct"
+            };
             try
             {
                 //get login resp
@@ -49,8 +53,6 @@ namespace LaundryApi.Controllers
                 string token = jwtManager.GetToken(user,resp.UserRole);
 
                 //create response body
-                response.statusCode = "200";
-                response.message = "login details are correct";
                 response.data = token;
                 if (resp.UserRole==RoleNames.LaundryOwner)
                     response.role = RoleNames.LaundryOwner;
@@ -107,6 +109,12 @@ namespace LaundryApi.Controllers
                         message = ErrorMessage.UserDoesNotExist,
                         statusCode="400"
                     }) ;
+                else if (e.Message == ErrorMessage.UserHasTwoRoles)
+                    return BadRequest(new ResponseDto<ForgotPasswordDto>()
+                    {
+                        message = ErrorMessage.UserHasTwoRoles,
+                        statusCode = "400"
+                    });
 
                 //if you get to this point something unforseen happened
                 return StatusCode(500);

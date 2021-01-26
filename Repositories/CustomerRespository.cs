@@ -27,7 +27,7 @@ namespace LaundryApi.Repositories
         {
             try
             { 
-                //get application registering the customer
+                //get application user registering the customer
                 Employee employeeInDb = _context.Employees.SingleOrDefault(u => u.Username == username);
                 Laundry laundryInDb = _context.Laundries.SingleOrDefault(u => u.Username == username);
                 

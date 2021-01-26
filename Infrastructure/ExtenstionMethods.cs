@@ -10,16 +10,15 @@ namespace LaundryApi.Infrastructure
 {
     public static class LaundryApiExtenstionMethods
     {
-        //public static decimal GetInvoiceTotal(this IEnumerable<NewInvoiceItemDto> invoiceItems)
-        //{
-        //    decimal total = 0;
-        //    foreach(NewInvoiceItemDto item in invoiceItems)
-        //    {
-        //        total += item.Price * item.Quantity;
-        //    }
-        //    return total;
-        //}
-
+        public static decimal GetInvoiceTotal(this IEnumerable<NewInvoiceItemDto> invoiceItems)
+        {
+            decimal total = 0;
+            foreach (NewInvoiceItemDto item in invoiceItems)
+            {
+                total += item.Service.Price * item.Quantity;
+            }
+            return total;
+        }
 
         public static string GetUserRole(this HttpContext httpContext)
         {

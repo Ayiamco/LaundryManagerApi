@@ -17,11 +17,9 @@ namespace LaundryApi.Infrastructure
         public DbSet<Laundry> Laundries { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Employee> Employees { get; set; }
-
-        //public DbSet<Service> Services { get; set; }
-        //public DbSet<Invoice> Invoices { get; set; }
-
-        //public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<Service> Services { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
         ////
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -46,10 +44,8 @@ namespace LaundryApi.Infrastructure
             builder.Entity<Customer>()
                 .HasAlternateKey(s => new { s.Username, s.LaundryId });
 
-           
-
-            //builder.Entity<Service>()
-            //    .HasAlternateKey(s => new { s.Description, s.ApplicationUserId });
+            builder.Entity<Service>()
+               .HasAlternateKey(s => new { s.Description, s.LaundryId });
 
 
 
