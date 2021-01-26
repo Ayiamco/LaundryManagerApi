@@ -20,15 +20,16 @@ namespace LaundryApi.Models
         public string Username { get; set; }
 
         [Required]
-        public string FullName { get; set; }
+        public string Name { get; set; }
 
         [Required]
         public string Address { get; set; }
 
-        public Employee Employee { get; set; }
-
         [Required]
+        public string PhoneNumber { get; set; }
+
         public Guid EmployeeId { get; set; }
+        public Guid LaundryId { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -39,5 +40,9 @@ namespace LaundryApi.Models
         [Required]
         [Column(TypeName = "decimal(18,4)")]
         public decimal TotalPurchase { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+        
     }
 }

@@ -80,7 +80,7 @@ namespace LaundryApi
             services.AddTransient<IManagerRepository, ManagerRepository>();
             services.AddTransient <IEmployeeRepository, EmployeeRepository>();
             services.AddTransient <ILaundryRepository, LaundryRepository>();
-            //services.AddTransient<ICustomerRepository, CustomerRespository>();
+            services.AddTransient<ICustomerRepository, CustomerRespository>();
             //services.AddTransient<IInvoiceRepository,InvoiceRepository>();
             //services.AddTransient<IInvoiceItemRepository,InvoiceItemRepository>();
             //services.AddTransient<IServiceRepository,ServiceRepository>();

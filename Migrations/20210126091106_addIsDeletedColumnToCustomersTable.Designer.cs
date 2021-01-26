@@ -4,14 +4,16 @@ using LaundryApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    partial class LaundryApiContextModelSnapshot : ModelSnapshot
+    [Migration("20210126091106_addIsDeletedColumnToCustomersTable")]
+    partial class addIsDeletedColumnToCustomersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,19 +37,15 @@ namespace LaundryApi.Migrations
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<Guid>("LaundryId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("TotalPurchase")
                         .HasColumnType("decimal(18,4)");

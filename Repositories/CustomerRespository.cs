@@ -27,17 +27,32 @@ namespace LaundryApi.Repositories
         {
             try
             { 
-                //get employee registering the customer
-                Employee employee = _context.Employees.FirstOrDefault(u => u.Username == username);
+                //get application registering the customer
+                Employee employeeInDb = _context.Employees.SingleOrDefault(u => u.Username == username);
+                Laundry laundryInDb = _context.Laundries.SingleOrDefault(u => u.Username == username);
+                
+                //map the customerdto to the customer obj and update missing properties
                 var customer = mapper.Map<Customer>(customerDto);
                 customer.CreatedAt = DateTime.Now;
-                customer.EmployeeId = employee.Id;
                 customer.TotalPurchase = 0;
-                await _context.Customers.AddAsync(customer);
+                customer.UpdatedAt = DateTime.Now;
 
-                //update employee object
-                var employeeInDb = _context.Employees.Single(x => x.Id == employee.Id);
-                employeeInDb.NoOfCustomers++;
+                //attach the current user to  customer object
+                if (employeeInDb != null)
+                {
+                    customer.EmployeeId = employeeInDb.Id;
+                    customer.LaundryId = employeeInDb.LaundryId;
+                    employeeInDb.NoOfCustomers++; //updating employee object
+                    laundryInDb.NoOfCustomers++; //updating laundry object
+                }
+                else
+                {
+                    customer.LaundryId = laundryInDb.Id;
+                    laundryInDb.NoOfCustomers++; //updating laundry object
+                }   
+             
+                //add the customer to the db context
+                await _context.Customers.AddAsync(customer);
 
                 //save changes
                 await _context.SaveChangesAsync();
@@ -48,25 +63,39 @@ namespace LaundryApi.Repositories
             }
             catch
             {
-                throw new Exception(ErrorMessage.InvalidToken);
+                throw new Exception(ErrorMessage.FailedDbOperation);
 
             }
 
         }
 
-        public async void UpdateCustomer(CustomerDto customerDto)
+        public  void UpdateCustomer(CustomerDto customerDto)
         {
             try
             {
+                //get the customer
                 Customer customerInDb = _context.Customers.FirstOrDefault(x => x.Username == customerDto.Username);
+
+                //validate that the customer exist 
                 if (customerInDb == null)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
-                mapper.Map(customerDto, customerInDb);
-                await _context.SaveChangesAsync();
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+
+                //update the changes
+                customerInDb.Address = customerDto.Address;
+                customerInDb.Name = customerDto.Name;
+                customerInDb.PhoneNumber = customerDto.PhoneNumber;
+                customerInDb.UpdatedAt = DateTime.Now;
+
+                //save changes
+                 _context.SaveChanges();
+
                 return;
             }
-            catch
+            catch(Exception e)
             {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
 
@@ -93,18 +122,25 @@ namespace LaundryApi.Repositories
         {
             try
             {
-                var customer = _context.Customers.SingleOrDefault(c => c.Id == customerId);
-                //_context.SaveChanges();
-                if (customer == null)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
+                //get the customer into the context
+                Customer customerInDb = _context.Customers.SingleOrDefault(c => c.Id == customerId);
+                
+                //check if the customer exist in db
+                if (customerInDb == null)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-                _context.Customers.Attach(customer);
-                _context.Customers.Remove(customer);
+                //tag the customer as deleted
+                customerInDb.IsDeleted = true;
+
+                //save changes
                 _context.SaveChanges();
                 return;
             }
-            catch
+            catch(Exception e)
             {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
 
@@ -112,12 +148,23 @@ namespace LaundryApi.Repositories
 
         public CustomerDto GetCustomer(Guid customerId)
         {
-            var customer = _context.Customers.FirstOrDefault(c => c.Id == customerId);
-            if (customer == null)
-                throw new Exception(ErrorMessage.UserDoesNotExist);
+            try
+            {
+                var customer = _context.Customers.SingleOrDefault(c => c.Id == customerId);
+                if (customer == null)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-            var _customer = mapper.Map<CustomerDto>(customer);
-            return _customer;
+                var _customer = mapper.Map<CustomerDto>(customer);
+                return _customer;
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+            
         }
     }
 }

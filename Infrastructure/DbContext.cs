@@ -44,7 +44,9 @@ namespace LaundryApi.Infrastructure
 
 
             builder.Entity<Customer>()
-                .HasAlternateKey(s => new { s.Username, s.EmployeeId });
+                .HasAlternateKey(s => new { s.Username, s.LaundryId });
+
+           
 
             //builder.Entity<Service>()
             //    .HasAlternateKey(s => new { s.Description, s.ApplicationUserId });

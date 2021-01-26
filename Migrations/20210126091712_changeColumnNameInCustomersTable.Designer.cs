@@ -4,14 +4,16 @@ using LaundryApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    partial class LaundryApiContextModelSnapshot : ModelSnapshot
+    [Migration("20210126091712_changeColumnNameInCustomersTable")]
+    partial class changeColumnNameInCustomersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,10 +44,6 @@ namespace LaundryApi.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
