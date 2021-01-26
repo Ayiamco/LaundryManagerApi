@@ -12,15 +12,11 @@ namespace LaundryApi.Dtos
         
         public Guid Id { get; set; }
 
-       
         [EmailAddress]
         public string Username { get; set; }
 
         [Required]
-        public string LaundryName { get; set; }
-
-        [Required]
-        public string Password { get; set; }
+        public string Name { get; set; }
 
         [Required]
         [StringLength(11)]

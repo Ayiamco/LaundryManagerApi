@@ -25,7 +25,7 @@
 //            this.customerRepository = customerRepository;
 //        }
 
-//        //POST: api/customer
+//        //POST: api/customer/new
 //        [HttpPost("new")]
 //        public async Task<ActionResult<Customer>> AddCustomer([FromBody] CustomerDto newCustomer)
 //        {
@@ -34,17 +34,15 @@
 //                if (!ModelState.IsValid)
 //                    return BadRequest();
 
-//                var currentUser = HttpContext.User;
-                
+              
+
 //                CustomerDto customer;
-//                string username;
-                
-//                if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"))
+
+//                if (HttpContext.IsInRole(RoleNames.LaundryEmployee) || HttpContext.IsInRole(RoleNames.LaundryOwner))
 //                {
-//                    username = Convert.ToString(currentUser.Claims.SingleOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value);
 //                    try
 //                    {
-//                        customer = await customerRepository.AddCustomer(newCustomer, username);
+//                        customer = await customerRepository.AddCustomer(newCustomer, HttpContext.User.Identity.Name);
 //                        ResponseDto<CustomerDto> response = new ResponseDto<CustomerDto>()
 //                        {
 //                            statusCode = "201",
@@ -75,10 +73,10 @@
 //            }
 //            catch
 //            {
-//                 return StatusCode(500);
+//                return StatusCode(500);
 //            }
-            
-           
+
+
 //        }
 
 //        //GET: api/customer/{id}
@@ -90,7 +88,7 @@
 //                var customer = customerRepository.GetCustomer(id);
 //                return Ok(customer);
 //            }
-//            catch(Exception e)
+//            catch (Exception e)
 //            {
 //                if (e.Message == ErrorMessage.UserDoesNotExist)
 //                    return StatusCode(404);
@@ -110,25 +108,26 @@
 //                customerRepository.UpdateCustomer(customer);
 //                return Ok();
 //            }
-//            catch(Exception e)
+//            catch (Exception e)
 //            {
 //                if (e.Message == ErrorMessage.UserDoesNotExist)
 //                    return StatusCode(404);
 //                return StatusCode(500);
 //            }
-            
+
 //        }
 
 //        //DELETE: api/customer/{customerId}
 //        [HttpDelete("{customerId}")]
 //        public ActionResult DeleteCustomer(Guid customerId)
 //        {
-            
-//            try {
+
+//            try
+//            {
 //                customerRepository.DeleteCustomer(customerId);
 //                return Ok();
 //            }
-//            catch(Exception e)
+//            catch (Exception e)
 //            {
 //                if (e.Message == ErrorMessage.UserDoesNotExist)
 //                    return NotFound();
@@ -136,7 +135,7 @@
 //                //if you get to this point something ususual occured
 //                return StatusCode(500);
 //            }
-            
+
 //        }
 //    }
 //}

@@ -14,12 +14,9 @@ namespace LaundryApi.Models
         public Guid Id { get; set; }
 
         [Required]
-        public string LaundryName { get; set; }
+        public string Name { get; set; }
 
         [Required]
-        public string FullName { get; set; }
-
-        //Username is an alternate key
         [EmailAddress]
         public string Username { get; set; }
 
@@ -47,14 +44,12 @@ namespace LaundryApi.Models
         [Required]
         public DateTime UpdatedAt { get; set; }
 
+        [Required]
+        public int NoOfCustomers { get; set; }
 
-        //properties below are only fouund in laundryAdmin users
+        
 
-        public int? NoOfCustomers { get; set; }
 
-        public int? NoOfEmployees { get; set; }
-
-       
 
     }
 }

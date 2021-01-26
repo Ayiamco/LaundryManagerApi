@@ -8,12 +8,11 @@ namespace LaundryApi.Dtos
 {
     public class CustomerDto
     {
-
-        public Guid CustomerId { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Username { get; set; }
 
         [Required]
         public string Name { get; set; }

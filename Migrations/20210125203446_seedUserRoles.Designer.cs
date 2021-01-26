@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    [Migration("20210125121516_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20210125203446_seedUserRoles")]
+    partial class seedUserRoles
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,46 @@ namespace LaundryApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.1");
 
-            modelBuilder.Entity("LaundryApi.Models.ApplicationUser", b =>
+            modelBuilder.Entity("LaundryApi.Models.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalPurchase")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("Username", "EmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.Employee", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,18 +76,69 @@ namespace LaundryApi.Migrations
                     b.Property<DateTime?>("ForgotPasswordTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FullName")
+                    b.Property<Guid>("LaundryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LaundryName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("NoOfCustomers")
+                    b.Property<int>("NoOfCustomers")
                         .HasColumnType("int");
 
-                    b.Property<int?>("NoOfEmployees")
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordResetId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
+
+                    b.Property<decimal>("Revenue")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LaundryId");
+
+                    b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.Laundry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ForgotPasswordTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NoOfCustomers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NoOfEmployees")
                         .HasColumnType("int");
 
                     b.Property<string>("PasswordHash")
@@ -70,6 +160,7 @@ namespace LaundryApi.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Username")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -79,68 +170,9 @@ namespace LaundryApi.Migrations
                         .HasFilter("[PasswordResetId] IS NOT NULL");
 
                     b.HasIndex("Username")
-                        .IsUnique()
-                        .HasFilter("[Username] IS NOT NULL");
+                        .IsUnique();
 
-                    b.ToTable("ApplicationUsers");
-                });
-
-            modelBuilder.Entity("LaundryApi.Models.Customer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalPurchase")
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("Username", "ApplicationUserId");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("LaundryApi.Models.Invoice", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("Invoices");
+                    b.ToTable("Laundries");
                 });
 
             modelBuilder.Entity("LaundryApi.Models.Role", b =>
@@ -155,37 +187,6 @@ namespace LaundryApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("LaundryApi.Models.Service", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("Description", "ApplicationUserId");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("Services");
                 });
 
             modelBuilder.Entity("LaundryApi.Models.UserRole", b =>
@@ -203,61 +204,40 @@ namespace LaundryApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UsersRoles");
                 });
 
             modelBuilder.Entity("LaundryApi.Models.Customer", b =>
                 {
-                    b.HasOne("LaundryApi.Models.ApplicationUser", "ApplicationUser")
+                    b.HasOne("LaundryApi.Models.Employee", "Employee")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("LaundryApi.Models.Invoice", b =>
+            modelBuilder.Entity("LaundryApi.Models.Employee", b =>
                 {
-                    b.HasOne("LaundryApi.Models.Customer", "Customer")
+                    b.HasOne("LaundryApi.Models.Laundry", "Laundry")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
+                        .HasForeignKey("LaundryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("LaundryApi.Models.Service", b =>
-                {
-                    b.HasOne("LaundryApi.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("Laundry");
                 });
 
             modelBuilder.Entity("LaundryApi.Models.UserRole", b =>
                 {
-                    b.HasOne("LaundryApi.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("LaundryApi.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Role");
                 });

@@ -15,7 +15,6 @@ namespace LaundryApi.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
-        //Email is an alternate key
         [Required]
         [EmailAddress]
         public string Username { get; set; }
@@ -26,13 +25,16 @@ namespace LaundryApi.Models
         [Required]
         public string Address { get; set; }
 
-        public ApplicationUser ApplicationUser { get; set; }
+        public Employee Employee { get; set; }
 
         [Required]
-        public Guid ApplicationUserId { get; set; }
+        public Guid EmployeeId { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        [Required]
+        public DateTime UpdatedAt { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,4)")]

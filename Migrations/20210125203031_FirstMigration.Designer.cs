@@ -4,14 +4,16 @@ using LaundryApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    partial class LaundryApiContextModelSnapshot : ModelSnapshot
+    [Migration("20210125203031_FirstMigration")]
+    partial class FirstMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,7 +91,7 @@ namespace LaundryApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordResetId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -104,18 +106,11 @@ namespace LaundryApi.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LaundryId");
-
-                    b.HasIndex("PasswordResetId")
-                        .IsUnique()
-                        .HasFilter("[PasswordResetId] IS NOT NULL");
-
-                    b.HasIndex("Username")
-                        .IsUnique();
 
                     b.ToTable("Employees");
                 });
@@ -180,6 +175,40 @@ namespace LaundryApi.Migrations
                     b.ToTable("Laundries");
                 });
 
+            modelBuilder.Entity("LaundryApi.Models.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.UserRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<Guid>("ApplicationUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UsersRoles");
+                });
+
             modelBuilder.Entity("LaundryApi.Models.Customer", b =>
                 {
                     b.HasOne("LaundryApi.Models.Employee", "Employee")
@@ -200,6 +229,17 @@ namespace LaundryApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Laundry");
+                });
+
+            modelBuilder.Entity("LaundryApi.Models.UserRole", b =>
+                {
+                    b.HasOne("LaundryApi.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
                 });
 #pragma warning restore 612, 618
         }

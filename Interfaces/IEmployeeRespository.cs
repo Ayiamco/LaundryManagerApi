@@ -9,5 +9,6 @@ namespace LaundryApi.Interfaces
     public interface IEmployeeRepository
     {
         public Task<EmployeeDto> FindEmployeeAsync(Guid employeeId);
+        public Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDto);
     }
 }

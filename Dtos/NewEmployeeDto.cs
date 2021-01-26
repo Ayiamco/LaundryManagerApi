@@ -18,9 +18,9 @@ namespace LaundryApi.Dtos
         public string Username { get; set; }
 
         [Required]
-        public string FullName { get; set; }
+        public string Name { get; set; }
         
-        [ForeignKey("Laundry")]
+        
         public Guid LaundryId { get; set; } 
 
         [Required]

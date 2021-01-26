@@ -10,22 +10,19 @@ namespace LaundryApi.Dtos
 {
     public class EmployeeDto
     {
+       
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
+        [Required]
+        public string Name { get; set; }
 
-        [EmailAddress]
-        public string Username { get; set; }
-
-        public ApplicationUser Laundry { get; set; }
-
-        
-        [ForeignKey("Laundry")]
-        public string LaundryId { get; set; }
+        public string Password { get; set; }
 
         [Required]
-        public string Password { get; set; }
+        [EmailAddress]
+        public string Username { get; set; }
 
         [Required]
         [StringLength(11)]
@@ -34,7 +31,17 @@ namespace LaundryApi.Dtos
         [Required]
         public string Address { get; set; }
 
-        public int NoOfCustomers { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
         public decimal Revenue { get; set; }
+
+        [Required]
+        public int NoOfCustomers { get; set; }
+
+        public LaundryDto Laundry { get; set; }
+
+        [Required]
+        public Guid LaundryId { get; set; }
+
     }
 }

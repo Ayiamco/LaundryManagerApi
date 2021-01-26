@@ -39,8 +39,12 @@ namespace LaundryApi.Controllers
             try
             {
                 //get login resp
-                var resp = managerRepository.GetLoginResponse(user.Username, user.Password);
-               
+                LoginResponseDto resp;
+                if (string.IsNullOrWhiteSpace(user.Role)) 
+                    resp = managerRepository.GetLoginResponse(user.Username, user.Password);
+                else
+                    resp = managerRepository.GetLoginResponse(user.Username, user.Password,user.Role);
+
                 //get jwt token
                 string token = jwtManager.GetToken(user,resp.UserRole);
 
@@ -71,6 +75,12 @@ namespace LaundryApi.Controllers
                     response.message = ErrorMessage.UserDoesNotExist;
                     return BadRequest(response);
                 }
+                else if (e.Message == ErrorMessage.UserHasTwoRoles)
+                {
+                    response.message = ErrorMessage.UserHasTwoRoles;
+                    return BadRequest(response);
+                }
+                 
 
                 //if you get to this point something unforseen occured
                 return StatusCode(500);

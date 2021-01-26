@@ -10,13 +10,13 @@ namespace LaundryApi.Interfaces
 {
     public interface IManagerRepository
     {
-        public ApplicationUser GetUserByUsername(string username);
+        public Employee GetEmployeeByUsername(string username);
+        public Laundry GetLaundryByUsername(string username);
         public LoginResponseDto GetLoginResponse(string username,string password);
-        public Task<LaundryDto> CreateLaundryAsync(NewLaundryDto newLaundryDto);
-        public Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDtou,string username );
+       
         public Task<bool> SendPasswordReset(string username);
-
         public bool IsPasswordResetLinkValid(string username, string resetLinkId);
         public void ResetPassword( ForgotPasswordDto dto,string resetLinkId);
+        public LoginResponseDto GetLoginResponse(string username, string password, string role);
     }
 }

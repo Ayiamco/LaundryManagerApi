@@ -1,6 +1,7 @@
 ﻿using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
 using LaundryApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,12 +13,13 @@ namespace LaundryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EmployeeController : Controller
     {
         private readonly IManagerRepository managerRepository;
         private readonly IEmployeeRepository employeeRepository;
 
-        public EmployeeController(IManagerRepository managerRepository,IEmployeeRepository employeeRepository )
+        public EmployeeController(IManagerRepository managerRepository, IEmployeeRepository employeeRepository)
         {
             this.managerRepository = managerRepository;
             this.employeeRepository = employeeRepository;
@@ -73,17 +75,19 @@ namespace LaundryApi.Controllers
 
             try
             {
-                //Tag employee to laundry owner 
-                newEmployee.LaundryId = managerRepository.GetUserByUsername(HttpContext.User.Identity.Name).Id;
+                //add the laundry Id to the employeeDto 
+                newEmployee.LaundryId = managerRepository.GetLaundryByUsername(HttpContext.User.Identity.Name).Id;
 
                 //save new employee to database
-                EmployeeDto employeeDto = await managerRepository.CreateEmployeeAsync(newEmployee,HttpContext.User.Identity.Name);
-                return CreatedAtAction("GetEmployee", "Employee", new { id = employeeDto.Id }, employeeDto);
+                EmployeeDto employeeDto = await employeeRepository.CreateEmployeeAsync(newEmployee);
+
+                //return response
+                return CreatedAtAction(nameof(GetEmployee), new { id = employeeDto.Id }, employeeDto);
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.UsernameAlreadyExist)
-                    return BadRequest(new ResponseDto<ApplicationUserDto>()
+                    return BadRequest(new ResponseDto<EmployeeDto>()
                     {
                         message = ErrorMessage.UsernameAlreadyExist,
                         statusCode = "400"

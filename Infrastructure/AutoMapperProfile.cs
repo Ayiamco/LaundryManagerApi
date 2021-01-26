@@ -14,17 +14,18 @@ namespace LaundryApi.Infrastructure
             public AutoMapperProfile()
             {
 
-                CreateMap<ApplicationUser, LaundryDto>().ReverseMap();
-                CreateMap<NewLaundryDto,ApplicationUser>();
-                CreateMap<ApplicationUser,ApplicationUserDto>().ReverseMap();
-                CreateMap<CustomerDto, Customer>().ReverseMap();
-                CreateMap<NewEmployeeDto, ApplicationUser>().ReverseMap();
-                CreateMap<EmployeeDto, ApplicationUser>().ReverseMap();
-                CreateMap<NewInvoiceDto, Invoice>().ReverseMap();
-                CreateMap<InvoiceDto, Invoice>().ReverseMap();
-                CreateMap<InvoiceItemDto, InvoiceItem>().ReverseMap();
-                CreateMap<ServiceDto, Service>().ReverseMap();
-                CreateMap<Service, Service>();
+            CreateMap<Laundry, LaundryDto>().ReverseMap();
+            CreateMap<NewLaundryDto,Laundry>();  
+            CreateMap<CustomerDto, Customer>().ReverseMap();
+
+            CreateMap<NewEmployeeDto, Employee>().ReverseMap();
+            CreateMap<EmployeeDto, Employee>().ReverseMap();
+
+                //CreateMap<NewInvoiceDto, Invoice>().ReverseMap();
+                //CreateMap<InvoiceDto, Invoice>().ReverseMap();
+                //CreateMap<InvoiceItemDto, InvoiceItem>().ReverseMap();
+                //CreateMap<ServiceDto, Service>().ReverseMap();
+                //CreateMap<Service, Service>();
             }
         
     }

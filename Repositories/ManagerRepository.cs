@@ -25,107 +25,48 @@ namespace LaundryApi.Repositories
             this._context = _context;
         }
 
-        public  async Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDto,string username)
+        
+
+        public Laundry  GetLaundryByUsername(string username)
         {
             try
             {
-                ApplicationUser laundry = GetUserByUsername(username);
-
-                ApplicationUser user = mapper.Map<ApplicationUser>(newEmployeeDto);
-                user.PasswordHash = HashPassword(newEmployeeDto.Password);
-                user.CreatedAt = DateTime.Now;
-                user.NoOfCustomers = null;
-                user.Revenue = 0;
-                user.NoOfEmployees = null;
-                user.UpdatedAt = DateTime.Now;
-                user.ForgotPasswordTime = null;
-                user.PasswordResetId = null;
-                user.LaundryName = laundry.FullName;
+                var laundryInDb = _context.Laundries.SingleOrDefault(_user => _user.Username == username);
                 
+                if (laundryInDb == null)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
 
-
-                await _context.ApplicationUsers.AddAsync(user);
-
-                //Assign role to user
-                Role role = _context.Roles.SingleOrDefault(x => x.Name == RoleNames.LaundryOwner);
-                var userRole = new UserRole() { ApplicationUserId = user.Id, RoleId = role.Id };
-                await _context.UserRoles.AddAsync(userRole);
-
-                //complete db transaction 
-                await _context.SaveChangesAsync();
-
-                //update laundryDto object
-                var employeeDto = mapper.Map<EmployeeDto>(user);
-                employeeDto.Password = newEmployeeDto.Password;
-                return employeeDto;
-            }
-            catch (Exception e)
-            {
-                    if (e.InnerException.ToString().Contains("Cannot insert duplicate key row in object 'dbo.ApplicationUsers'"))
-                    throw new Exception(ErrorMessage.UsernameAlreadyExist);
-
-                throw new Exception(ErrorMessage.FailedDbOperation);
-            }
-        }
-
-        public async Task<LaundryDto> CreateLaundryAsync(NewLaundryDto newLaundryDto)
-        {
-            try
-            {
-                ApplicationUser user = mapper.Map<ApplicationUser>(newLaundryDto);
-                user.PasswordHash = HashPassword(newLaundryDto.Password);
-                user.CreatedAt = DateTime.Now;
-                user.NoOfCustomers = 0;
-                user.Revenue = 0;
-                user.NoOfEmployees = 0;
-                user.UpdatedAt = DateTime.Now;
-                user.ForgotPasswordTime = null;
-                user.PasswordResetId = null;
-
-
-                await _context.ApplicationUsers.AddAsync(user);
-
-                //Assign role to user
-                Role role = _context.Roles.SingleOrDefault(x => x.Name == RoleNames.LaundryOwner);
-                var userRole = new UserRole() { ApplicationUserId = user.Id, RoleId = role.Id };
-                await _context.UserRoles.AddAsync(userRole);
-
-                //complete db transaction 
-                await _context.SaveChangesAsync();
-
-                //update laundryDto object
-                var laundryDto = mapper.Map<LaundryDto>(user);
-                laundryDto.Password = newLaundryDto.Password;
-                return laundryDto;
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException.ToString().Contains("Cannot insert duplicate key row in object 'dbo.ApplicationUsers'"))
-                    throw new Exception(ErrorMessage.UsernameAlreadyExist);
-
-                throw new Exception(ErrorMessage.FailedDbOperation);
-            }
-
-
-        }
-
-        public ApplicationUser GetUserByUsername(string username)
-        {
-            try
-            {
-                var userInDb = _context.ApplicationUsers.SingleOrDefault(_user => _user.Username == username);
-                if (userInDb == null)
-                    throw new Exception(ErrorMessage.FailedDbOperation);
-
-                return userInDb;
+                return laundryInDb;
        
             }
-            catch
+            catch(Exception e)
             {
+                if (e.Message == ErrorMessage.UserDoesNotExist)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
 
 
+        }
+
+        public Employee GetEmployeeByUsername(string username)
+        {
+            try
+            {
+                var employeeInDb = _context.Employees.SingleOrDefault(_user => _user.Username == username);
+                if (employeeInDb == null)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+
+                return employeeInDb;
+
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.UserDoesNotExist)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
         }
 
         public bool IsPasswordResetLinkValid(string username, string resetLinkId)
@@ -136,67 +77,68 @@ namespace LaundryApi.Repositories
 
         public void ResetPassword(ForgotPasswordDto dto, string resetLinkId)
         {
-            try
-            {
-                //get user
-                var userInDb = _context.ApplicationUsers.SingleOrDefault(x => x.PasswordResetId == resetLinkId);
+            //try
+            //{
+            //    //get user
+            //    var userInDb = _context.ApplicationUsers.SingleOrDefault(x => x.PasswordResetId == resetLinkId);
 
-                //check if link was clicked before deadline
-                if (DateTime.Now - userInDb.ForgotPasswordTime > new TimeSpan(0, 2, 0))
-                    throw new Exception(ErrorMessage.LinkExpired);
+            //    //check if link was clicked before deadline
+            //    if (DateTime.Now - userInDb.ForgotPasswordTime > new TimeSpan(0, 2, 0))
+            //        throw new Exception(ErrorMessage.LinkExpired);
 
-                //update user password
-                userInDb.PasswordHash = HashPassword(dto.Password);
-                userInDb.UpdatedAt = DateTime.Now;
-                userInDb.PasswordResetId = null;
-                userInDb.ForgotPasswordTime = null;
+            //    //update user password
+            //    userInDb.PasswordHash = HashPassword(dto.Password);
+            //    userInDb.UpdatedAt = DateTime.Now;
+            //    userInDb.PasswordResetId = null;
+            //    userInDb.ForgotPasswordTime = null;
 
-                //persist changes
-                _context.SaveChanges();
-                return;
-            }
-            catch(Exception e)
-            {
-                if (e.Message == ErrorMessage.LinkExpired)
-                    throw new Exception(ErrorMessage.LinkExpired);
+            //    //persist changes
+            //    _context.SaveChanges();
+            //    return;
+            //}
+            //catch(Exception e)
+            //{
+            //    if (e.Message == ErrorMessage.LinkExpired)
+            //        throw new Exception(ErrorMessage.LinkExpired);
 
-                throw new Exception(ErrorMessage.FailedDbOperation);
-            }
+            //    throw new Exception(ErrorMessage.FailedDbOperation);
+            //}
            
         }
 
         public async Task<bool> SendPasswordReset(string username)
         {
 
-            string linkId=GenerateRandomString(10);
-            string userClaim = HashPassword(username);
-            linkId = linkId + userClaim;
-            try
-            {
-                //Get the user
-                var user = _context.ApplicationUsers.SingleOrDefault(x => x.Username == username);
-                if (username == null)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
+            //string linkId=GenerateRandomString(10);
+            //string userClaim = HashPassword(username);
+            //linkId = linkId + userClaim;
+            //try
+            //{
+            //    //Get the user
+            //    var user = _context.ApplicationUsers.SingleOrDefault(x => x.Username == username);
+            //    if (username == null)
+            //        throw new Exception(ErrorMessage.UserDoesNotExist);
 
-                //update the user data with the password reset link id
-                user.PasswordResetId = linkId;
-                user.UpdatedAt = DateTime.Now;
-                user.ForgotPasswordTime = DateTime.Now;
-                _context.SaveChanges();
+            //    //update the user data with the password reset link id
+            //    user.PasswordResetId = linkId;
+            //    user.UpdatedAt = DateTime.Now;
+            //    user.ForgotPasswordTime = DateTime.Now;
+            //    _context.SaveChanges();
 
-                //send the user the password reset link
-                string url = $"https://localhost:44322/api/account/forgotpassword/{linkId}";
-                string mailContent=$"<p> Hi {user.FullName},</p> <p> Please click <a href='{url}'>here</a> to change your password";
-                await MailService.SendMailAsync(username, mailContent, "Password Reset");
-                return true;
-            }
-            catch(Exception e)
-            {
-                if (e.Message == ErrorMessage.UserDoesNotExist)
-                    throw new Exception (ErrorMessage.UserDoesNotExist);
+            //    //send the user the password reset link
+            //    string url = $"https://localhost:44322/api/account/forgotpassword/{linkId}";
+            //    string mailContent=$"<p> Hi {user.FullName},</p> <p> Please click <a href='{url}'>here</a> to change your password";
+            //    await MailService.SendMailAsync(username, mailContent, "Password Reset");
+            //    return true;
+            //}
+            //catch(Exception e)
+            //{
+            //    if (e.Message == ErrorMessage.UserDoesNotExist)
+            //        throw new Exception (ErrorMessage.UserDoesNotExist);
 
-                throw new Exception(ErrorMessage.FailedDbOperation);
-            }
+            //    throw new Exception(ErrorMessage.FailedDbOperation);
+            //}
+            return true;
             
         }
 
@@ -204,30 +146,107 @@ namespace LaundryApi.Repositories
         {
             try
             {
-                //get user details
-                var userInDb = GetUserByUsername(username);
-                LoginResponseDto resp = new LoginResponseDto();
+                Laundry laundry=new Laundry();
+                Employee employee= new Employee();
 
-                //validate password
-                if (userInDb.PasswordHash != HashPassword(password))
+                //get user details by checking the employee and laundry tables
+                try {  laundry = GetLaundryByUsername(username); }
+                catch(Exception e)
+                {
+                    if (e.Message == ErrorMessage.UserDoesNotExist)
+                        laundry = null;
+                    else { }
+                }
+                try { employee = GetEmployeeByUsername(username); }
+                catch (Exception e)
+                {
+                    if (e.Message == ErrorMessage.UserDoesNotExist)
+                        employee = null;
+                    else { }
+                }
+
+                ApplicationUser user;
+                //check if user exist
+                if (laundry == null && employee == null)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+
+                //check if only one user role is tied to the username 
+                else if (laundry==null || employee == null)
+                {
+                    //use null coalesing to get the user
+                    user = laundry ?? (ApplicationUser)employee;
+                }
+                else
+                {
+                    //if you got to this point username is tied to two user roles
+                    throw new Exception(ErrorMessage.UserHasTwoRoles);
+                }
+
+                //check if  user password is correct
+                if (user.PasswordHash != HashPassword(password))
                     throw new Exception(ErrorMessage.InCorrectPassword);
-                var userDto = mapper.Map<ApplicationUserDto>(userInDb);
-                resp.User = userDto;
 
-                //get user role
-                Role role = _context.UserRoles.Include("Role").SingleOrDefault(x => x.ApplicationUserId == userDto.Id).Role;
-                resp.UserRole = role.Name;
+                //create the response object if password is correct
+                LoginResponseDto resp = new LoginResponseDto{User = user,};
 
+                //get user role if password is correct
+                if (user is Employee)
+                    resp.UserRole = RoleNames.LaundryEmployee;
+                else
+                    resp.UserRole = RoleNames.LaundryOwner;
+               
+                //return response object
                 return resp;
             }
             catch(Exception e)
             {
                 if (e.Message == ErrorMessage.InCorrectPassword)
                     throw new Exception(ErrorMessage.InCorrectPassword);
+                else if (e.Message == ErrorMessage.UserHasTwoRoles)
+                    throw new Exception(ErrorMessage.UserHasTwoRoles);
 
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
             
+        }
+
+        public LoginResponseDto GetLoginResponse(string username, string password,string role) 
+        {
+            try
+            {
+                ApplicationUser user;
+                if (role == RoleNames.LaundryOwner)
+                    user = GetLaundryByUsername(username);
+                else if (role == RoleNames.LaundryEmployee)
+                    user = GetEmployeeByUsername(username);
+                else
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+
+                //check if  user password is correct
+                if (user.PasswordHash != HashPassword(password))
+                    throw new Exception(ErrorMessage.InCorrectPassword);
+
+                //create the response object if password is correct
+                LoginResponseDto resp = new LoginResponseDto { User = user, };
+
+                //get user role if password is correct
+                if (user is Employee)
+                    resp.UserRole = RoleNames.LaundryEmployee;
+                else
+                    resp.UserRole = RoleNames.LaundryOwner;
+
+                //return response object
+                return resp;
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
+                else if (e.Message == ErrorMessage.InCorrectPassword)
+                    throw new Exception(ErrorMessage.InCorrectPassword);
+                else
+                    throw new Exception(ErrorMessage.FailedDbOperation);
+            }
         }
 
         

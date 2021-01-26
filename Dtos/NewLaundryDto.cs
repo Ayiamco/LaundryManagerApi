@@ -25,7 +25,7 @@ namespace LaundryApi.Dtos
         public string LaundryName { get; set; }
 
         [Required]
-        public string FullName { get; set; }
+        public string Name { get; set; }
 
         [Required]
         [StringLength(11,ErrorMessage ="Exceeds max number of characters")]

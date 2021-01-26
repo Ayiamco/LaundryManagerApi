@@ -23,6 +23,7 @@ namespace LaundryApi.Infrastructure
             public const string LinkExpired = "link has expired";
             public const string InCorrectPassword = "password is incorrect";
             public const string InvalidModel = "reqeust body is invalid";
+            public const string UserHasTwoRoles = "username is tied to two roles";
 
 
 

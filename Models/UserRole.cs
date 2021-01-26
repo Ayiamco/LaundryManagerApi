@@ -13,16 +13,12 @@ namespace LaundryApi.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public ApplicationUser ApplicationUser { get; set; }
-
         [Required]
-        [ForeignKey("ApplicationUser")]
-        public Guid ApplicationUserId  { get; set; }
+        public Guid ApplicationUserId  { get; set; } 
 
         public Role Role { get; set; }
 
         [Required]
-        [ForeignKey("Role")]
         public Guid RoleId { get; set; }
     }
 }
