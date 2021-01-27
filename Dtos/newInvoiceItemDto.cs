@@ -9,10 +9,7 @@ namespace LaundryApi.Dtos
 {
     public class NewInvoiceItemDto
     {
-        [Required]
-        public Guid ServiceId { get; set; }
-
-        public Service Service { get; set; }
+        public ServiceDto Service { get; set; }
 
         [Required]
         public int Quantity { get; set; }

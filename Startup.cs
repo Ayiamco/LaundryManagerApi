@@ -81,8 +81,9 @@ namespace LaundryApi
             services.AddTransient <IEmployeeRepository, EmployeeRepository>();
             services.AddTransient <ILaundryRepository, LaundryRepository>();
             services.AddTransient<ICustomerRepository, CustomerRespository>();
-            //services.AddTransient<IInvoiceRepository,InvoiceRepository>();
+            services.AddTransient<IInvoiceRepository,InvoiceRepository>();
             //services.AddTransient<IInvoiceItemRepository,InvoiceItemRepository>();
+            services.AddTransient<IRepositoryHelper,RepositoryHelper>();
             services.AddTransient<IServiceRepository,ServiceRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

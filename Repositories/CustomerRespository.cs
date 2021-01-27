@@ -16,39 +16,48 @@ namespace LaundryApi.Repositories
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-
-        public CustomerRespository(LaundryApiContext _context, IMapper mapper)
+        private readonly IRepositoryHelper repositoryHelper;
+        public CustomerRespository(LaundryApiContext _context, IMapper mapper,IRepositoryHelper repositoryHelper)
         {
             this._context = _context;
             this.mapper = mapper;
+            this.repositoryHelper = repositoryHelper;
         }
 
-        public async Task<CustomerDto> AddCustomer(CustomerDto customerDto, string username)
+        public async Task<CustomerDto> AddCustomer(CustomerDto customerDto, string username,string userRole)
         {
             try
-            { 
+            {
                 //get application user registering the customer
-                Employee employeeInDb = _context.Employees.SingleOrDefault(u => u.Username == username);
-                Laundry laundryInDb = _context.Laundries.SingleOrDefault(u => u.Username == username);
-                
+                Employee employee=null;
+                Laundry laundry=null;
+                if (userRole == RoleNames.LaundryOwner)
+                    laundry = repositoryHelper.GetLaundryByUsername(username);
+                else
+                    employee = repositoryHelper.GetEmployeeByUsername(username);
+
                 //map the customerdto to the customer obj and update missing properties
-                var customer = mapper.Map<Customer>(customerDto);
+                Customer customer = mapper.Map<Customer>(customerDto);  
                 customer.CreatedAt = DateTime.Now;
                 customer.TotalPurchase = 0;
                 customer.UpdatedAt = DateTime.Now;
 
-                //attach the current user to  customer object
-                if (employeeInDb != null)
+                //assign the customer a laundryId and/or employeeId 
+                if (userRole==RoleNames.LaundryEmployee && employee!=null)
                 {
-                    customer.EmployeeId = employeeInDb.Id;
-                    customer.LaundryId = employeeInDb.LaundryId;
-                    employeeInDb.NoOfCustomers++; //updating employee object
-                    laundryInDb.NoOfCustomers++; //updating laundry object
+                    customer.EmployeeId = employee.Id;
+                    customer.LaundryId = employee.LaundryId;
+
+                    //updating employee object and laundry object
+                    _context.Laundries.Find(laundry.Id).NoOfCustomers += 1;
+                    _context.Employees.Find(employee.Id).NoOfCustomers += 1;
                 }
                 else
                 {
-                    customer.LaundryId = laundryInDb.Id;
-                    laundryInDb.NoOfCustomers++; //updating laundry object
+                    customer.LaundryId = laundry.Id;
+
+                    //updating the laundry object
+                    _context.Laundries.Find(laundry.Id).NoOfCustomers += 1;
                 }   
              
                 //add the customer to the db context

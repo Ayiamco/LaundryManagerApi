@@ -22,8 +22,6 @@ namespace LaundryApi.Dtos
         [Required]
         public Guid CustomerId { get; set; }
 
-        public string CustomerName { get; set; }
-
         public IEnumerable<InvoiceItemDto> InvoiceItems { get; set; }
 
         [Required]

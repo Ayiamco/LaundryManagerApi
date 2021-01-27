@@ -19,10 +19,12 @@ namespace LaundryApi.Repositories
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        public ManagerRepository(LaundryApiContext _context, IMapper mapper)
+        private readonly IRepositoryHelper _contextHelper;
+        public ManagerRepository(LaundryApiContext _context, IMapper mapper, IRepositoryHelper _contextHelper)
         {
             this.mapper = mapper;
             this._context = _context;
+            this._contextHelper = _contextHelper;
         }
 
         
@@ -114,8 +116,8 @@ namespace LaundryApi.Repositories
                 string linkId=GetResetLink(username);
 
                 //Get the application user
-                ApplicationUser user = GetApplicationUser(username);
-
+                ApplicationUser user = _contextHelper.GetApplicationUser(username);
+          
                 //send the password reset mail
                 bool resp=await SendMail(user, linkId);
                 return resp;
@@ -138,7 +140,7 @@ namespace LaundryApi.Repositories
             try
             {
                 // get application user
-                ApplicationUser user=GetApplicationUser(username);
+                ApplicationUser user=_contextHelper.GetApplicationUser(username);
 
                 //check if  user password is correct
                 if (user.PasswordHash != HashPassword(password))
@@ -223,25 +225,7 @@ namespace LaundryApi.Repositories
             return true;
         }
 
-        private ApplicationUser GetApplicationUser(string username)
-        {
-            //get user details by checking the employee and laundry tables
-            var employee = _context.Employees.SingleOrDefault(x => x.Username == username);
-            var laundry = _context.Laundries.SingleOrDefault(x => x.Username == username);
-
-            //check if user exist
-            if (laundry == null && employee == null)
-                throw new Exception(ErrorMessage.UserDoesNotExist);
-
-            //check if only one user role is tied to the username
-            else if (laundry != null && employee != null)
-                throw new Exception(ErrorMessage.UserHasTwoRoles);
-
-            ApplicationUser user = (ApplicationUser)laundry ?? employee;
-            return user;
-
-            
-        }
+        
 
         private ApplicationUser GetUserByResetLinkId(string resetLinkId)
         {

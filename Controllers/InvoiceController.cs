@@ -9,6 +9,7 @@ using LaundryApi.Dtos;
 using LaundryApi.Models;
 using AutoMapper;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Infrastructure;
 
 namespace LaundryApi.Controllers
 {
@@ -20,8 +21,6 @@ namespace LaundryApi.Controllers
     {
 
         private readonly IInvoiceRepository invoiceRepository;
-
-
 
         public InvoiceController(IInvoiceRepository invoiceRepository)
         {
@@ -99,15 +98,23 @@ namespace LaundryApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseDto<NewInvoiceDto>() { message = ErrorMessage.InvalidModel });
+
             try
             {
-                InvoiceDto invoiceDto = invoiceRepository.AddInvoice(newInvoiceDto);
+                string role = HttpContext.GetUserRole();
+                if ( !(role==RoleNames.LaundryEmployee || role==RoleNames.LaundryOwner))
+                    return Unauthorized();
+
+                InvoiceDto invoiceDto = invoiceRepository.AddInvoice(newInvoiceDto,role,HttpContext.User.Identity.Name);
                 return CreatedAtAction(nameof(ReadInvoice), new { id = invoiceDto.Id }, invoiceDto);
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EntityDoesNotExist)
                     return BadRequest(new ResponseDto<InvoiceDto>() { message = "Customer does not exist" });
+
+                else if (e.Message == ErrorMessage.InvalidToken)
+                    return BadRequest(new ResponseDto<InvoiceDto>() { message = "Customer was is not in users laundry" });
 
                 //if you got this point some unforseen error occured
                 return StatusCode(500);

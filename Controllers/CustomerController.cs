@@ -42,7 +42,7 @@ namespace LaundryApi.Controllers
             {
                 if (HttpContext.IsInRole(RoleNames.LaundryEmployee) || HttpContext.IsInRole(RoleNames.LaundryOwner))
                 {
-                    customer = await customerRepository.AddCustomer(newCustomer, HttpContext.User.Identity.Name);
+                    customer = await customerRepository.AddCustomer(newCustomer, HttpContext.User.Identity.Name,HttpContext.GetUserRole());
                     response.data = customer;
                     return CreatedAtAction(nameof(GetCustomer), new { id=customer.Id}, response);
 

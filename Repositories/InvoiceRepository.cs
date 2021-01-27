@@ -18,13 +18,15 @@ namespace LaundryApi.Repositories
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
         private readonly ICustomerRepository customerRepository;
+        private readonly IRepositoryHelper repositoryHelper;
 
-        public InvoiceRepository(LaundryApiContext _context, IMapper mapper, ICustomerRepository customerRepository)
+        public InvoiceRepository(LaundryApiContext _context, IMapper mapper, ICustomerRepository customerRepository,IRepositoryHelper repositoryHelper)
 
         {
             this._context = _context;
             this.mapper = mapper;
             this.customerRepository = customerRepository;
+            this.repositoryHelper = repositoryHelper;
         }
 
         public async Task<InvoiceDto> ReadInvoice(Guid invoiceId)
@@ -35,66 +37,79 @@ namespace LaundryApi.Repositories
             return invoiceDto;
         }
 
-        public InvoiceDto AddInvoice(NewInvoiceDto newInvoiceDto)
+        private bool IsCustomerOwnedByLaundry(string laundryUsername,Customer customer)
+        {
+           return _context.Laundries.FirstOrDefault(x => x.Username == laundryUsername).Id==customer.LaundryId;
+        }
+        public InvoiceDto AddInvoice(NewInvoiceDto newInvoiceDto, string userRole,string username)
         {
             try
             {
-                //check if customer exist
-                if (customerRepository.GetCustomer(newInvoiceDto.CustomerId) == null)
+                //check if customer exist 
+                var customerInDb = _context.Customers.SingleOrDefault(x => x.Id == newInvoiceDto.CustomerId);
+                if (customerInDb == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-                //get invoice total 
+                //check if the customer is owned by the current user
+                if (userRole == RoleNames.LaundryOwner)
+                {
+                    if ( repositoryHelper.GetLaundryByUsername(username).Id != customerInDb.LaundryId)
+                        throw new Exception(ErrorMessage.InvalidToken);
+                }
+                else
+                {
+                    if (repositoryHelper.GetEmployeeByUsername(username).LaundryId != customerInDb.LaundryId)
+                        throw new Exception(ErrorMessage.InvalidToken);
+                }
+                
+           
+                //get the invoice total
                 decimal invoiceTotal = newInvoiceDto.InvoiceItems.GetInvoiceTotal();
 
-                //create invoice object
+                //update customer 
+                customerInDb.Debt += invoiceTotal;
+
+                //create the invoice object and add the invoice to the db context 
                 Invoice invoice = new Invoice()
                 {
                     Amount = invoiceTotal,
                     CustomerId = newInvoiceDto.CustomerId,
                     CreatedAt = DateTime.Now,
-                    UpdatedAt=DateTime.Now,
-                    IsCollected=newInvoiceDto.IsCollected,
-                    IsPaidFor=newInvoiceDto.IsPaidFor
+                    UpdatedAt = DateTime.Now,
+                    IsCollected = false,
+                    IsPaidFor = false,
                 };
-
-                //add invoice to db context
                 _context.Invoices.Add(invoice);
 
-                //update customer  total purchase
-                var customerInDb = _context.Customers.SingleOrDefault(x => x.Id == newInvoiceDto.CustomerId);
-                customerInDb.TotalPurchase += invoiceTotal;
-
-                //update laundry total revenue
-                var laundryInDb = _context.Laundries.SingleOrDefault(x => x.Id == customerInDb.LaundryId);
-                laundryInDb.Revenue += invoiceTotal;
-
-                //add invoice items to db context
+                //create the list of invoice items and add them to the dbcontext
                 List<InvoiceItem> invoiceItems = new List<InvoiceItem>();
                 foreach (NewInvoiceItemDto item in newInvoiceDto.InvoiceItems)
                 {
                     invoiceItems.Add(new InvoiceItem()
                     {
-                        ServiceId = item.ServiceId,
+                        ServiceId = item.Service.Id,
                         Quantity = item.Quantity,
-                        InvoiceId = invoice.Id
+                        InvoiceId = invoice.Id,
+
                     });
                 }
-
-                //add invoice items to the context
                 _context.AddRange(invoiceItems);
 
                 //coomplete transaction
                 _context.SaveChanges();
 
-                //map entity to Dto
+                //create return obj
                 InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
-                invoiceDto.CustomerName = customerInDb.Name;
+                invoiceDto.Customer = mapper.Map<CustomerDto>(customerInDb);
                 return invoiceDto;
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EntityDoesNotExist)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
+
+                else if (e.Message == ErrorMessage.InvalidToken)
+                    throw new Exception(ErrorMessage.InvalidToken);
 
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }

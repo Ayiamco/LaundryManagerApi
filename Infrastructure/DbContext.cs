@@ -41,7 +41,7 @@ namespace LaundryApi.Infrastructure
                 .IsUnique();
 
 
-            builder.Entity<Customer>()
+               builder.Entity<Customer>()
                 .HasAlternateKey(s => new { s.Username, s.LaundryId });
 
             builder.Entity<Service>()

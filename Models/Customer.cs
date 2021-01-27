@@ -41,6 +41,8 @@ namespace LaundryApi.Models
         [Column(TypeName = "decimal(18,4)")]
         public decimal TotalPurchase { get; set; }
 
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal Debt { get; set; }
         public bool IsDeleted { get; set; }
 
         
