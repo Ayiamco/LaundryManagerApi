@@ -13,6 +13,8 @@ namespace LaundryApi.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required]
+        public string Description { get; set; }
 
         public Invoice Invoice { get; set; }
 
@@ -26,6 +28,9 @@ namespace LaundryApi.Models
 
         [Required]
         public int Quantity { get; set; }
+
+        [Required]
+        public bool IsCollected { get; set; }
 
     }
 }

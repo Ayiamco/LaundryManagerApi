@@ -30,5 +30,9 @@ namespace LaundryApi.Models
         public bool IsCollected { get; set; }
 
         public bool IsPaidFor { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal AmountPaid { get; set; }
     }
 }

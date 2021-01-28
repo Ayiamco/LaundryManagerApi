@@ -49,32 +49,38 @@ namespace LaundryApi.Controllers
             }
         }
 
-        ////GET: api/invoice/items/{id}
-        //[HttpGet("/items/{id}")]
-        //public async Task<ActionResult<InvoiceDto>> ReadInvoiceItems(Guid id)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //            return BadRequest(new ResponseDto<InvoiceDto>() { message = ErrorMessage.InvalidModel });
-
-        //        //get the full invoice including all associated invoice items
-        //        var invoiceDto = await invoiceRepository.ReadCompleteInvoiceAsync(id);
-
-        //        //return value
-        //        return Ok(invoiceDto);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        if (e.Message == ErrorMessage.EntityDoesNotExist)
-        //            return BadRequest(new ResponseDto<InvoiceDto>() { message = ErrorMessage.EntityDoesNotExist });
-
-        //        // if you get to this point something unforseen happened
-        //        return StatusCode(500);
-        //    }
+        public ActionResult MakePayment()
+        {
+            return Ok();
+        }
 
 
-        //}
+        //GET: api/invoice/items/{id}
+        [HttpGet("/items/{id}")]
+        public async Task<ActionResult<InvoiceDto>> ReadInvoiceItems(Guid id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new ResponseDto<InvoiceDto>() { message = ErrorMessage.InvalidModel });
+
+                //get the full invoice including all associated invoice items
+                var invoiceDto = await invoiceRepository.ReadCompleteInvoiceAsync(id);
+
+                //return value
+                return Ok(invoiceDto);
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    return BadRequest(new ResponseDto<InvoiceDto>() { message = ErrorMessage.EntityDoesNotExist });
+
+                // if you get to this point something unforseen happened
+                return StatusCode(500);
+            }
+
+
+        }
 
         //GET: api/Invoice
         [HttpGet]

@@ -14,10 +14,9 @@ namespace LaundryApi.Dtos
 
         public Guid CustomerId { get; set; }
 
-        //new invoices are always not paid for and not collected
-        public bool IsPaidFor { get; set; }
-
-        public bool IsCollected { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal AmountPaid { get; set; }
 
     }
 }

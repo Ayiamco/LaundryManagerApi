@@ -23,5 +23,7 @@ namespace LaundryApi.Dtos
 
         [Required]
         public int Quantity { get; set; }
+
+        public bool IsCollected { get; set; }
     }
 }

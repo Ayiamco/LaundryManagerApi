@@ -13,9 +13,11 @@ namespace LaundryApi.Interfaces
 
         public Task<InvoiceDto> ReadInvoice(Guid invoiceId);
 
-        //public IEnumerable<InvoiceDto> GetInvoices(int batchQuantity, int batchNumber);
+        public IEnumerable<InvoiceDto> GetInvoices(int batchQuantity, int batchNumber);
         public IEnumerable<InvoiceDto> GetInvoices();
 
-        //public Task<InvoiceDto> ReadCompleteInvoiceAsync(Guid invoiceId);
+        public Task<InvoiceDto> ReadCompleteInvoiceAsync(Guid invoiceId);
+
+        public void PayForInvoice(InvoiceDto invoice);
     }
 }

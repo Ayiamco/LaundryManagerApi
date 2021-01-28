@@ -10,7 +10,6 @@ namespace LaundryApi.Dtos
 {
     public class InvoiceDto
     {
-
         public Guid Id { set; get; }
 
         [Required]
@@ -29,5 +28,7 @@ namespace LaundryApi.Dtos
 
         [Required]
         public bool IsCollected { set; get; }
+
+        public decimal AmountPaid { get; set; }
     }
 }

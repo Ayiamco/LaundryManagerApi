@@ -13,5 +13,8 @@ namespace LaundryApi.Dtos
 
         [Required]
         public int Quantity { get; set; }
+
+        [Required]
+        public string Description { set; get; }     
     }
 }

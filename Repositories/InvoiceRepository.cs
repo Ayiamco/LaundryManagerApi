@@ -37,10 +37,6 @@ namespace LaundryApi.Repositories
             return invoiceDto;
         }
 
-        private bool IsCustomerOwnedByLaundry(string laundryUsername,Customer customer)
-        {
-           return _context.Laundries.FirstOrDefault(x => x.Username == laundryUsername).Id==customer.LaundryId;
-        }
         public InvoiceDto AddInvoice(NewInvoiceDto newInvoiceDto, string userRole,string username)
         {
             try
@@ -66,8 +62,13 @@ namespace LaundryApi.Repositories
                 //get the invoice total
                 decimal invoiceTotal = newInvoiceDto.InvoiceItems.GetInvoiceTotal();
 
-                //update customer 
-                customerInDb.Debt += invoiceTotal;
+                //update customer and laundry
+                customerInDb.Debt += invoiceTotal - newInvoiceDto.AmountPaid;
+                if (newInvoiceDto.AmountPaid > 0)
+                {
+                    Laundry laundry = _context.Laundries.Find(customerInDb.LaundryId);
+                    laundry.Revenue += newInvoiceDto.AmountPaid;
+                }
 
                 //create the invoice object and add the invoice to the db context 
                 Invoice invoice = new Invoice()
@@ -77,7 +78,8 @@ namespace LaundryApi.Repositories
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     IsCollected = false,
-                    IsPaidFor = false,
+                    IsPaidFor = newInvoiceDto.AmountPaid==invoiceTotal,
+                    AmountPaid= newInvoiceDto.AmountPaid
                 };
                 _context.Invoices.Add(invoice);
 
@@ -125,9 +127,9 @@ namespace LaundryApi.Repositories
             return obj;
         }
 
-        public IEnumerable<InvoiceDto> GetInvoices(int batchNumber, int batchQuantity)
+        public IEnumerable<InvoiceDto> GetInvoices(int pageNumber, int pageSize)
         {
-            var invoicesList = _context.Invoices.ToList().Skip((batchNumber - 1) * batchQuantity).Take(batchQuantity);
+            var invoicesList = _context.Invoices.ToList().Skip((pageNumber - 1) * pageSize).Take(pageSize);
             List<InvoiceDto> obj = new List<InvoiceDto>();
             foreach (Invoice invoice in invoicesList)
             {
@@ -163,6 +165,18 @@ namespace LaundryApi.Repositories
 
 
 
+        }
+        
+        public void PayForInvoice (InvoiceDto invoice)
+        {
+            //get the invoice and update it
+            var invoiceInDb=_context.Invoices.SingleOrDefault( x=> x.Id== invoice.Id);
+            invoiceInDb.AmountPaid += invoice.AmountPaid;
+            invoiceInDb.IsPaidFor = invoiceInDb.AmountPaid > invoiceInDb.Amount;
+
+            //save changes
+            _context.SaveChanges();
+            return;
         }
     }
 }
