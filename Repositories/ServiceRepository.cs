@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using LaundryApi.Infrastructure;
 using AutoMapper;
 using LaundryApi.Dtos;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using static LaundryApi.Infrastructure.HelperMethods;
 
 namespace LaundryApi.Repositories

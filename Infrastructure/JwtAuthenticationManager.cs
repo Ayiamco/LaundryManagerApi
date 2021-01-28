@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LaundryApi.Interfaces;
 using LaundryApi.Dtos;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;

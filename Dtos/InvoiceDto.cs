@@ -1,4 +1,4 @@
-﻿using LaundryApi.Models;
+﻿using LaundryApi.Entites;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,7 +21,7 @@ namespace LaundryApi.Dtos
         [Required]
         public Guid CustomerId { get; set; }
 
-        public IEnumerable<InvoiceItemDto> InvoiceItems { get; set; }
+        public IEnumerable<InvoiceItemDtoLight> InvoiceItems { get; set; }
 
         [Required]
         public bool IsPaidFor { set; get; }
@@ -30,5 +30,7 @@ namespace LaundryApi.Dtos
         public bool IsCollected { set; get; }
 
         public decimal AmountPaid { get; set; }
+
+        
     }
 }

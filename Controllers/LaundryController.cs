@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LaundryApi.Infrastructure;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
 using static LaundryApi.Infrastructure.HelperMethods;

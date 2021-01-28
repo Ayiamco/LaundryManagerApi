@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using LaundryApi.Interfaces;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Models;
+
 
 namespace LaundryApi.Infrastructure
 {

@@ -2,7 +2,7 @@
 using LaundryApi.Dtos;
 using LaundryApi.Infrastructure;
 using LaundryApi.Interfaces;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Models;
 
 namespace LaundryApi.Repositories
 {

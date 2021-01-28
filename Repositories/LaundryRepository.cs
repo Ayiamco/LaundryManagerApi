@@ -2,7 +2,7 @@
 using LaundryApi.Dtos;
 using LaundryApi.Infrastructure;
 using LaundryApi.Interfaces;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;

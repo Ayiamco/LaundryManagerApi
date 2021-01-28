@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using LaundryApi.Dtos;
 
 
@@ -25,7 +25,8 @@ namespace LaundryApi.Infrastructure
             CreateMap<ServiceDto, Service>().ReverseMap();
 
             CreateMap<NewInvoiceDto, Invoice>().ReverseMap();
-            CreateMap<InvoiceDto, Invoice>().ReverseMap();
+            CreateMap<InvoiceDto, Invoice>().ReverseMap().ForMember(x=> x.Customer,opt=> opt.Ignore());
+            CreateMap<InvoiceItemDtoLight, InvoiceItem>().ReverseMap();
 
             CreateMap<InvoiceItemDto, InvoiceItem>().ReverseMap();
 

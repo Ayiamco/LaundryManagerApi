@@ -1,5 +1,5 @@
 ﻿using LaundryApi.Dtos;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using LaundryApi.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LaundryApi.Interfaces;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Models;
 
 
 namespace LaundryApi.Controllers
@@ -131,9 +132,10 @@ namespace LaundryApi.Controllers
 
         }
 
-        public ActionResult GetCustomerByName (string name)
-        {
-            return Ok();
-        }
+        //[HttpGet("{name}")]
+        //public ActionResult GetCustomerByName (string name)
+        //{
+        //    return Ok();
+        //}
     }
 }

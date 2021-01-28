@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LaundryApi.Entites;
 using LaundryApi.Models;
-
 namespace LaundryApi.Dtos
 {
     public class LoginResponseDto

@@ -1,6 +1,6 @@
 ﻿using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Models;
 
 namespace LaundryApi.Controllers
 {

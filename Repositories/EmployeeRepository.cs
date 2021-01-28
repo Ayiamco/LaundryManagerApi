@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Interfaces;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 namespace LaundryApi.Repositories
 {
     public class EmployeeRepository: IEmployeeRepository

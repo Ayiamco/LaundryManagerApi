@@ -1,6 +1,6 @@
 ﻿
 using LaundryApi.Dtos;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using System;
 using System.Collections.Generic;
 using System.Linq;

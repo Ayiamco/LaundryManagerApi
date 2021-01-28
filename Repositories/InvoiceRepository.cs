@@ -6,10 +6,11 @@ using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
 using LaundryApi.Infrastructure;
 using AutoMapper;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using static LaundryApi.Infrastructure.LaundryApiExtenstionMethods;
 using static LaundryApi.Infrastructure.HelperMethods;
 using Microsoft.EntityFrameworkCore;
+using LaundryApi.Models;
 
 namespace LaundryApi.Repositories
 {
@@ -138,13 +139,36 @@ namespace LaundryApi.Repositories
             }
             return obj;
         }
+        public IEnumerable<InvoiceDto> GetInvoices(int pageNumber, int pageSize,string username,string userRole)
+        {
+            //get the laundry 
+            Guid laundryId;
+            if (userRole == RoleNames.LaundryEmployee)
+                laundryId = _context.Employees.SingleOrDefault(x => x.Username == username).LaundryId;
+            else
+                laundryId = _context.Laundries.SingleOrDefault(x => x.Username == username).Id;
+
+            //get the laundry customers and use the customers to get the invoices from the invoice table
+            IEnumerable<Customer> customers = _context.Customers.Where(x => x.LaundryId == laundryId);
+            List<Invoice> invoices= new List<Invoice>();
+            foreach(Customer customer in customers)
+            {
+                invoices.AddRange(_context.Invoices.Where(x=> x.CustomerId==customer.Id));
+            }
+            
+            //do the pagination and select 
+            var invoicesList =invoices.OrderBy(x => x.Amount).Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            List<InvoiceDto> obj = mapper.Map<List<InvoiceDto>>(invoicesList);
+           
+            return obj;
+        }
 
         public async Task<InvoiceDto> ReadCompleteInvoiceAsync(Guid invoiceId)
         {
             try
             {
                 //read all the invoice items that match the invoiceId
-                var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDto>>(_context.InvoiceItems.Where(x => x.InvoiceId == invoiceId).ToList());
+                var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDtoLight>>(_context.InvoiceItems.Include("Service").Where(x => x.InvoiceId == invoiceId).ToList());
 
                 //get the invoice that matches the invoice Id 
                 var invoice = await _context.Invoices.FindAsync(invoiceId);
@@ -178,5 +202,7 @@ namespace LaundryApi.Repositories
             _context.SaveChanges();
             return;
         }
+
+        
     }
 }

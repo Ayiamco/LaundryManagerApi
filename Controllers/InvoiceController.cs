@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using LaundryApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using LaundryApi.Dtos;
-using LaundryApi.Models;
+using LaundryApi.Entites;
 using AutoMapper;
 using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Infrastructure;
+using LaundryApi.Models;
 
 namespace LaundryApi.Controllers
 {
@@ -26,6 +27,20 @@ namespace LaundryApi.Controllers
         {
             this.invoiceRepository = invoiceRepository;
 
+        }
+
+        //GET: api/invoice?pageindex={int}&pagesize={int}
+        [HttpGet]
+        public ActionResult Index(int pageSize,int pageIndex)
+        {
+            string role = HttpContext.GetUserRole();
+            if ( !(role==RoleNames.LaundryOwner || role == RoleNames.LaundryEmployee))
+            {
+                return StatusCode(401);
+            }
+            IEnumerable<InvoiceDto> invoices=invoiceRepository.GetInvoices(pageIndex,pageSize,HttpContext.User.Identity.Name,role);
+
+            return Ok(new ResponseDto<IEnumerable<InvoiceDto>>() { data=invoices,statusCode="200"});
         }
 
         //GET: api/Invoice/{invoiceId}
@@ -49,15 +64,16 @@ namespace LaundryApi.Controllers
             }
         }
 
-        public ActionResult MakePayment()
-        {
-            return Ok();
-        }
+        //[HttpGet()]
+        //public ActionResult MakePayment()
+        //{
+        //    return Ok();
+        //}
 
 
         //GET: api/invoice/items/{id}
-        [HttpGet("/items/{id}")]
-        public async Task<ActionResult<InvoiceDto>> ReadInvoiceItems(Guid id)
+        [HttpGet("invoiceItems/{invoiceId}")]
+        public async Task<ActionResult<InvoiceDto>> ReadInvoiceItems(Guid invoiceId)
         {
             try
             {
@@ -65,7 +81,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<InvoiceDto>() { message = ErrorMessage.InvalidModel });
 
                 //get the full invoice including all associated invoice items
-                var invoiceDto = await invoiceRepository.ReadCompleteInvoiceAsync(id);
+                var invoiceDto = await invoiceRepository.ReadCompleteInvoiceAsync(invoiceId);
 
                 //return value
                 return Ok(invoiceDto);
@@ -79,22 +95,6 @@ namespace LaundryApi.Controllers
                 return StatusCode(500);
             }
 
-
-        }
-
-        //GET: api/Invoice
-        [HttpGet]
-        public ActionResult<IEnumerable<InvoiceDto>> GetInvoices()
-        {
-            try
-            {
-                var returnObj = invoiceRepository.GetInvoices();
-                return Ok(returnObj);
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
 
         }
 

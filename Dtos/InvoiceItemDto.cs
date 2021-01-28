@@ -1,4 +1,4 @@
-﻿using LaundryApi.Models;
+﻿using LaundryApi.Entites;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
