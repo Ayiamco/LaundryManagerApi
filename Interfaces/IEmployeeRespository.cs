@@ -14,5 +14,8 @@ namespace LaundryApi.Interfaces
         public Task<bool> DeleteEmployee(Guid employeeId, string laundryUsername);
 
         public Task<EmployeeDto> UpdateEmployee(EmployeeDto employee, string laundryUsername);
+
+        public IEnumerable<EmployeeDtoPartial> GetMyEmployees(string laundryUsername);
+
     }
 }

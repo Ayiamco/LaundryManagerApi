@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Models;
 
 
@@ -14,10 +13,10 @@ namespace LaundryApi.Infrastructure
     public class RepositoryHelper: IRepositoryHelper
     {
         private readonly LaundryApiContext _context;
-        private readonly IMapper mapper;
-        public RepositoryHelper(LaundryApiContext _context, IMapper mapper)
+
+        public RepositoryHelper(LaundryApiContext _context)
         {
-            this.mapper = mapper;
+           
             this._context = _context;
         }
 

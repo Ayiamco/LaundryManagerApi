@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Models;
 using LaundryApi.Interfaces;
 using LaundryApi.Entites;
 namespace LaundryApi.Repositories
@@ -14,14 +15,15 @@ namespace LaundryApi.Repositories
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        public EmployeeRepository(LaundryApiContext _context, IMapper mapper)
+        private readonly IRepositoryHelper repositoryHelper;
+        public EmployeeRepository(LaundryApiContext _context, IMapper mapper,IRepositoryHelper repositoryHelper)
         {
             this._context = _context;
             this.mapper = mapper;
+            this.repositoryHelper = repositoryHelper;
         }
 
-       
-
+      
         public async Task<EmployeeDto> FindEmployeeAsync(Guid id)
         {
             try
@@ -56,14 +58,8 @@ namespace LaundryApi.Repositories
                 employee.ForgotPasswordTime = null;
                 employee.PasswordResetId = null;
 
-
                 //add employee to db context
                 await _context.Employees.AddAsync(employee);
-
-                ////assign role to employee
-                //Role role = _context.Roles.SingleOrDefault(x => x.Name == RoleNames.LaundryEmployee);
-                //var userRole = new UserRole() { ApplicationUserId = employee.Id, RoleId = role.Id };
-                //await _context.UsersRoles.AddAsync(userRole);
 
                 //complete db transaction 
                 await _context.SaveChangesAsync();
@@ -119,6 +115,28 @@ namespace LaundryApi.Repositories
             employee = mapper.Map<EmployeeDto>(employeeInDb);
             employee.Laundry = null;
             return employee;
+        }
+
+        public IEnumerable<EmployeeDtoPartial> GetMyEmployees(string laundryUsername)
+        {
+            try
+            {
+                Guid laundryId = repositoryHelper.GetLaundryByUsername(laundryUsername).Id;
+                var employees = _context.Employees.Where(x => x.LaundryId == laundryId ).ToList();
+                if (employees.Count == 0)
+                    throw new Exception(ErrorMessage.NoEntityMatchesSearch);
+                IEnumerable<EmployeeDtoPartial> employeeDtos = mapper.Map<IEnumerable<EmployeeDtoPartial>>(employees);
+
+                return employeeDtos;
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    throw new Exception(ErrorMessage.NoEntityMatchesSearch);
+
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+            
         }
 
         private async Task<Employee> ValidateRequestParam(Guid employeeId, string laundryUsername)

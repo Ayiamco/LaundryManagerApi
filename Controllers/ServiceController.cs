@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Models;
-
+using LaundryApi.Infrastructure;
 
 namespace laundryapi.controllers
 {
@@ -46,12 +46,12 @@ namespace laundryapi.controllers
 
         //GET: api/service/{customerid}
         [HttpGet("{id}")]
-        public ActionResult<ServiceDto> GetService(Guid id)
+        public async Task<ActionResult<ServiceDto>> GetService(Guid id)
         {
             ServiceDto servicedto = new ServiceDto();
             try
             {
-                servicedto = serviceRepository.GetService(id);
+                servicedto = await serviceRepository.GetService(id);
                 return Ok(servicedto);
             }
             catch (Exception e)
@@ -103,19 +103,20 @@ namespace laundryapi.controllers
 
         //put: api/service
         [HttpPost]
-        public ActionResult UpdateService(ServiceDto servicedto)
+        public async Task<ActionResult<ServiceDto>> UpdateService(ServiceDto servicedto)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            try
+            try 
             {
-                serviceRepository.UpdateService(servicedto);
-                return StatusCode(200);
+                var service=await serviceRepository.UpdateService(servicedto);
+                var resp = new ResponseDto<ServiceDto>() { data = service, message = "updated suceessfully", statusCode = "200" };
+                return Ok(resp);
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EntityDoesNotExist)
-                    return StatusCode(400);
+                    return BadRequest((new ResponseDto<ServiceDto>() { message = ErrorMessage.EntityDoesNotExist }));
 
                 //if you get to this point something unusual occurred
                 return StatusCode(500);
@@ -126,24 +127,47 @@ namespace laundryapi.controllers
         //delete: api/customer/{serviceid}
         [Route("{serviceid}")]
         [HttpDelete]
-        public ActionResult Deleteservice(Guid serviceid)
+        public async Task<ActionResult<ResponseDto<ServiceDto>>> Deleteservice(Guid serviceid)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(new ResponseDto<ServiceDto>() { message="service Id must be Guid"});
             try
             {
-                serviceRepository.DeleteService(serviceid);
+                await serviceRepository.DeleteService(serviceid);
                 return StatusCode(204);
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EntityDoesNotExist)
-                    return StatusCode(400);
+                    return BadRequest(new ResponseDto<ServiceDto>() { message=ErrorMessage.EntityDoesNotExist});
 
                 //if you get to this point something unusual occured
                 return StatusCode(500);
             }
 
         }
+
+        [HttpGet("all")]
+        public ActionResult<ResponseDto<IEnumerable<ServiceDtoPartial>>> ReadMyLaundryService()
+        {
+            try
+            {
+                string userRole = HttpContext.GetUserRole();
+                if (!(userRole == RoleNames.LaundryOwner || userRole == RoleNames.LaundryEmployee))
+                    return Unauthorized();
+
+                var services=serviceRepository.GetMyLaundryServices(HttpContext.User.Identity.Name,userRole);
+                return Ok(new ResponseDto<IEnumerable<ServiceDtoPartial>>() { data=services});
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    return NoContent();
+
+                return StatusCode(500);
+
+            }
+        }
+
     }
 }

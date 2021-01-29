@@ -5,12 +5,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LaundryApi.Entites
+namespace LaundryApi.Dtos
 {
-    public class Service
+    public class ServiceDtoPartial
     {
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         [Required]
@@ -21,22 +19,7 @@ namespace LaundryApi.Entites
         public decimal Price { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
-
-        [Required]
-        public DateTime UpdatedAt { get; set; }
-
-        public Laundry Laundry { get; set; }
-
-        [Required]
-        public Guid LaundryId { get; set; }
-
-        [Required]
-        public bool IsDeleted { get; set; }
-
-        [Required]
         [Column(TypeName = "decimal(18,4)")]
         public decimal Revenue { get; set; }
     }
 }
-

@@ -8,6 +8,7 @@ using AutoMapper;
 using LaundryApi.Dtos;
 using LaundryApi.Entites;
 using static LaundryApi.Infrastructure.HelperMethods;
+using LaundryApi.Models;
 
 namespace LaundryApi.Repositories
 {
@@ -15,10 +16,13 @@ namespace LaundryApi.Repositories
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        public ServiceRepository(LaundryApiContext _context, IMapper mapper)
+        private readonly IRepositoryHelper repositoryHelper;
+        public ServiceRepository(LaundryApiContext _context, IMapper mapper,IRepositoryHelper repositoryHelper)
+
         {
             this.mapper = mapper;
             this._context = _context;
+            this.repositoryHelper = repositoryHelper;
         }
 
         public async Task<ServiceDto> CreateServiceAsync(ServiceDto serviceDto, string username)
@@ -47,6 +51,7 @@ namespace LaundryApi.Repositories
                 //pdated and return created service object
                 serviceDto.Id = service.Id;
                 serviceDto.LaundryId = laundry.Id;
+                serviceDto.Laundry = null;
                 return serviceDto;
 
             }
@@ -61,12 +66,12 @@ namespace LaundryApi.Repositories
 
         }
 
-        public void UpdateService(ServiceDto serviceDto)
+        public async Task<ServiceDto> UpdateService(ServiceDto serviceDto)
         {
             try
             {
                 //get the laundry service and check if it is null
-                var serviceInDb = _context.Services.SingleOrDefault(s => s.Id == serviceDto.Id);
+                var serviceInDb = await _context.Services.FindAsync( serviceDto.Id);
                 if (serviceInDb == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
@@ -76,8 +81,10 @@ namespace LaundryApi.Repositories
                 serviceInDb.Price = serviceDto.Price;
 
                 //save changes
-                _context.SaveChanges();
-                return;
+                await _context.SaveChangesAsync();
+                serviceDto = mapper.Map<ServiceDto>(serviceInDb);
+                serviceDto.Laundry = null;
+                return serviceDto ;
             }
             catch(Exception e)
             {
@@ -89,12 +96,12 @@ namespace LaundryApi.Repositories
             }
         }
 
-        public void DeleteService(Guid serviceId)
+        public async Task<bool> DeleteService(Guid serviceId)
         {
             try
             {
                 //get the laundry service and check if it is null
-                var serviceInDb = _context.Services.FirstOrDefault(s => s.Id == serviceId); 
+                var serviceInDb = await _context.Services.FindAsync(serviceId); 
                 if (serviceInDb == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
@@ -102,7 +109,8 @@ namespace LaundryApi.Repositories
                 serviceInDb.IsDeleted = true;
 
                 //save changes
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                return true;
             }
             catch(Exception e)
             {
@@ -115,11 +123,12 @@ namespace LaundryApi.Repositories
 
         }
 
-        public ServiceDto GetService(Guid id)
+        public async Task<ServiceDto> GetService(Guid id)
         {
             try
             {
-                var service = _context.Services.FirstOrDefault(s => s.Id == id);
+                var service = await _context.Services.FindAsync( id);
+
                 if (service == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
@@ -137,27 +146,59 @@ namespace LaundryApi.Repositories
 
         }
 
-        //public IEnumerable<ServiceDto> GetAllLaundryServices()
-        //{
-        //    try
-        //    {
+        public IEnumerable<ServiceDtoPartial> GetMyLaundryServices(string username,string userRole)
+        {
+            try
+            {
+                IEnumerable<ServiceDtoPartial> serviceDto;
+                ApplicationUser user=repositoryHelper.GetApplicationUser(username);
+                if(userRole ==RoleNames.LaundryEmployee)
+                    serviceDto=GetServicesForLaundryOwner(repositoryHelper.GetLaundryByUsername(username));
+                
+                else
+                    serviceDto = GetServicesForEmployee(repositoryHelper.GetEmployeeByUsername(username));
 
-        //        var laundryServices = _context.Services.ToList();
-        //        List<ServiceDto> serviceDtos = new List<ServiceDto>();
-        //        laundryServices.ForEach(service =>
-        //        {
-        //            var dto = mapper.Map<ServiceDto>(service);
-        //            serviceDtos.Add(dto);
-        //        });
-        //        return serviceDtos;
-        //    }
-        //    catch
-        //    {
-        //        throw new Exception(ErrorMessage.FailedDbOperation);
-        //    }
+                return serviceDto;
+            }
+
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    throw new Exception(ErrorMessage.NoEntityMatchesSearch);
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
 
 
-        //}
+        }
+
+        private IEnumerable<ServiceDtoPartial> GetServicesForLaundryOwner(Laundry user)
+        {
+            var laundryServices = _context.Services.Where(x => x.LaundryId == user.Id).ToList();
+            if (laundryServices.Count == 0)
+                throw new Exception(ErrorMessage.NoEntityMatchesSearch);
+            List<ServiceDtoPartial> serviceDtos = new List<ServiceDtoPartial>();
+            IEnumerable<ServiceDtoPartial> serviceDto = mapper.Map<IEnumerable<ServiceDtoPartial>>(laundryServices);
+
+            return serviceDto;
+        }
+
+        private IEnumerable<ServiceDtoPartial> GetServicesForEmployee(Employee user)
+        {
+            var laundryServices = _context.Services.Where(x => x.LaundryId == user.LaundryId).ToList();
+            if (laundryServices.Count == 0)
+                throw new Exception(ErrorMessage.NoEntityMatchesSearch);
+
+            List<ServiceDtoPartial> serviceDtos = new List<ServiceDtoPartial>();
+            foreach(Service service  in laundryServices)
+            {
+                var dto=mapper.Map<ServiceDtoPartial>(service);
+                dto.Revenue = 0;
+                serviceDtos.Add(dto);
+            }
+
+            return serviceDtos;
+            
+        }
     }
 }
 

@@ -125,7 +125,7 @@ namespace LaundryApi.Controllers
 
             }
             
-        }
+        } 
 
 
         //PATCH: api/employee
@@ -150,6 +150,27 @@ namespace LaundryApi.Controllers
                 return StatusCode(500);
 
             }
+        }
+
+        [HttpGet("all")]
+        public ActionResult<ResponseDto<IEnumerable<EmployeeDtoPartial>>> GetLaundryEmployees()
+        {
+            try
+            {
+                if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner))
+                    return Unauthorized(new ResponseDto<IEnumerable<EmployeeDto>>() { message = ErrorMessage.OnlyLaundryOwnerAllowed });
+
+                var employees = employeeRepository.GetMyEmployees(HttpContext.User.Identity.Name);
+                return Ok(new ResponseDto<IEnumerable<EmployeeDtoPartial>>() { statusCode = "200", data = employees });
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    return NoContent();
+
+                return StatusCode(500);
+            }
+            
         }
     }
 }

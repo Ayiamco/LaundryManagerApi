@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LaundryApi.Models
 {
-    public static class RoleNames
+    public  struct RoleNames
     {
         public const string LaundryOwner = "LaundryOwner";
         public const string LaundryEmployee = "LaundryEmployee";

@@ -9,10 +9,9 @@ namespace LaundryApi.Interfaces
     public interface IServiceRepository
     {
         public Task<ServiceDto> CreateServiceAsync(ServiceDto servicedto, string username);
-        public void UpdateService(ServiceDto servicedto);
-        public void DeleteService(Guid serviceid);
-        public ServiceDto GetService(Guid id);
-
-        //public IEnumerable<ServiceDto> GetAllLaundryServices();
+        public Task<ServiceDto> UpdateService(ServiceDto serviceDto);
+        public Task<bool> DeleteService(Guid serviceid);
+        public Task<ServiceDto> GetService(Guid id);
+        public IEnumerable<ServiceDtoPartial> GetMyLaundryServices(string username, string userRole);
     }
 }

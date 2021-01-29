@@ -8,7 +8,7 @@ using LaundryApi.Infrastructure;
 using LaundryApi.Entites;
 using LaundryApi.Dtos;
 using LaundryApi.Interfaces;
-using static LaundryApi.Infrastructure.HelperMethods;
+using  LaundryApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
