@@ -10,8 +10,6 @@ namespace LaundryApi.Interfaces
 {
     public interface IManagerRepository
     {
-        public Employee GetEmployeeByUsername(string username);
-        public Laundry GetLaundryByUsername(string username);
         public LoginResponseDto GetLoginResponse(string username,string password);
        
         public Task<bool> SendPasswordReset(string username);

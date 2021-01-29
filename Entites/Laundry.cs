@@ -13,5 +13,8 @@ namespace LaundryApi.Entites
         [Required]
         public int NoOfEmployees { get; set; }  
 
+        [Required ]
+        public string LaundryName { get; set; }
+
     }
 }

@@ -10,5 +10,9 @@ namespace LaundryApi.Interfaces
     {
         public Task<EmployeeDto> FindEmployeeAsync(Guid employeeId);
         public Task<EmployeeDto> CreateEmployeeAsync(NewEmployeeDto newEmployeeDto);
+
+        public Task<bool> DeleteEmployee(Guid employeeId, string laundryUsername);
+
+        public Task<EmployeeDto> UpdateEmployee(EmployeeDto employee, string laundryUsername);
     }
 }

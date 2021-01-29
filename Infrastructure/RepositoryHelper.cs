@@ -36,6 +36,8 @@ namespace LaundryApi.Infrastructure
                 throw new Exception(ErrorMessage.UserHasTwoRoles);
 
             ApplicationUser user = (ApplicationUser)laundry ?? employee;
+            if (user.IsDeleted)
+                throw new Exception(ErrorMessage.UserDoesNotExist);
             return user;
 
 
@@ -47,7 +49,7 @@ namespace LaundryApi.Infrastructure
             {
                 var laundryInDb = _context.Laundries.SingleOrDefault(_user => _user.Username == username);
 
-                if (laundryInDb == null)
+                if (laundryInDb == null || laundryInDb.IsDeleted)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
 
                 return laundryInDb;
@@ -68,7 +70,7 @@ namespace LaundryApi.Infrastructure
             try
             {
                 var employeeInDb = _context.Employees.SingleOrDefault(_user => _user.Username == username);
-                if (employeeInDb == null)
+                if (employeeInDb == null || employeeInDb.IsDeleted)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
 
                 return employeeInDb;

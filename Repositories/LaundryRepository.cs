@@ -83,7 +83,54 @@ namespace LaundryApi.Repositories
 
 
         }
+        
+        public async Task<bool> DeleteLaundry(Guid laundryId)
+        {
+            try
+            {
+                var laundry = await _context.Laundries.FindAsync(laundryId);
+                if (laundry == null || laundry.IsDeleted)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+                laundry.IsDeleted = true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.UserDoesNotExist)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
 
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+           
+        }
+
+        public async Task<LaundryDto> UpdateLaundry(LaundryDto laundry)
+        {
+            try
+            {
+                Laundry laundryInDb = await _context.Laundries.FindAsync(laundry.Id);
+                if (laundryInDb == null || laundryInDb.IsDeleted)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+                laundryInDb.UpdatedAt = DateTime.Now;
+                laundryInDb.Name = laundry.Name;
+                laundryInDb.Address = laundry.Address;
+                laundryInDb.PhoneNumber = laundry.PhoneNumber;
+                laundryInDb.LaundryName = laundry.LaundryName;
+
+                await _context.SaveChangesAsync();
+                laundry = mapper.Map<LaundryDto>(laundryInDb);
+                return laundry ;
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.UserDoesNotExist)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+
+        }
 
     }
 }

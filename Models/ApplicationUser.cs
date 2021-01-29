@@ -47,6 +47,8 @@ namespace LaundryApi.Models
         [Required]
         public int NoOfCustomers { get; set; }
 
+        public bool IsDeleted { get; set; }
+
         
 
 

@@ -4,14 +4,16 @@ using LaundryApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    partial class LaundryApiContextModelSnapshot : ModelSnapshot
+    [Migration("20210129032525_addIsDeletedColumnToApplicationUsers")]
+    partial class addIsDeletedColumnToApplicationUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -218,10 +220,6 @@ namespace LaundryApi.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LaundryName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

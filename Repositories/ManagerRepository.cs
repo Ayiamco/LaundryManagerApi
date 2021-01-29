@@ -30,27 +30,7 @@ namespace LaundryApi.Repositories
 
         
 
-        public Laundry  GetLaundryByUsername(string username)
-        {
-            try
-            {
-                var laundryInDb = _context.Laundries.SingleOrDefault(_user => _user.Username == username);
-                
-                if (laundryInDb == null)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
-
-                return laundryInDb;
-       
-            }
-            catch(Exception e)
-            {
-                if (e.Message == ErrorMessage.UserDoesNotExist)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
-                throw new Exception(ErrorMessage.FailedDbOperation);
-            }
-
-
-        }
+        
 
         public Employee GetEmployeeByUsername(string username)
         {
@@ -167,6 +147,9 @@ namespace LaundryApi.Repositories
                 else if (e.Message == ErrorMessage.UserHasTwoRoles)
                     throw new Exception(ErrorMessage.UserHasTwoRoles);
 
+                else if (e.Message == ErrorMessage.UserDoesNotExist)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
             
@@ -178,9 +161,9 @@ namespace LaundryApi.Repositories
             {
                 ApplicationUser user;
                 if (role == RoleNames.LaundryOwner)
-                    user = GetLaundryByUsername(username);
+                    user = _contextHelper.GetLaundryByUsername(username);
                 else if (role == RoleNames.LaundryEmployee)
-                    user = GetEmployeeByUsername(username);
+                    user = _contextHelper.GetEmployeeByUsername(username);
                 else
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
@@ -194,7 +177,7 @@ namespace LaundryApi.Repositories
                 //get user role if password is correct
                 if (user is Employee)
                     resp.UserRole = RoleNames.LaundryEmployee;
-                else
+                else if(user is Laundry)
                     resp.UserRole = RoleNames.LaundryOwner;
 
                 //return response object

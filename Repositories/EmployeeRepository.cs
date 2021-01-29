@@ -82,5 +82,57 @@ namespace LaundryApi.Repositories
             }
         }
 
+        public async Task<bool> DeleteEmployee (Guid employeeId,string laundryUsername)
+        {
+            try
+            {
+                Employee employeeInDb= await ValidateRequestParam(employeeId, laundryUsername);
+
+                employeeInDb.IsDeleted = true;
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.EmployeeNotOwnedByUser)
+                    throw new Exception(ErrorMessage.EmployeeNotOwnedByUser);
+
+                else if (e.Message == ErrorMessage.UserDoesNotExist)
+                    throw new Exception(ErrorMessage.UserDoesNotExist);
+
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+
+        }
+
+        public async Task<EmployeeDto> UpdateEmployee(EmployeeDto employee,string laundryUsername)
+        {
+            Employee employeeInDb=await ValidateRequestParam(employee.Id, laundryUsername);
+
+            employeeInDb.Address = employee.Address;
+            employeeInDb.Name = employee.Name;
+            employeeInDb.PhoneNumber = employee.PhoneNumber;
+            employeeInDb.UpdatedAt = DateTime.Now;
+
+            _context.SaveChanges();
+            employee = mapper.Map<EmployeeDto>(employeeInDb);
+            employee.Laundry = null;
+            return employee;
+        }
+
+        private async Task<Employee> ValidateRequestParam(Guid employeeId, string laundryUsername)
+        {
+            Laundry laundry = _context.Laundries.SingleOrDefault(x => x.Username == laundryUsername);
+            Employee employeeInDb = await _context.Employees.FindAsync(employeeId);
+            if (employeeInDb == null)
+                throw new Exception(ErrorMessage.UserDoesNotExist);
+
+            if (employeeInDb.LaundryId != laundry.Id)
+                throw new Exception(ErrorMessage.EmployeeNotOwnedByUser);
+
+            return employeeInDb;
+        }
+
     }
 }

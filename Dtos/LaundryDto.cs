@@ -25,6 +25,8 @@ namespace LaundryApi.Dtos
         [Required]
         public string Address { get; set; }
 
+        public string LaundryName { get; set; }
+
         public int NoOfCustomers { get; set; }
         public int NoOfEmployees { get; set; }
         public decimal Revenue { get; set; }

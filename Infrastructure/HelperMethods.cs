@@ -26,11 +26,7 @@ namespace LaundryApi.Infrastructure
             public const string InCorrectPassword = "password is incorrect";
             public const string InvalidModel = "reqeust body is invalid";
             public const string UserHasTwoRoles = "username is tied to two roles";
-
-
-
-            
-
+            public const string EmployeeNotOwnedByUser = "employee is not owned by the current user";
         }
 
         

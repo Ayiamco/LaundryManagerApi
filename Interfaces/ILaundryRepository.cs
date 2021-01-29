@@ -12,7 +12,8 @@ namespace LaundryApi.Interfaces
     {
         public  Task<LaundryDto> FindLaundryAsync(Guid laundryId);
         public Task<LaundryDto> CreateLaundryAsync(NewLaundryDto newLaundryDto);
-
+        public  Task<bool> DeleteLaundry(Guid laundryId);
+        public  Task<LaundryDto> UpdateLaundry(LaundryDto laundry);
 
 
     }
