@@ -38,7 +38,7 @@ namespace LaundryApi.Controllers
 
             ResponseDto<string> response = new ResponseDto<string>()
             { 
-                statusCode = "200",
+                status = "200",
                 message = "login details are correct"
             };
             try
@@ -56,18 +56,18 @@ namespace LaundryApi.Controllers
                 //create response body
                 response.data = token;
                 if (resp.UserRole==RoleNames.LaundryOwner)
-                    response.role = RoleNames.LaundryOwner;
+                    response.userRole = RoleNames.LaundryOwner;
                 else if(resp.UserRole==RoleNames.LaundryEmployee)
-                    response.role = RoleNames.LaundryEmployee;
+                    response.userRole = RoleNames.LaundryEmployee;
                 else
-                    response.role = RoleNames.Admin;
+                    response.userRole = RoleNames.Admin;
 
                 return Ok(response);
             }
             catch(Exception e)
             {
 
-                response.statusCode = "400";
+                response.status = "400";
                 if (e.Message == ErrorMessage.InCorrectPassword)
                 {
                     response.message = ErrorMessage.InCorrectPassword;
@@ -108,13 +108,13 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<ForgotPasswordDto>()
                     {
                         message = ErrorMessage.UserDoesNotExist,
-                        statusCode="400"
+                        status="400"
                     }) ;
                 else if (e.Message == ErrorMessage.UserHasTwoRoles)
                     return BadRequest(new ResponseDto<ForgotPasswordDto>()
                     {
                         message = ErrorMessage.UserHasTwoRoles,
-                        statusCode = "400"
+                        status = "400"
                     });
 
                 //if you get to this point something unforseen happened
@@ -138,7 +138,7 @@ namespace LaundryApi.Controllers
             if (!managerRepository.IsPasswordResetLinkValid(dto.Username, id))
                 return BadRequest(new ResponseDto<ForgotPasswordDto>()
                 {
-                    statusCode="400",
+                    status="400",
                     message = "reset link in invalid"
                 });
 
@@ -154,7 +154,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<ForgotPasswordDto>()
                     {
                         message = ErrorMessage.LinkExpired,
-                        statusCode = "400"
+                        status = "400"
                     });
                 }
                     

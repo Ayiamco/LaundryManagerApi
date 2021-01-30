@@ -18,6 +18,7 @@ namespace LaundryApi.Infrastructure
             CreateMap<NewLaundryDto,Laundry>();  
 
             CreateMap<CustomerDto, Customer>().ReverseMap();
+            CreateMap<NewCustomerDto, Customer>().ReverseMap();
 
             CreateMap<NewEmployeeDto, Employee>().ReverseMap();
             CreateMap<EmployeeDtoPartial, Employee>().ReverseMap();

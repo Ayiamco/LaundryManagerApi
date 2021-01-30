@@ -18,7 +18,7 @@ namespace LaundryApi.Models
         public const string InvalidModel = "reqeust body is invalid";
         public const string UserHasTwoRoles = "username is tied to two roles";
         public const string EmployeeNotOwnedByUser = "employee is not owned by the current user";
-        public const string NoEntityMatchesSearch = " could not find the any item that matches the search parameter";
+        public const string NoEntityMatchesSearch = " could not find any item that matches the search";
         public const string OnlyLaundryOwnerAllowed = "only laundry owners can access this method";
     }
 }

@@ -28,21 +28,6 @@ namespace laundryapi.controllers
             this.mapper = mapper;
         }
 
-        //GET: api/service
-        //[httpget]
-        //public ActionResult<IEnumerable<ServiceDto>> Index()
-        //{
-        //    try
-        //    {
-        //        var laundryservices = serviceRepository.GetAllLaundryServices();
-        //        return ok(laundryservices);
-        //    }
-        //    catch
-        //    {
-        //        return statuscode(500);
-        //    }
-        //}
-
 
         //GET: api/service/{customerid}
         [HttpGet("{id}")]
@@ -101,8 +86,8 @@ namespace laundryapi.controllers
         }
 
 
-        //put: api/service
-        [HttpPost]
+        //PATCH: api/service/update
+        [HttpPatch("update")]
         public async Task<ActionResult<ServiceDto>> UpdateService(ServiceDto servicedto)
         {
             if (!ModelState.IsValid)
@@ -110,7 +95,7 @@ namespace laundryapi.controllers
             try 
             {
                 var service=await serviceRepository.UpdateService(servicedto);
-                var resp = new ResponseDto<ServiceDto>() { data = service, message = "updated suceessfully", statusCode = "200" };
+                var resp = new ResponseDto<ServiceDto>() { data = service, message = "updated suceessfully", status = "200" };
                 return Ok(resp);
             }
             catch (Exception e)
@@ -124,9 +109,8 @@ namespace laundryapi.controllers
 
         }
 
-        //delete: api/customer/{serviceid}
-        [Route("{serviceid}")]
-        [HttpDelete]
+        //DELETE: api/service/{serviceid}
+        [HttpDelete("{serviceid}")]
         public async Task<ActionResult<ResponseDto<ServiceDto>>> Deleteservice(Guid serviceid)
         {
             if (!ModelState.IsValid)

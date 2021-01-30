@@ -18,7 +18,6 @@ namespace LaundryApi.Repositories
     {
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
-        private readonly ICustomerRepository customerRepository;
         private readonly IRepositoryHelper repositoryHelper;
 
         public InvoiceRepository(LaundryApiContext _context, IMapper mapper, ICustomerRepository customerRepository,IRepositoryHelper repositoryHelper)
@@ -26,7 +25,6 @@ namespace LaundryApi.Repositories
         {
             this._context = _context;
             this.mapper = mapper;
-            this.customerRepository = customerRepository;
             this.repositoryHelper = repositoryHelper;
         }
 
@@ -58,17 +56,20 @@ namespace LaundryApi.Repositories
                     if (repositoryHelper.GetEmployeeByUsername(username).LaundryId != customerInDb.LaundryId)
                         throw new Exception(ErrorMessage.InvalidToken);
                 }
-                
-           
-                //get the invoice total
-                decimal invoiceTotal = newInvoiceDto.InvoiceItems.GetInvoiceTotal();
 
-                //update customer and laundry
+                //get the invoice total, update customer,laundry AND EMPLOYEE
+                decimal invoiceTotal = newInvoiceDto.InvoiceItems.GetInvoiceTotal();
                 customerInDb.Debt += invoiceTotal - newInvoiceDto.AmountPaid;
                 if (newInvoiceDto.AmountPaid > 0)
                 {
+                    customerInDb.TotalPurchase += newInvoiceDto.AmountPaid;
                     Laundry laundry = _context.Laundries.Find(customerInDb.LaundryId);
                     laundry.Revenue += newInvoiceDto.AmountPaid;
+                    if(customerInDb.EmployeeId != new Guid())
+                    {
+                        Employee employee = _context.Employees.Find(customerInDb.EmployeeId);
+                        employee.Revenue += newInvoiceDto.AmountPaid;
+                    }
                 }
 
                 //create the invoice object and add the invoice to the db context 
@@ -120,26 +121,22 @@ namespace LaundryApi.Repositories
 
         }
 
-        public IEnumerable<InvoiceDto> GetInvoices()
+        public PagedList<InvoiceDto> GetInvoices(int pageNumber, int pageSize)
         {
-            var invoicesList = _context.Invoices;
-            IEnumerable<InvoiceDto> obj = (IEnumerable<InvoiceDto>)mapper.Map<InvoiceDto>(invoicesList);
-            
-            return obj;
-        }
+            var invoicesList = _context.Invoices.ToList();
+            var page=invoicesList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
-        public IEnumerable<InvoiceDto> GetInvoices(int pageNumber, int pageSize)
-        {
-            var invoicesList = _context.Invoices.ToList().Skip((pageNumber - 1) * pageSize).Take(pageSize);
-            List<InvoiceDto> obj = new List<InvoiceDto>();
-            foreach (Invoice invoice in invoicesList)
+            PagedList<InvoiceDto> obj = new PagedList<InvoiceDto>()
             {
-                var objDto = mapper.Map<InvoiceDto>(invoice);
-                obj.Add(objDto);
-            }
+                Data= mapper.Map<IEnumerable<InvoiceDto>>(page),
+                PageNumber=pageNumber,
+                PageSize=pageSize,
+                OverallSize=invoicesList.Count,
+            };
+
             return obj;
         }
-        public IEnumerable<InvoiceDto> GetInvoices(int pageNumber, int pageSize,string username,string userRole)
+        public PagedList<InvoiceDto> GetInvoices(int pageNumber, int pageSize,string username,string userRole)
         {
             //get the laundry 
             Guid laundryId;
@@ -157,9 +154,15 @@ namespace LaundryApi.Repositories
             }
             
             //do the pagination and select 
-            var invoicesList =invoices.OrderBy(x => x.Amount).Skip((pageNumber - 1) * pageSize).Take(pageSize);
-            List<InvoiceDto> obj = mapper.Map<List<InvoiceDto>>(invoicesList);
-           
+            var page = invoices.OrderBy(x => x.Amount).Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            PagedList<InvoiceDto> obj = new PagedList<InvoiceDto>()
+            {
+                Data = mapper.Map<IEnumerable<InvoiceDto>>(page),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                OverallSize = invoices.Count,
+            };
+
             return obj;
         }
 
@@ -190,19 +193,62 @@ namespace LaundryApi.Repositories
 
 
         }
-        
-        public void PayForInvoice (InvoiceDto invoice)
-        {
-            //get the invoice and update it
-            var invoiceInDb=_context.Invoices.SingleOrDefault( x=> x.Id== invoice.Id);
-            invoiceInDb.AmountPaid += invoice.AmountPaid;
-            invoiceInDb.IsPaidFor = invoiceInDb.AmountPaid > invoiceInDb.Amount;
 
-            //save changes
+        public void DepositCustomerPayment(Guid customerId, decimal amtDeposited)
+        {
+            IEnumerable<Invoice> invoices = _context.Invoices
+                .Where(x => x.Id == customerId && !x.IsPaidFor).OrderBy(x => x.CreatedAt);
+            if (invoices.Count() == 0)
+                throw new Exception(ErrorMessage.NoEntityMatchesSearch);
+
+            //loop thru the invoices to find unpaid invoices
+            UpdateInvoicesWIthDeposit(invoices, amtDeposited);
+
+            //update the laundry,employee and customer object
+            var customer = _context.Customers.Find(customerId);
+            customer.TotalPurchase += amtDeposited;
+            if(customer.EmployeeId != new Guid())
+            {
+                var employee = _context.Employees.Find(customer.EmployeeId);
+                employee.Revenue += amtDeposited;
+            }
+            Laundry laundry=_context.Laundries.Find(customer.LaundryId);
+            laundry.Revenue += amtDeposited;
+
             _context.SaveChanges();
-            return;
+            
         }
 
-        
+        public IEnumerable<InvoiceDto> FetchCustomerInvoices(Guid customerId)
+        {
+           var invoices= _context.Invoices.Where(x => x.CustomerId == customerId).OrderBy(x => x.CreatedAt);
+            var invoiceDtos = mapper.Map<IEnumerable<InvoiceDto>>(invoices);
+            return invoiceDtos;
+            
+        }
+
+        private static void UpdateInvoicesWIthDeposit(IEnumerable<Invoice> invoices,decimal amtDeposited)
+        {
+            foreach (Invoice invoice in invoices)
+            {
+                decimal invoiceBalance = invoice.Amount - invoice.AmountPaid;
+                if (invoiceBalance >= amtDeposited)
+                {
+                    invoice.AmountPaid += amtDeposited;
+                    amtDeposited = 0;
+                }
+                else if (invoiceBalance < amtDeposited)
+                {
+                    invoice.AmountPaid += invoiceBalance;
+                    amtDeposited -= invoiceBalance;
+                    invoice.IsPaidFor = true;
+                }
+                
+                if (amtDeposited == 0)
+                    break;
+
+            }
+        }
+
     }
 }

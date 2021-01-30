@@ -31,17 +31,18 @@ namespace LaundryApi.Controllers
 
         //GET: api/invoice?pageindex={int}&pagesize={int}
         [HttpGet]
-        public ActionResult Index(int pageSize,int pageIndex)
+        public ActionResult GetPaginatedLaundryInvoices(int pageSize,int pageIndex)
         {
             string role = HttpContext.GetUserRole();
             if ( !(role==RoleNames.LaundryOwner || role == RoleNames.LaundryEmployee))
             {
                 return StatusCode(401);
             }
-            IEnumerable<InvoiceDto> invoices=invoiceRepository.GetInvoices(pageIndex,pageSize,HttpContext.User.Identity.Name,role);
+            PagedList<InvoiceDto> invoices=invoiceRepository.GetInvoices(pageIndex,pageSize,HttpContext.User.Identity.Name,role);
 
-            return Ok(new ResponseDto<IEnumerable<InvoiceDto>>() { data=invoices,statusCode="200"});
+            return Ok(new ResponseDto<PagedList<InvoiceDto>>() { data=invoices,status="200"});
         }
+
 
         //GET: api/Invoice/{invoiceId}
         [HttpGet("{id}")]
@@ -64,11 +65,25 @@ namespace LaundryApi.Controllers
             }
         }
 
-        //[HttpGet()]
-        //public ActionResult MakePayment()
-        //{
-        //    return Ok();
-        //}
+
+        //POST: api/invoice
+        [HttpPost("deposit")]
+        public ActionResult MakePayment([FromBody] decimal amount,Guid customerId)
+        {
+            try
+            {
+                invoiceRepository.DepositCustomerPayment(customerId, amount);
+                return Ok();
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    return BadRequest(new ResponseDto<string>() { message = "customer has no unpaid invoice" });
+
+                return StatusCode(500);
+            }
+           
+        }
 
 
         //GET: api/invoice/items/{id}
@@ -97,6 +112,7 @@ namespace LaundryApi.Controllers
 
 
         }
+
 
         //POST: api/Invoice/add
         [HttpPost("new")]
@@ -127,6 +143,14 @@ namespace LaundryApi.Controllers
 
             }
 
+        }
+
+        //GET: api/invoices/customer/{customerId}
+        [HttpGet("/customer/{customerId}")]
+        public ActionResult GetCustomerInvoices(Guid customerId)
+        {
+            IEnumerable<InvoiceDto> invoices=invoiceRepository.FetchCustomerInvoices(customerId);
+            return Ok(new ResponseDto<IEnumerable<InvoiceDto>>() { data=invoices, status="200"});
         }
     }
 }

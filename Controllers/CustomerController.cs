@@ -28,15 +28,15 @@ namespace LaundryApi.Controllers
 
         //POST: api/customer/new
         [HttpPost("new")]
-        public async Task<ActionResult<CustomerDto>> AddCustomer([FromBody] CustomerDto newCustomer)
+        public async Task<ActionResult<CustomerDto>> AddCustomer([FromBody] NewCustomerDto newCustomer)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(new ResponseDto<string>() { message=ErrorMessage.InvalidModel});
 
             CustomerDto customer;
             ResponseDto<CustomerDto> response = new ResponseDto<CustomerDto>()
             {
-                statusCode = "201",
+                status = "201",
                 message = "successfully created new customer"
             };
             try
@@ -57,7 +57,7 @@ namespace LaundryApi.Controllers
                 if (e.Message == ErrorMessage.InvalidToken)
                 {
                     // request does not contain valid jwt token.
-                    response.statusCode = "404";
+                    response.status = "404";
                     response.message = ErrorMessage.InvalidToken;
                     return BadRequest();
                 }
@@ -90,20 +90,20 @@ namespace LaundryApi.Controllers
         }
 
         //PUT: api/customer
-        [HttpPut]
-        public ActionResult<CustomerDto> UpdateCustomer([FromBody] CustomerDto customer)
+        [HttpPatch]
+        public async Task<ActionResult<CustomerDto>> UpdateCustomer([FromBody] CustomerDto customer)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
             try
             {
-                customerRepository.UpdateCustomer(customer);
+                await customerRepository.UpdateCustomer(customer);
                 return Ok();
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EntityDoesNotExist)
-                    return StatusCode(400);
+                    return BadRequest(new ResponseDto<CustomerDto>() { message=ErrorMessage.EntityDoesNotExist});
 
                 //if you get to this point something unforseen happened
                 return StatusCode(500);
@@ -132,10 +132,47 @@ namespace LaundryApi.Controllers
 
         }
 
-        //[HttpGet("{name}")]
-        //public ActionResult GetCustomerByName (string name)
-        //{
-        //    return Ok();
-        //}
+        //GET:  api/customer/search?name={name}
+        [HttpGet("search")]
+        public ActionResult Search(string name,string username)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(name))
+                    return BadRequest(new ResponseDto<string>() { message = ErrorMessage.NoEntityMatchesSearch });
+
+                var customer = customerRepository.GetCustomer(name, username);
+                return Ok(new ResponseDto<IEnumerable<CustomerDto>>() { data = customer, status = "200", });
+            }
+            catch(Exception e)
+            {
+                if(e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    return BadRequest(new ResponseDto<string>() { message = ErrorMessage.NoEntityMatchesSearch });
+
+                //if you get to these point somthing unusual occured
+                return StatusCode(500);
+            }
+            
+        }
+
+        [HttpGet("debtors")]
+        public ActionResult GetDebtors()
+        {
+            try
+            {
+                var debtors = customerRepository.GetCustomer(HttpContext.User.Identity.Name);
+                return Ok(new ResponseDto<IEnumerable<CustomerDto>> { data = debtors, status = "200", message = "" });
+            }
+            catch(Exception e)
+            {
+                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    return StatusCode(204);
+
+                return StatusCode(500);
+            }
+            
+        }
+
+        
     }
 }

@@ -46,7 +46,7 @@ namespace LaundryApi.Controllers
                 if (e.Message == ErrorMessage.UserDoesNotExist)
                     return BadRequest(new ResponseDto<LaundryDto>() {
                         message = ErrorMessage.UserDoesNotExist,
-                        statusCode = "400"
+                        status = "400"
                     });
 
                 //if you got to this point an unforseen error occured
@@ -58,18 +58,17 @@ namespace LaundryApi.Controllers
 
         //POST: api/laundry/new
         [HttpPost("new")]
+        [AllowAnonymous]
         public async Task<ActionResult<LaundryDto>> RegisterLaundry([FromBody] NewLaundryDto user)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            if (user.Password != user.ConfirmPassword)
-                return BadRequest(new { message = "Password do not match" });
-
+            
             try
             {
                 //save new laundry to database
                 LaundryDto laundryDto = await laundryRepository.CreateLaundryAsync(user);
-                return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, laundryDto);
+                return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, new ResponseDto<LaundryDto>() {data=laundryDto,status="201" });
             }
             catch (Exception e)
             {
@@ -77,7 +76,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<LaundryDto>()
                     {
                         message = ErrorMessage.UsernameAlreadyExist,
-                        statusCode = "400"
+                        status = "400"
                     });
 
                 //if you got this pointan unforseen error occurred
@@ -93,12 +92,12 @@ namespace LaundryApi.Controllers
             try
             {
                 await laundryRepository.DeleteLaundry(laundryId);
-                return Ok(new ResponseDto<LaundryDto>() { message = "laundry deleted successfully.", statusCode = "200" });
+                return Ok(new ResponseDto<LaundryDto>() { message = "laundry deleted successfully.", status = "200" });
             }
             catch(Exception e)
             {
                 if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, statusCode = "400" });
+                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, status = "400" });
 
                 return StatusCode(500);
             }
@@ -112,12 +111,12 @@ namespace LaundryApi.Controllers
             try
             {
                 var data=await laundryRepository.UpdateLaundry(laundry);
-                return Ok(new ResponseDto<LaundryDto>() { message = "laundry updated successfully.", statusCode = "200",data=data });
+                return Ok(new ResponseDto<LaundryDto>() { message = "laundry updated successfully.", status = "200",data=data });
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, statusCode = "400" });
+                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, status = "400" });
 
                 return StatusCode(500);
             }
