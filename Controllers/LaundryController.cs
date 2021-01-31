@@ -56,6 +56,7 @@ namespace LaundryApi.Controllers
 
         }
 
+        //Tested
         //POST: api/laundry/new
         [HttpPost("new")]
         [AllowAnonymous]

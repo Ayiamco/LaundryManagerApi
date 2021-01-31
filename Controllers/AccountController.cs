@@ -29,6 +29,7 @@ namespace LaundryApi.Controllers
 
         }
 
+        //Tested
         //POST: api/laundry/login
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] UserLoginDto user)

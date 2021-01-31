@@ -39,9 +39,10 @@ namespace LaundryApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+
             services.AddDbContext<LaundryApiContext>(options =>
                         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+           
 
             //allow my react app
             services.AddCors(options =>
@@ -78,6 +79,7 @@ namespace LaundryApi
 
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
             services.AddScoped<IManagerRepository, ManagerRepository>();
+            services.AddScoped<IMailService,MailService>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<ILaundryRepository, LaundryRepository>();
             services.AddScoped<ICustomerRepository, CustomerRespository>();

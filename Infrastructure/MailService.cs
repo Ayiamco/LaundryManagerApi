@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LaundryApi.Interfaces;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
@@ -6,18 +8,27 @@ using System.Threading.Tasks;
 
 namespace LaundryApi.Infrastructure
 {
-    public class MailService
+   
+    public  class MailService:IMailService
     {
-        public static async Task SendMailAsync(string recieverEmail, string messageBody, string messageSubject)
+        readonly IConfiguration config;
+
+        public MailService(IConfiguration config)
+        {
+            this.config = config;
+        }
+        public  async Task SendMailAsync(string recieverEmail, string messageBody, string messageSubject)
         {
             try
             {
+                
+                string username = config["Movies:emailUsername"];
                 SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
                 smtpClient.UseDefaultCredentials = false;
                 smtpClient.Credentials = new System.Net.NetworkCredential()
                 {
-                    UserName = "ayiamco@gmail.com",
-                    Password = "chukwuyerechukwuyere"
+                    UserName = config["Movies:emailUsername"],
+                    Password = config["Movies:emailPassword"]
                 };
                 smtpClient.EnableSsl = true;
                 smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;

@@ -28,7 +28,7 @@ namespace LaundryApi.Repositories
             try
             {
                 var laundry = await _context.Laundries.FindAsync(id);
-                if (laundry == null)
+                if (laundry == null || laundry.IsDeleted)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
 
                 var laundryDto = mapper.Map<LaundryDto>(laundry);

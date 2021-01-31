@@ -21,17 +21,15 @@ namespace LaundryApi.Repositories
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
         private readonly IRepositoryHelper _contextHelper;
-        public ManagerRepository(LaundryApiContext _context, IMapper mapper, IRepositoryHelper _contextHelper)
+        private readonly IMailService mailService;
+        public ManagerRepository(LaundryApiContext _context, IMapper mapper, IRepositoryHelper _contextHelper,IMailService mailService)
         {
             this.mapper = mapper;
             this._context = _context;
             this._contextHelper = _contextHelper;
+            this.mailService = mailService;
         }
-
         
-
-        
-
         public Employee GetEmployeeByUsername(string username)
         {
             try
@@ -205,7 +203,8 @@ namespace LaundryApi.Repositories
             //send the user the password reset link
             string url = $"https://localhost:44322/api/account/forgotpassword/{linkId}";
             string mailContent = $"<p> Hi {user.Name},</p> <p> Please click <a href='{url}'>here</a> to change your password";
-            await MailService.SendMailAsync(user.Username, mailContent, "Password Reset");
+           
+            await mailService.SendMailAsync(user.Username, mailContent, "Password Reset");
             return true;
         }
 
