@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace LaundryApi.Repositories
 {
@@ -22,8 +23,11 @@ namespace LaundryApi.Repositories
         private readonly IMapper mapper;
         private readonly IRepositoryHelper _contextHelper;
         private readonly IMailService mailService;
-        public ManagerRepository(LaundryApiContext _context, IMapper mapper, IRepositoryHelper _contextHelper,IMailService mailService)
+        private readonly IConfiguration config;
+        public ManagerRepository(LaundryApiContext _context, IMapper mapper,
+            IRepositoryHelper _contextHelper,IMailService mailService,IConfiguration config)
         {
+            this.config = config;
             this.mapper = mapper;
             this._context = _context;
             this._contextHelper = _contextHelper;
@@ -207,15 +211,12 @@ namespace LaundryApi.Repositories
             await mailService.SendMailAsync(user.Username, mailContent, "Password Reset");
             return true;
         }
-
-        
-
         private ApplicationUser GetUserByResetLinkId(string resetLinkId)
         {
             ApplicationUser userInDb;
-            if (resetLinkId.Substring(0, 1) == "l")
+            if (resetLinkId.Substring(0, 1) == config["LaundryManagerApi:laundryKey"])
                 userInDb = _context.Laundries.SingleOrDefault(x => x.PasswordResetId == resetLinkId);
-            else if (resetLinkId == "e")
+            else if (resetLinkId == config["LaundryManagerApi:employeeKey"])
                 userInDb = _context.Employees.SingleOrDefault(x => x.PasswordResetId == resetLinkId);
             else
             {

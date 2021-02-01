@@ -42,7 +42,7 @@ namespace LaundryApi
 
             services.AddDbContext<LaundryApiContext>(options =>
                         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-           
+
 
             //allow my react app
             services.AddCors(options =>
@@ -58,7 +58,7 @@ namespace LaundryApi
             });
 
             //add the jwt interface to enable injection
-            var key = "this is my keythis is my keythis is my keythis is my key"; //this is the key used during the hashing 
+            var key = Configuration["LaundryManagerApi:jwtKey"]; //this is the key used during the hashing 
 
             services.AddAuthentication(x =>
             {
@@ -84,7 +84,7 @@ namespace LaundryApi
             services.AddScoped<ILaundryRepository, LaundryRepository>();
             services.AddScoped<ICustomerRepository, CustomerRespository>();
             services.AddScoped<IInvoiceRepository,InvoiceRepository>();
-            //services.AddTransient<IInvoiceItemRepository,InvoiceItemRepository>();
+            services.AddTransient<IUnitOfWork,UnitOfWork>();
             services.AddScoped<IRepositoryHelper,RepositoryHelper>();
             services.AddScoped<IServiceRepository,ServiceRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

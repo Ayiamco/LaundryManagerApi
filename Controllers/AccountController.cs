@@ -19,14 +19,11 @@ namespace LaundryApi.Controllers
     public class AccountController : ControllerBase
     {
 
-        private readonly IManagerRepository managerRepository;
-        private readonly IJwtAuthenticationManager jwtManager;
-
-        public AccountController(IManagerRepository managerRepository, IJwtAuthenticationManager jwtManager)
+        private readonly IUnitOfWork unitOfWork;
+      
+        public AccountController(IUnitOfWork unitOfWork)
         {
-            this.managerRepository = managerRepository;
-            this.jwtManager = jwtManager;
-
+            this.unitOfWork = unitOfWork;
         }
 
         //Tested
@@ -47,12 +44,12 @@ namespace LaundryApi.Controllers
                 //get login resp
                 LoginResponseDto resp;
                 if (string.IsNullOrWhiteSpace(user.Role)) 
-                    resp = managerRepository.GetLoginResponse(user.Username, user.Password);
+                    resp = unitOfWork.ManagerRepository.GetLoginResponse(user.Username, user.Password);
                 else
-                    resp = managerRepository.GetLoginResponse(user.Username, user.Password,user.Role);
+                    resp = unitOfWork.ManagerRepository.GetLoginResponse(user.Username, user.Password,user.Role);
 
                 //get jwt token
-                string token = jwtManager.GetToken(user,resp.UserRole);
+                string token = unitOfWork.JwtAuthenticationManager.GetToken(user,resp.UserRole);
 
                 //create response body
                 response.data = token;
@@ -101,7 +98,7 @@ namespace LaundryApi.Controllers
             try
             {
                 //send passwoord reset link to email
-                await managerRepository.SendPasswordReset(dto.Username);
+                await unitOfWork.ManagerRepository.SendPasswordReset(dto.Username);
             }
             catch (Exception e)
             {
@@ -136,7 +133,7 @@ namespace LaundryApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
             //check if id matches username
-            if (!managerRepository.IsPasswordResetLinkValid(dto.Username, id))
+            if (!unitOfWork.ManagerRepository.IsPasswordResetLinkValid(dto.Username, id))
                 return BadRequest(new ResponseDto<ForgotPasswordDto>()
                 {
                     status="400",
@@ -146,7 +143,7 @@ namespace LaundryApi.Controllers
             //reset password
             try
             {
-                managerRepository.ResetPassword(dto, id);
+                unitOfWork.ManagerRepository.ResetPassword(dto, id);
             }
             catch (Exception e)
             {

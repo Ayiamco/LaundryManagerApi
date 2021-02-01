@@ -172,7 +172,8 @@ namespace LaundryApi.Repositories
             {
                 //read all the invoice items that match the invoiceId
                 var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDtoLight>>(_context.InvoiceItems.Include("Service").Where(x => x.InvoiceId == invoiceId).ToList());
-
+                if (invoiceItems.Count() == 0)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
                 //get the invoice that matches the invoice Id 
                 var invoice = await _context.Invoices.FindAsync(invoiceId);
 
@@ -184,8 +185,8 @@ namespace LaundryApi.Repositories
             }
             catch (Exception e)
             {
-                //if exception is thrown because id does not exist
-                //throw new Exception(ErrorMessage.EntityDoesNotExist)
+                if (e.Message == ErrorMessage.EntityDoesNotExist)
+                    throw new Exception(ErrorMessage.EntityDoesNotExist);
 
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }

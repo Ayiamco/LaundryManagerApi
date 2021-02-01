@@ -19,17 +19,11 @@ namespace LaundryApi.Controllers
     [Authorize]
     public class LaundryController : Controller
     {
-        private readonly ILaundryRepository laundryRepository;
-        private readonly IJwtAuthenticationManager jwtManager;
-        private readonly IManagerRepository managerRepository;
+        private IUnitOfWork unitOfWork;
 
-
-        public LaundryController(ILaundryRepository laundryRepository, IJwtAuthenticationManager jwtManager, IManagerRepository managerRepository)
+        public LaundryController(IUnitOfWork unitOfWork)
         {
-            this.laundryRepository = laundryRepository;
-            this.jwtManager = jwtManager;
-            this.managerRepository = managerRepository;
-
+            this.unitOfWork = unitOfWork; 
         }
 
         //GET: api/laundry/{id}
@@ -38,7 +32,7 @@ namespace LaundryApi.Controllers
         {
             try
             {
-                var user = await laundryRepository.FindLaundryAsync(id);
+                var user = await unitOfWork.LaundryRepository.FindLaundryAsync(id);
                 return user;
             }
             catch (Exception e)
@@ -68,7 +62,7 @@ namespace LaundryApi.Controllers
             try
             {
                 //save new laundry to database
-                LaundryDto laundryDto = await laundryRepository.CreateLaundryAsync(user);
+                LaundryDto laundryDto = await unitOfWork.LaundryRepository.CreateLaundryAsync(user);
                 return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, new ResponseDto<LaundryDto>() {data=laundryDto,status="201" });
             }
             catch (Exception e)
@@ -92,7 +86,7 @@ namespace LaundryApi.Controllers
         {
             try
             {
-                await laundryRepository.DeleteLaundry(laundryId);
+                await unitOfWork.LaundryRepository.DeleteLaundry(laundryId);
                 return Ok(new ResponseDto<LaundryDto>() { message = "laundry deleted successfully.", status = "200" });
             }
             catch(Exception e)
@@ -111,7 +105,7 @@ namespace LaundryApi.Controllers
         {
             try
             {
-                var data=await laundryRepository.UpdateLaundry(laundry);
+                var data=await unitOfWork.LaundryRepository.UpdateLaundry(laundry);
                 return Ok(new ResponseDto<LaundryDto>() { message = "laundry updated successfully.", status = "200",data=data });
             }
             catch (Exception e)
