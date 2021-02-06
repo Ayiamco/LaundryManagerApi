@@ -44,7 +44,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<EmployeeDto>()
                     {
                         message = ErrorMessage.UserDoesNotExist,
-                        status = "400"
+                        statusCode = "400"
                     });
 
                 //if you got to this point an unforseen error occured
@@ -67,13 +67,13 @@ namespace LaundryApi.Controllers
                 return Unauthorized(new ResponseDto<EmployeeDto>
                 {
                     message = "User is not a laundry owner",
-                    status = "401"
+                    statusCode = "401"
                 });
             if (newEmployee.Password != newEmployee.ConfirmPassword)
                 return BadRequest(new ResponseDto<EmployeeDto>
                 {
                     message = "Password do not match",
-                    status = "400"
+                    statusCode = "400"
                 });
 
             try
@@ -93,7 +93,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<EmployeeDto>()
                     {
                         message = ErrorMessage.UsernameAlreadyExist,
-                        status = "400"
+                        statusCode = "400"
                     });
 
                 //if you got this pointan unforseen error occurred
@@ -109,17 +109,17 @@ namespace LaundryApi.Controllers
             try
             {
                 if (HttpContext.GetUserRole() != RoleNames.LaundryOwner)
-                    return Unauthorized(new ResponseDto<string>() { message = "user must be a laundry owner", status = "401" });
+                    return Unauthorized(new ResponseDto<string>() { message = "user must be a laundry owner", statusCode = "401" });
 
                 await employeeRepository.DeleteEmployee(employeeId, HttpContext.User.Identity.Name);
-                return Ok(new ResponseDto<string>() { message = "employee was successfully deleted.", status = "200" });
+                return Ok(new ResponseDto<string>() { message = "employee was successfully deleted.", statusCode = "200" });
             }
             catch(Exception e)
             {
                 if (e.Message == ErrorMessage.EmployeeNotOwnedByUser)
-                    return Unauthorized(new ResponseDto<string>() { message = ErrorMessage.EmployeeNotOwnedByUser, status = "401" });
+                    return Unauthorized(new ResponseDto<string>() { message = ErrorMessage.EmployeeNotOwnedByUser, statusCode = "401" });
                 else if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return BadRequest(new ResponseDto<string>() { message="Employee does not exist",status="400"});
+                    return BadRequest(new ResponseDto<string>() { message="Employee does not exist",statusCode="400"});
 
                 return StatusCode(500);
 
@@ -135,17 +135,17 @@ namespace LaundryApi.Controllers
             try
             {
                 if (HttpContext.GetUserRole() != RoleNames.LaundryOwner)
-                    return Unauthorized(new ResponseDto<string>() { message = "user must be a laundry owner", status = "401" });
+                    return Unauthorized(new ResponseDto<string>() { message = "user must be a laundry owner", statusCode = "401" });
 
                 var data=await employeeRepository.UpdateEmployee(employee, HttpContext.User.Identity.Name);
-                return Ok(new ResponseDto<EmployeeDto>() { message = "employee was successfully update.", status = "200",data=data });
+                return Ok(new ResponseDto<EmployeeDto>() { message = "employee was successfully update.", statusCode = "200",data=data });
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EmployeeNotOwnedByUser)
-                    return Unauthorized(new ResponseDto<string>() { message = ErrorMessage.EmployeeNotOwnedByUser, status = "401" });
+                    return Unauthorized(new ResponseDto<string>() { message = ErrorMessage.EmployeeNotOwnedByUser, statusCode = "401" });
                 else if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return BadRequest(new ResponseDto<string>() { message = "Employee does not exist", status = "400" });
+                    return BadRequest(new ResponseDto<string>() { message = "Employee does not exist", statusCode = "400" });
 
                 return StatusCode(500);
 
@@ -161,7 +161,7 @@ namespace LaundryApi.Controllers
                     return Unauthorized(new ResponseDto<IEnumerable<EmployeeDto>>() { message = ErrorMessage.OnlyLaundryOwnerAllowed });
 
                 var employees = employeeRepository.GetMyEmployees(HttpContext.User.Identity.Name);
-                return Ok(new ResponseDto<IEnumerable<EmployeeDtoPartial>>() { status = "200", data = employees });
+                return Ok(new ResponseDto<IEnumerable<EmployeeDtoPartial>>() { statusCode = "200", data = employees });
             }
             catch (Exception e)
             {

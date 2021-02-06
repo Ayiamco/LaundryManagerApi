@@ -40,7 +40,7 @@ namespace LaundryApi.Controllers
             }
             PagedList<InvoiceDto> invoices=invoiceRepository.GetInvoices(pageIndex,pageSize,HttpContext.User.Identity.Name,role);
 
-            return Ok(new ResponseDto<PagedList<InvoiceDto>>() { data=invoices,status="200"});
+            return Ok(new ResponseDto<PagedList<InvoiceDto>>() { data=invoices,statusCode="200"});
         }
 
 
@@ -150,7 +150,7 @@ namespace LaundryApi.Controllers
         public ActionResult GetCustomerInvoices(Guid customerId)
         {
             IEnumerable<InvoiceDto> invoices=invoiceRepository.FetchCustomerInvoices(customerId);
-            return Ok(new ResponseDto<IEnumerable<InvoiceDto>>() { data=invoices, status="200"});
+            return Ok(new ResponseDto<IEnumerable<InvoiceDto>>() { data=invoices, statusCode="200"});
         }
     }
 }

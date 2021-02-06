@@ -7,17 +7,14 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using LaundryApi.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace LaundryApi.Infrastructure
 {
-    static public class HelperMethods
+    public static class HelperMethods
     {
-       
-
+        public  static IConfiguration config { get; set; }
         
-
-        
-
         public static string HashPassword(string password)
         {
             //byte[] salt = new byte[128 / 8];
@@ -56,19 +53,16 @@ namespace LaundryApi.Infrastructure
             return finalString;
         }
 
-        public static string GetResetLink(string username, string role = "")
+        public static string GetResetLink(string username, string roleId = "")
         {
             string linkId = GenerateRandomString(10);
+            linkId = roleId + linkId;
             string userClaim = HashPassword(username);
-            linkId += userClaim;
-            if (string.IsNullOrWhiteSpace(role))
-                linkId = "n" + linkId;
-            else if (role == RoleNames.LaundryEmployee)
-                linkId = "e" + linkId;
-            else if (role == RoleNames.LaundryOwner)
-                linkId = "l" + linkId;
-
+            linkId += userClaim;  
             return linkId;
         }
+
+        
+       
     }
 }

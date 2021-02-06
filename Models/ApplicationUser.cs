@@ -49,6 +49,9 @@ namespace LaundryApi.Models
 
         public bool IsDeleted { get; set; }
 
+        [Required]
+        public string UsernameHash { get; set; }
+
         
 
 

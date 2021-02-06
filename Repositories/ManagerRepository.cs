@@ -38,7 +38,7 @@ namespace LaundryApi.Repositories
         {
             try
             {
-                var employeeInDb = _context.Employees.SingleOrDefault(_user => _user.Username == username);
+                var employeeInDb = _context.Employees.AsQueryable().SingleOrDefault(_user => _user.Username == username);
                 if (employeeInDb == null)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
 
@@ -47,17 +47,19 @@ namespace LaundryApi.Repositories
             }
             catch(Exception e)
             {
-                if (e.Message == ErrorMessage.UserDoesNotExist)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
-
-                throw new Exception(ErrorMessage.FailedDbOperation);
+                throw new Exception(e.Message);
             }
         }
 
-        public bool IsPasswordResetLinkValid(string username, string resetLinkId)
+        public bool IsPasswordResetLinkValid(string resetLinkId)
         {
-            var usernameHash = resetLinkId[10..];
-            return HashPassword(username)==usernameHash;
+            var usernameHash = resetLinkId[11..];
+            var laundryOwner = _context.Laundries.SingleOrDefault(x => x.UsernameHash == usernameHash); 
+            var employee=  _context.Employees.SingleOrDefault(x => x.UsernameHash == usernameHash);
+
+            var user = laundryOwner ?? (ApplicationUser) employee;
+
+            return user.UsernameHash==usernameHash;
         }
 
         public void ResetPassword(ForgotPasswordDto dto, string resetLinkId)
@@ -68,7 +70,7 @@ namespace LaundryApi.Repositories
                 var userInDb = GetUserByResetLinkId(resetLinkId);
 
                 //check if reset link was clicked before deadline (2 mins)
-                if (DateTime.Now - userInDb.ForgotPasswordTime > new TimeSpan(0, 2, 0))
+                if (DateTime.Now - userInDb.ForgotPasswordTime > new TimeSpan(0, 30, 0))
                     throw new Exception(ErrorMessage.LinkExpired);
 
                 //update user password
@@ -83,37 +85,36 @@ namespace LaundryApi.Repositories
             }
             catch (Exception e)
             {
-                if (e.Message == ErrorMessage.LinkExpired)
-                    throw new Exception(ErrorMessage.LinkExpired);
-
-                throw new Exception(ErrorMessage.FailedDbOperation);
+                throw new Exception(e.Message);
             }
 
         }
         
-        public async Task<bool> SendPasswordReset(string username)
+        public async Task<bool> SendPasswordReset(ForgotPasswordDto dto)
         {
             try
             {
-                //generate the password reset link Id 
-                string linkId=GetResetLink(username);
-
-                //Get the application user
-                ApplicationUser user = _contextHelper.GetApplicationUser(username);
-          
+                string linkId;
+                ApplicationUser user;
+                if (dto.role == "1") 
+                   user= _contextHelper.GetLaundryByUsername(dto.Username);
+                else if (dto.role == "2") 
+                    user = _contextHelper.GetLaundryByUsername(dto.Username);
+                else
+                    user = _contextHelper.GetApplicationUser(dto.Username);
+                
+                if(user is Employee)
+                    linkId=GetResetLink(dto.Username,config["LaundryManangerApi:employeeKey"]);
+                else 
+                    linkId = GetResetLink(dto.Username, config["LaundryManagerApi:laundryKey"]);
+               
                 //send the password reset mail
-                bool resp=await SendMail(user, linkId);
-                return resp;
+                SendMail(user, linkId);
+                return true ;
             }
             catch (Exception e)
             {
-                if (e.Message == ErrorMessage.UserDoesNotExist)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
-
-                else if (e.Message == ErrorMessage.UserHasTwoRoles)
-                    throw new Exception(ErrorMessage.UserHasTwoRoles);
-
-                throw new Exception(ErrorMessage.FailedDbOperation);
+                throw new Exception(e.Message);
             }
             
         }
@@ -124,9 +125,11 @@ namespace LaundryApi.Repositories
             {
                 // get application user
                 ApplicationUser user=_contextHelper.GetApplicationUser(username);
-
+                //check if password is  changed
+                if (user.ForgotPasswordTime != null)
+                    throw new Exception(ErrorMessage.PasswordChanged);
                 //check if  user password is correct
-                if (user.PasswordHash != HashPassword(password))
+                if (user.PasswordHash != HashPassword(password ))
                     throw new Exception(ErrorMessage.InCorrectPassword);
 
                 //create the response object if password is correct
@@ -143,16 +146,7 @@ namespace LaundryApi.Repositories
             }
             catch(Exception e)
             {
-                if (e.Message == ErrorMessage.InCorrectPassword)
-                    throw new Exception(ErrorMessage.InCorrectPassword);
-
-                else if (e.Message == ErrorMessage.UserHasTwoRoles)
-                    throw new Exception(ErrorMessage.UserHasTwoRoles);
-
-                else if (e.Message == ErrorMessage.UserDoesNotExist)
-                    throw new Exception(ErrorMessage.UserDoesNotExist);
-
-                throw new Exception(ErrorMessage.FailedDbOperation);
+                throw new Exception(e.Message);
             }
             
         }
@@ -205,7 +199,8 @@ namespace LaundryApi.Repositories
             _context.SaveChanges();
 
             //send the user the password reset link
-            string url = $"https://localhost:44322/api/account/forgotpassword/{linkId}";
+            string url = config["LaundryManagerApi:laundryWebClient"];
+            url += $"?id={linkId}";
             string mailContent = $"<p> Hi {user.Name},</p> <p> Please click <a href='{url}'>here</a> to change your password";
            
             await mailService.SendMailAsync(user.Username, mailContent, "Password Reset");
@@ -214,9 +209,10 @@ namespace LaundryApi.Repositories
         private ApplicationUser GetUserByResetLinkId(string resetLinkId)
         {
             ApplicationUser userInDb;
+            //bool name= "lIcAXoLiMvuE21TdBpXb5vnFQj6dLLKVas1dhy7Nu22AvP0w93DgZc=" == ""
             if (resetLinkId.Substring(0, 1) == config["LaundryManagerApi:laundryKey"])
                 userInDb = _context.Laundries.SingleOrDefault(x => x.PasswordResetId == resetLinkId);
-            else if (resetLinkId == config["LaundryManagerApi:employeeKey"])
+            else if (resetLinkId.Substring(0, 1) == config["LaundryManagerApi:employeeKey"])
                 userInDb = _context.Employees.SingleOrDefault(x => x.PasswordResetId == resetLinkId);
             else
             {

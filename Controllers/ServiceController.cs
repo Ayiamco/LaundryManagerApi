@@ -95,7 +95,7 @@ namespace laundryapi.controllers
             try 
             {
                 var service=await serviceRepository.UpdateService(servicedto);
-                var resp = new ResponseDto<ServiceDto>() { data = service, message = "updated suceessfully", status = "200" };
+                var resp = new ResponseDto<ServiceDto>() { data = service, message = "updated suceessfully", statusCode = "200" };
                 return Ok(resp);
             }
             catch (Exception e)

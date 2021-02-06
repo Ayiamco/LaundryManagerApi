@@ -13,5 +13,7 @@ namespace LaundryApi.Dtos
 
         [Compare("Password")]
         public string ConfirmPassword { get; set; }
+
+        public string role { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace LaundryApi.Repositories
         private readonly IMapper mapper;
         private readonly IRepositoryHelper repositoryHelper;
 
-        public InvoiceRepository(LaundryApiContext _context, IMapper mapper, ICustomerRepository customerRepository,IRepositoryHelper repositoryHelper)
+        public InvoiceRepository(LaundryApiContext _context, IMapper mapper,IRepositoryHelper repositoryHelper)
 
         {
             this._context = _context;

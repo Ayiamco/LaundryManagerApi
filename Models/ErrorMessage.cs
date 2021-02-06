@@ -20,5 +20,6 @@ namespace LaundryApi.Models
         public const string EmployeeNotOwnedByUser = "employee is not owned by the current user";
         public const string NoEntityMatchesSearch = " could not find any item that matches the search";
         public const string OnlyLaundryOwnerAllowed = "only laundry owners can access this method";
+        public const string PasswordChanged = "user already requested to change password";
     }
 }

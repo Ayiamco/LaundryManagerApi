@@ -55,6 +55,7 @@ namespace LaundryApi.Repositories
                 employee.PasswordHash = HashPassword(newEmployeeDto.Password);
                 employee.CreatedAt = DateTime.Now;
                 employee.UpdatedAt = DateTime.Now;
+                employee.UsernameHash = HashPassword(newEmployeeDto.Username);
                 employee.ForgotPasswordTime = null;
                 employee.PasswordResetId = null;
 

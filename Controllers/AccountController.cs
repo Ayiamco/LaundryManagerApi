@@ -36,7 +36,7 @@ namespace LaundryApi.Controllers
 
             ResponseDto<string> response = new ResponseDto<string>()
             { 
-                status = "200",
+                statusCode = "200",
                 message = "login details are correct"
             };
             try
@@ -48,27 +48,21 @@ namespace LaundryApi.Controllers
                 else
                     resp = unitOfWork.ManagerRepository.GetLoginResponse(user.Username, user.Password,user.Role);
 
-                //get jwt token
                 string token = unitOfWork.JwtAuthenticationManager.GetToken(user,resp.UserRole);
-
-                //create response body
                 response.data = token;
-                if (resp.UserRole==RoleNames.LaundryOwner)
-                    response.userRole = RoleNames.LaundryOwner;
-                else if(resp.UserRole==RoleNames.LaundryEmployee)
-                    response.userRole = RoleNames.LaundryEmployee;
-                else
-                    response.userRole = RoleNames.Admin;
-
                 return Ok(response);
             }
             catch(Exception e)
             {
-
-                response.status = "400";
+                response.statusCode = "400";
                 if (e.Message == ErrorMessage.InCorrectPassword)
                 {
                     response.message = ErrorMessage.InCorrectPassword;
+                    return BadRequest(response);
+                }
+                else if (e.Message == ErrorMessage.PasswordChanged)
+                {
+                    response.message = ErrorMessage.PasswordChanged;
                     return BadRequest(response);
                 }
                 else if (e.Message == ErrorMessage.UserDoesNotExist)
@@ -81,15 +75,14 @@ namespace LaundryApi.Controllers
                     response.message = ErrorMessage.UserHasTwoRoles;
                     return BadRequest(response);
                 }
-                 
 
-                //if you get to this point something unforseen occured
-                return StatusCode(500);
+                else
+                    return StatusCode(500);
             }
 
         }
 
-
+        //Tested
         //POST: api/account/forgotpassword
         [Route("forgotpassword")]
         [HttpPost]
@@ -98,45 +91,40 @@ namespace LaundryApi.Controllers
             try
             {
                 //send passwoord reset link to email
-                await unitOfWork.ManagerRepository.SendPasswordReset(dto.Username);
+                await unitOfWork.ManagerRepository.SendPasswordReset(dto);
+                return Ok(new ResponseDto<string>() { statusCode="200",message=$"password reset link has being sent to {dto.Username}"});
             }
             catch (Exception e)
             {
+                ResponseDto<string> response = new ResponseDto<string>() { statusCode = "400" };
                 if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return BadRequest(new ResponseDto<ForgotPasswordDto>()
-                    {
-                        message = ErrorMessage.UserDoesNotExist,
-                        status="400"
-                    }) ;
+                {
+                    response.message = "Your search did not return any result please retry with a registered email.";
+                    return BadRequest(response);
+                }
                 else if (e.Message == ErrorMessage.UserHasTwoRoles)
-                    return BadRequest(new ResponseDto<ForgotPasswordDto>()
-                    {
-                        message = ErrorMessage.UserHasTwoRoles,
-                        status = "400"
-                    });
+                {
+                    response.message = ErrorMessage.UserHasTwoRoles;
+                    return BadRequest(response);
+                }
 
-                //if you get to this point something unforseen happened
-                return StatusCode(500);
+                else
+                    return StatusCode(500); ;
             }
-            
-
-            //return response
-            return Ok();
         }
 
        
         //POST: api/account/forgotpassword/{id}
-        [Route("forgotpassword/{id}")]
-        [HttpPost]
+        [HttpPost("forgotpassword/{id}")]
         public ActionResult PasswordReset([FromBody] ForgotPasswordDto dto,string id)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
             //check if id matches username
-            if (!unitOfWork.ManagerRepository.IsPasswordResetLinkValid(dto.Username, id))
+            if (!unitOfWork.ManagerRepository.IsPasswordResetLinkValid( id))
                 return BadRequest(new ResponseDto<ForgotPasswordDto>()
                 {
-                    status="400",
+                    statusCode="400",
                     message = "reset link in invalid"
                 });
 
@@ -152,7 +140,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<ForgotPasswordDto>()
                     {
                         message = ErrorMessage.LinkExpired,
-                        status = "400"
+                        statusCode = "400"
                     });
                 }
                     
@@ -160,9 +148,5 @@ namespace LaundryApi.Controllers
             return Ok();
         } 
 
-
-        
-
-       
     }
 }

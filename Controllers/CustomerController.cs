@@ -36,7 +36,7 @@ namespace LaundryApi.Controllers
             CustomerDto customer;
             ResponseDto<CustomerDto> response = new ResponseDto<CustomerDto>()
             {
-                status = "201",
+                statusCode = "201",
                 message = "successfully created new customer"
             };
             try
@@ -57,7 +57,7 @@ namespace LaundryApi.Controllers
                 if (e.Message == ErrorMessage.InvalidToken)
                 {
                     // request does not contain valid jwt token.
-                    response.status = "404";
+                    response.statusCode = "404";
                     response.message = ErrorMessage.InvalidToken;
                     return BadRequest();
                 }
@@ -142,7 +142,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<string>() { message = ErrorMessage.NoEntityMatchesSearch });
 
                 var customer = customerRepository.GetCustomer(name, username);
-                return Ok(new ResponseDto<IEnumerable<CustomerDto>>() { data = customer, status = "200", });
+                return Ok(new ResponseDto<IEnumerable<CustomerDto>>() { data = customer, statusCode = "200", });
             }
             catch(Exception e)
             {
@@ -161,7 +161,7 @@ namespace LaundryApi.Controllers
             try
             {
                 var debtors = customerRepository.GetCustomer(HttpContext.User.Identity.Name);
-                return Ok(new ResponseDto<IEnumerable<CustomerDto>> { data = debtors, status = "200", message = "" });
+                return Ok(new ResponseDto<IEnumerable<CustomerDto>> { data = debtors, statusCode = "200", message = "" });
             }
             catch(Exception e)
             {

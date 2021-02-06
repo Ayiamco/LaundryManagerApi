@@ -12,8 +12,8 @@ namespace LaundryApi.Interfaces
     {
         public LoginResponseDto GetLoginResponse(string username,string password);
        
-        public Task<bool> SendPasswordReset(string username);
-        public bool IsPasswordResetLinkValid(string username, string resetLinkId);
+        public Task<bool> SendPasswordReset(ForgotPasswordDto dto);
+        public bool IsPasswordResetLinkValid( string resetLinkId);
         public void ResetPassword( ForgotPasswordDto dto,string resetLinkId);
         public LoginResponseDto GetLoginResponse(string username, string password, string role);
     }

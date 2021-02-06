@@ -40,7 +40,7 @@ namespace LaundryApi.Controllers
                 if (e.Message == ErrorMessage.UserDoesNotExist)
                     return BadRequest(new ResponseDto<LaundryDto>() {
                         message = ErrorMessage.UserDoesNotExist,
-                        status = "400"
+                        statusCode = "400"
                     });
 
                 //if you got to this point an unforseen error occured
@@ -63,7 +63,7 @@ namespace LaundryApi.Controllers
             {
                 //save new laundry to database
                 LaundryDto laundryDto = await unitOfWork.LaundryRepository.CreateLaundryAsync(user);
-                return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, new ResponseDto<LaundryDto>() {data=laundryDto,status="201" });
+                return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, new ResponseDto<LaundryDto>() {data=laundryDto,statusCode="201" });
             }
             catch (Exception e)
             {
@@ -71,7 +71,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<LaundryDto>()
                     {
                         message = ErrorMessage.UsernameAlreadyExist,
-                        status = "400"
+                        statusCode = "400"
                     });
 
                 //if you got this pointan unforseen error occurred
@@ -87,12 +87,12 @@ namespace LaundryApi.Controllers
             try
             {
                 await unitOfWork.LaundryRepository.DeleteLaundry(laundryId);
-                return Ok(new ResponseDto<LaundryDto>() { message = "laundry deleted successfully.", status = "200" });
+                return Ok(new ResponseDto<LaundryDto>() { message = "laundry deleted successfully.", statusCode = "200" });
             }
             catch(Exception e)
             {
                 if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, status = "400" });
+                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, statusCode = "400" });
 
                 return StatusCode(500);
             }
@@ -106,12 +106,12 @@ namespace LaundryApi.Controllers
             try
             {
                 var data=await unitOfWork.LaundryRepository.UpdateLaundry(laundry);
-                return Ok(new ResponseDto<LaundryDto>() { message = "laundry updated successfully.", status = "200",data=data });
+                return Ok(new ResponseDto<LaundryDto>() { message = "laundry updated successfully.", statusCode = "200",data=data });
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, status = "400" });
+                    return BadRequest(new ResponseDto<LaundryDto>() { message = ErrorMessage.UserDoesNotExist, statusCode = "400" });
 
                 return StatusCode(500);
             }

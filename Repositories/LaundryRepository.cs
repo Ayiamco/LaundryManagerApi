@@ -57,6 +57,7 @@ namespace LaundryApi.Repositories
                 user.UpdatedAt = DateTime.Now;
                 user.ForgotPasswordTime = null;
                 user.PasswordResetId = null;
+                user.UsernameHash = HashPassword(newLaundryDto.Username);
 
 
                 await _context.Laundries.AddAsync(user);
