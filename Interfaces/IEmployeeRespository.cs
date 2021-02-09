@@ -17,5 +17,9 @@ namespace LaundryApi.Interfaces
 
         public IEnumerable<EmployeeDtoPartial> GetMyEmployees(string laundryUsername);
 
+        public  Task<bool> SendEmployeeRegistrationLink(string employeeEmail, string laundryName);
+
+        public bool IsEmployeeInTransit(string employeeEmail, Guid laundryId);
+
     }
 }

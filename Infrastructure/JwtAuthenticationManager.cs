@@ -33,7 +33,7 @@ namespace LaundryApi.Infrastructure
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, _user.Username),
-                    new Claim(ClaimTypes.Role, roleName),
+                    new Claim(ClaimTypes.Role, roleName)
                     
                 }),
                 Expires = DateTime.UtcNow.AddDays(60),

@@ -16,13 +16,15 @@ namespace LaundryApi.Repositories
         private readonly LaundryApiContext _context;
         private readonly IMapper mapper;
         private readonly IRepositoryHelper repositoryHelper;
-        public EmployeeRepository(LaundryApiContext _context, IMapper mapper,IRepositoryHelper repositoryHelper)
+        private readonly IMailService mailService;
+        public EmployeeRepository(LaundryApiContext _context, IMapper mapper,IRepositoryHelper repositoryHelper, IMailService mailService)
         {
             this._context = _context;
             this.mapper = mapper;
+            this.mailService = mailService;
             this.repositoryHelper = repositoryHelper;
         }
-
+        
       
         public async Task<EmployeeDto> FindEmployeeAsync(Guid id)
         {
@@ -138,6 +140,30 @@ namespace LaundryApi.Repositories
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
             
+        }
+
+        public async Task<bool> SendEmployeeRegistrationLink(string employeeEmail,string laundryUsername)
+        {
+            Laundry laundry = _context.Laundries.SingleOrDefault(x => x.Username == laundryUsername);
+            AddEmployeeToTransit(employeeEmail, laundry.Id);
+            string url = "http://localhost:3000/employee/registration?id=" +laundry.Id;
+            string mailContent = $"<p> Hi ,</p> <p> Please click <a href='{url}'>here</a> to register as an employee of {laundry.LaundryName} laundry";
+
+            await mailService.SendMailAsync(employeeEmail, mailContent, "Employee Registration");
+            return true;
+        }
+
+        private void AddEmployeeToTransit (string employeeEmail, Guid laundryId)
+        {
+            EmployeeInTransit e = new EmployeeInTransit() { Email = employeeEmail, LaundryId = laundryId };
+            _context.EmployeesInTransit.Add(e);
+            _context.SaveChanges();
+            return;
+
+        }
+        public  bool IsEmployeeInTransit(string employeeEmail,Guid laundryId)
+        {
+            return _context.EmployeesInTransit.SingleOrDefault(x=> x.Email==employeeEmail && x.LaundryId==laundryId) != null ;
         }
 
         private async Task<Employee> ValidateRequestParam(Guid employeeId, string laundryUsername)

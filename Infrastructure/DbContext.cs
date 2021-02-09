@@ -17,6 +17,7 @@ namespace LaundryApi.Infrastructure
         public DbSet<Laundry> Laundries { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<EmployeeInTransit> EmployeesInTransit { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
@@ -41,14 +42,14 @@ namespace LaundryApi.Infrastructure
                 .IsUnique();
 
 
-               builder.Entity<Customer>()
-                .HasAlternateKey(s => new { s.Username, s.LaundryId });
+            builder.Entity<Customer>()
+            .HasAlternateKey(s => new { s.Username, s.LaundryId });
+
+            builder.Entity<EmployeeInTransit>()
+               .HasAlternateKey(s => new { s.Email, s.LaundryId });
 
             builder.Entity<Service>()
                .HasAlternateKey(s => new { s.Description, s.LaundryId });
-
-
-
 
         }
 
