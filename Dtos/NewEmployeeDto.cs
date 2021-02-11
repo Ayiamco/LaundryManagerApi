@@ -9,8 +9,6 @@ namespace LaundryApi.Dtos
 {
     public class NewEmployeeDto
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
 

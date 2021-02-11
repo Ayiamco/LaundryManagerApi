@@ -59,17 +59,15 @@ namespace LaundryApi.Repositories
                     //updating the laundry object
                     _context.Laundries.Find(laundry.Id).NoOfCustomers += 1;
                 }   
-             
-                //add the customer to the db context
                 await _context.Customers.AddAsync(customer);
-                //save changes
                 await _context.SaveChangesAsync();
-                //return customer dto
                 var returnObj = mapper.Map<CustomerDto>(customer);
                 return returnObj;
             }
-            catch
+            catch(Exception e)
             {
+                if (e.InnerException.Message.Contains("Violation of UNIQUE KEY constraint 'AK_Customers_Username_LaundryId'"))
+                    throw new Exception(ErrorMessage.UsernameAlreadyExist);
                 throw new Exception(ErrorMessage.FailedDbOperation);
 
             }

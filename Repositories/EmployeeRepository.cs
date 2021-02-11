@@ -25,7 +25,6 @@ namespace LaundryApi.Repositories
             this.repositoryHelper = repositoryHelper;
         }
         
-      
         public async Task<EmployeeDto> FindEmployeeAsync(Guid id)
         {
             try
@@ -145,20 +144,48 @@ namespace LaundryApi.Repositories
         public async Task<bool> SendEmployeeRegistrationLink(string employeeEmail,string laundryUsername)
         {
             Laundry laundry = _context.Laundries.SingleOrDefault(x => x.Username == laundryUsername);
-            AddEmployeeToTransit(employeeEmail, laundry.Id);
-            string url = "http://localhost:3000/employee/registration?id=" +laundry.Id;
-            string mailContent = $"<p> Hi ,</p> <p> Please click <a href='{url}'>here</a> to register as an employee of {laundry.LaundryName} laundry";
+            try
+            {
+                AddEmployeeToTransit(employeeEmail, laundry.Id);
+                string url = "http://localhost:3000/employee/registration?id=" + laundry.Id;
+                string mailContent = $"<p> Hi ,</p> <p> Please click <a href='{url}'>here</a> to register as an employee of {laundry.LaundryName} laundry";
 
-            await mailService.SendMailAsync(employeeEmail, mailContent, "Employee Registration");
-            return true;
+                await mailService.SendMailAsync(employeeEmail, mailContent, "Employee Registration");
+                return true;
+            }
+            catch(Exception e)
+            {
+                if(e.Message==ErrorMessage.UsernameAlreadyExist)
+                {
+                    string url = "http://localhost:3000/employee/registration?id=" + laundry.Id;
+                    string mailContent = $"<p> Hi ,</p> <p> Please click <a href='{url}'>here</a> to register as an employee of {laundry.LaundryName} laundry";
+
+                    await mailService.SendMailAsync(employeeEmail, mailContent, "Employee Registration");
+                    return true;
+                }
+                return false;
+            }
+            
+            
         }
 
         private void AddEmployeeToTransit (string employeeEmail, Guid laundryId)
         {
-            EmployeeInTransit e = new EmployeeInTransit() { Email = employeeEmail, LaundryId = laundryId };
-            _context.EmployeesInTransit.Add(e);
-            _context.SaveChanges();
-            return;
+            try
+            {
+                EmployeeInTransit e = new EmployeeInTransit() { Email = employeeEmail, LaundryId = laundryId };
+                _context.EmployeesInTransit.Add(e);
+                _context.SaveChanges();
+                return;
+            }
+            catch(Exception e)
+            {
+                if (e.InnerException.Message.Contains("Violation of UNIQUE KEY constraint 'AK_EmployeesInTransit_Email_LaundryId'"))
+                    throw new Exception(ErrorMessage.UsernameAlreadyExist);
+                
+                throw new Exception(ErrorMessage.FailedDbOperation);
+            }
+           
 
         }
         public  bool IsEmployeeInTransit(string employeeEmail,Guid laundryId)

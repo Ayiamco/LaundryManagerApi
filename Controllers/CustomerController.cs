@@ -46,24 +46,26 @@ namespace LaundryApi.Controllers
                     customer = await customerRepository.AddCustomer(newCustomer, HttpContext.User.Identity.Name,HttpContext.GetUserRole());
                     response.data = customer;
                     return CreatedAtAction(nameof(GetCustomer), new { id=customer.Id}, response);
-
                 }
 
                 return Unauthorized();
             }
             catch (Exception e)
             {
-
+                response.statusCode = "404";
                 if (e.Message == ErrorMessage.InvalidToken)
                 {
-                    // request does not contain valid jwt token.
-                    response.statusCode = "404";
                     response.message = ErrorMessage.InvalidToken;
-                    return BadRequest();
+                    return BadRequest(response);
+                }
+                else if (e.Message == ErrorMessage.UsernameAlreadyExist)
+                {
+                    response.message = ErrorMessage.UsernameAlreadyExist;
+                    return BadRequest(response);
                 }
 
-                return StatusCode(500);
-
+                response.statusCode = "500";
+                return StatusCode(500,response);
             }
             
 

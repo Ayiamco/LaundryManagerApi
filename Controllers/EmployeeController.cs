@@ -58,26 +58,21 @@ namespace LaundryApi.Controllers
         //POST: api/employee/add
         [Authorize(Roles ="LaundryOwner")]
         [HttpPost("add")]
-        public ActionResult<ResponseDto<string>> AddEmployee([FromBody] ForgotPasswordDto dto)
+        public async Task<ActionResult<ResponseDto<string>>> AddEmployee([FromBody] ForgotPasswordDto dto)
         {
-            try 
-            {
-                string employeeEmail = dto.Username;
 
-                employeeRepository.SendEmployeeRegistrationLink(employeeEmail, HttpContext.User.Identity.Name);
-                return Ok(new ResponseDto<string> (){ statusCode="200",message="registration link is been sent"});
-            }
-            catch
-            {
-                return StatusCode(500, new ResponseDto<string>() { statusCode="500",message="something unforseen occured"});
-            }
- 
-           
+            string employeeEmail = dto.Username;
+
+            Task<bool> resp = employeeRepository.SendEmployeeRegistrationLink(employeeEmail, HttpContext.User.Identity.Name);
+            if (resp.Result == false)
+                return StatusCode(500, new ResponseDto<string>() { statusCode = "500", message = "server error" });
+
+            return Ok(new ResponseDto<string>() { statusCode = "200", message = "registration link is been sent" });
         }
         
         [AllowAnonymous]
         //POST: api/employee/new
-        [HttpPost("new/{id}")]
+        [HttpPost("new")]
         public async Task<ActionResult> CreateEmployee([FromBody] NewEmployeeDto newEmployee)
         {
             ResponseDto<EmployeeDto> response = new ResponseDto<EmployeeDto>() { statusCode = "400" };
@@ -90,8 +85,7 @@ namespace LaundryApi.Controllers
                 return BadRequest(response);
             }
                 
-            var laundry = repositoryHelper.GetLaundryByUsername(HttpContext.User.Identity.Name);
-            if (!employeeRepository.IsEmployeeInTransit(newEmployee.Username, laundry.Id))
+            if (!employeeRepository.IsEmployeeInTransit(newEmployee.Username,newEmployee.LaundryId))
             {
                 response.message = "Employer has not added employee";
                 return BadRequest(response);
@@ -99,9 +93,8 @@ namespace LaundryApi.Controllers
 
             try
             {
-                newEmployee.LaundryId =laundry.Id;
                 EmployeeDto employeeDto = await employeeRepository.CreateEmployeeAsync(newEmployee);
-                return CreatedAtAction(nameof(GetEmployee), new { id = employeeDto.Id }, employeeDto);
+                return StatusCode(201,new ResponseDto<EmployeeDto>() { statusCode = "201", data = employeeDto });
             }
             catch (Exception e)
             {
