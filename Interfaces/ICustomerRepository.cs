@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using LaundryApi.Entites;
 using LaundryApi.Dtos;
+using LaundryApi.Models;
+
 namespace LaundryApi.Interfaces
 {
     public interface ICustomerRepository
@@ -13,6 +15,8 @@ namespace LaundryApi.Interfaces
         public  Task<bool> UpdateCustomer(CustomerDto customerDto);
         public CustomerDto GetCustomer(Guid customerId);
         public IEnumerable<CustomerDto> GetCustomer(string customerName,string customerUsername);
+
+        public PagedList<CustomerDto> GetCustomers(int pageSize, int pageNumber = 1);
 
 
         /// <summary>

@@ -23,8 +23,8 @@ namespace LaundryApi.Infrastructure
         public ApplicationUser GetApplicationUser(string username)
         {
             //get user details by checking the employee and laundry tables
-            var employee = _context.Employees.SingleOrDefault(x => x.Username == username);
-            var laundry = _context.Laundries.SingleOrDefault(x => x.Username == username);
+            var employee = _context.Employees.SingleOrDefault(x => x.Username == username && x.IsDeleted==false);
+            var laundry = _context.Laundries.SingleOrDefault(x => x.Username == username && x.IsDeleted == false);
 
             //check if user exist
             if (laundry == null && employee == null)
@@ -35,8 +35,6 @@ namespace LaundryApi.Infrastructure
                 throw new Exception(ErrorMessage.UserHasTwoRoles);
 
             ApplicationUser user = (ApplicationUser)laundry ?? employee;
-            if (user.IsDeleted)
-                throw new Exception(ErrorMessage.UserDoesNotExist);
             return user;
 
 
@@ -46,7 +44,7 @@ namespace LaundryApi.Infrastructure
         {
             try
             {
-                var laundryInDb = _context.Laundries.SingleOrDefault(_user => _user.Username == username);
+                var laundryInDb = _context.Laundries.SingleOrDefault(_user => _user.Username == username && _user.IsDeleted==false);
 
                 if (laundryInDb == null || laundryInDb.IsDeleted)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
@@ -68,8 +66,8 @@ namespace LaundryApi.Infrastructure
         {
             try
             {
-                var employeeInDb = _context.Employees.SingleOrDefault(_user => _user.Username == username);
-                if (employeeInDb == null || employeeInDb.IsDeleted)
+                var employeeInDb = _context.Employees.SingleOrDefault(_user => _user.Username == username && _user.IsDeleted==false);
+                if (employeeInDb == null)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
 
                 return employeeInDb;

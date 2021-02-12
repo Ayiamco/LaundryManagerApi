@@ -1,4 +1,5 @@
 ﻿using LaundryApi.Dtos;
+using LaundryApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace LaundryApi.Interfaces
         public  Task<bool> SendEmployeeRegistrationLink(string employeeEmail, string laundryName);
 
         public bool IsEmployeeInTransit(string employeeEmail, Guid laundryId);
+        public PagedList<EmployeeDtoPartial> GetPage(int pageSize, int pageNumber = 1);
+
 
     }
 }

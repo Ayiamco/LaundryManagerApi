@@ -124,7 +124,7 @@ namespace LaundryApi.Repositories
             try
             {
                 Guid laundryId = repositoryHelper.GetLaundryByUsername(laundryUsername).Id;
-                var employees = _context.Employees.Where(x => x.LaundryId == laundryId ).ToList();
+                var employees = _context.Employees.Where(x => x.LaundryId == laundryId && x.IsDeleted==false).ToList();
                 if (employees.Count == 0)
                     throw new Exception(ErrorMessage.NoEntityMatchesSearch);
                 IEnumerable<EmployeeDtoPartial> employeeDtos = mapper.Map<IEnumerable<EmployeeDtoPartial>>(employees);
@@ -204,6 +204,22 @@ namespace LaundryApi.Repositories
                 throw new Exception(ErrorMessage.EmployeeNotOwnedByUser);
 
             return employeeInDb;
+        }
+
+        public PagedList<EmployeeDtoPartial> GetPage(int pageSize, int pageNumber = 1)
+        {
+            var employeeList = _context.Employees.ToList();
+            var page = employeeList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            PagedList<EmployeeDtoPartial> obj = new PagedList<EmployeeDtoPartial>()
+            {
+                Data = mapper.Map<IEnumerable<EmployeeDtoPartial>>(page),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                OverallSize = employeeList.Count,
+            };
+
+            return obj;
         }
 
     }

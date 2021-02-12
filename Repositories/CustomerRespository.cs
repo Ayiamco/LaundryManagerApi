@@ -201,6 +201,22 @@ namespace LaundryApi.Repositories
             return mapper.Map<IEnumerable<CustomerDto>>(debtors);
 
         }
+
+        public PagedList<CustomerDto> GetCustomers(int pageSize,int pageNumber=1)
+        {
+            var customerList = _context.Customers.ToList();
+            var page = customerList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            PagedList<CustomerDto> obj = new PagedList<CustomerDto>()
+            {
+                Data = mapper.Map<IEnumerable<CustomerDto>>(page),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                OverallSize = customerList.Count,
+            };
+
+            return obj;
+        }
     }
 
 }

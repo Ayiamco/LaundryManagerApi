@@ -16,7 +16,7 @@ namespace LaundryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerRepository customerRepository;
@@ -24,6 +24,16 @@ namespace LaundryApi.Controllers
         public CustomerController(ICustomerRepository customerRepository)
         {
             this.customerRepository = customerRepository;
+        }
+
+        //GET: api/customer/all
+        [HttpGet("all")]
+        public ActionResult GetCustomers()
+        {
+            var queryParam = Request.Query;
+            var pageNumber=int.Parse(queryParam["page"]);
+            customerRepository.GetCustomers(2,pageNumber);
+            return Ok();
         }
 
         //POST: api/customer/new

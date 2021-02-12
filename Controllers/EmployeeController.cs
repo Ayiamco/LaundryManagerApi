@@ -62,6 +62,8 @@ namespace LaundryApi.Controllers
         {
 
             string employeeEmail = dto.Username;
+            if (HttpContext.User.Identity.Name == employeeEmail)
+                return BadRequest(new ResponseDto<string>() { message="employee cannot have same mail as employer",statusCode="400" });
 
             Task<bool> resp = employeeRepository.SendEmployeeRegistrationLink(employeeEmail, HttpContext.User.Identity.Name);
             if (resp.Result == false)
@@ -87,8 +89,9 @@ namespace LaundryApi.Controllers
                 
             if (!employeeRepository.IsEmployeeInTransit(newEmployee.Username,newEmployee.LaundryId))
             {
-                response.message = "Employer has not added employee";
-                return BadRequest(response);
+                response.message = "Unauthorized Registration please contact your employer";
+                response.statusCode = "401";
+                return Unauthorized(response);
             }
 
             try
@@ -160,16 +163,18 @@ namespace LaundryApi.Controllers
             }
         }
 
-        [HttpGet("all")]
+        [HttpGet]
         public ActionResult<ResponseDto<IEnumerable<EmployeeDtoPartial>>> GetLaundryEmployees()
         {
             try
             {
+                
                 if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner))
                     return Unauthorized(new ResponseDto<IEnumerable<EmployeeDto>>() { message = ErrorMessage.OnlyLaundryOwnerAllowed });
-
-                var employees = employeeRepository.GetMyEmployees(HttpContext.User.Identity.Name);
-                return Ok(new ResponseDto<IEnumerable<EmployeeDtoPartial>>() { statusCode = "200", data = employees });
+                var queryParam = Request.Query;
+                var pageNumber = int.Parse(queryParam["page"]);
+                var employees = employeeRepository.GetPage(2,pageNumber);
+                return Ok(new ResponseDto<PagedList<EmployeeDtoPartial>>() { statusCode = "200", data = employees });
             }
             catch (Exception e)
             {

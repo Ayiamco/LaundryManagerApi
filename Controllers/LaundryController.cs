@@ -73,9 +73,7 @@ namespace LaundryApi.Controllers
                         message = ErrorMessage.UsernameAlreadyExist,
                         statusCode = "400"
                     });
-
-                //if you got this pointan unforseen error occurred
-                return StatusCode(500);
+                return StatusCode(500,new ResponseDto<string>() { statusCode="500",message= "server error" });
 
             }
         }
