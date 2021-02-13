@@ -9,6 +9,8 @@ using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Models;
 using LaundryApi.Interfaces;
 using LaundryApi.Entites;
+using Microsoft.AspNetCore.Http;
+
 namespace LaundryApi.Repositories
 {
     public class EmployeeRepository: IEmployeeRepository
@@ -193,6 +195,36 @@ namespace LaundryApi.Repositories
             return _context.EmployeesInTransit.SingleOrDefault(x=> x.Email==employeeEmail && x.LaundryId==laundryId) != null ;
         }
 
+        
+
+        public PagedList<EmployeeDtoPartial> GetPage(int pageSize, string laundryUsername,int pageNumber = 1,string searchParam="")
+        {
+            var laundry=repositoryHelper.GetLaundryByUsername(laundryUsername);
+            var employeeList = _context.Employees.Where(x=> x.IsDeleted==false && x.LaundryId==laundry.Id).ToList();
+            if (searchParam != "")
+                employeeList = employeeList.Where(x => x.Name.Contains(searchParam)).ToList();
+            var page = employeeList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            var maxPage = employeeList.Count / (decimal)pageSize;
+            PagedList<EmployeeDtoPartial> obj = new PagedList<EmployeeDtoPartial>()
+            {
+                Data = mapper.Map<IEnumerable<EmployeeDtoPartial>>(page),
+                PageIndex = pageNumber,
+                PageSize = pageSize,
+            };
+            if ( maxPage < 1)
+                obj.MaxPageIndex = 1;
+            else
+            {
+                var _num = Convert.ToInt32(Convert.ToString(maxPage).Split(".")[1]);
+                obj.MaxPageIndex = _num > 0 ? Convert.ToInt32(maxPage + 1) : Convert.ToInt32(maxPage);
+            }
+            
+            
+
+            return obj;
+        }
+
+
         private async Task<Employee> ValidateRequestParam(Guid employeeId, string laundryUsername)
         {
             Laundry laundry = _context.Laundries.SingleOrDefault(x => x.Username == laundryUsername);
@@ -205,22 +237,5 @@ namespace LaundryApi.Repositories
 
             return employeeInDb;
         }
-
-        public PagedList<EmployeeDtoPartial> GetPage(int pageSize, int pageNumber = 1)
-        {
-            var employeeList = _context.Employees.ToList();
-            var page = employeeList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-
-            PagedList<EmployeeDtoPartial> obj = new PagedList<EmployeeDtoPartial>()
-            {
-                Data = mapper.Map<IEnumerable<EmployeeDtoPartial>>(page),
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                OverallSize = employeeList.Count,
-            };
-
-            return obj;
-        }
-
     }
 }

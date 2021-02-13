@@ -129,9 +129,9 @@ namespace LaundryApi.Repositories
             PagedList<InvoiceDto> obj = new PagedList<InvoiceDto>()
             {
                 Data= mapper.Map<IEnumerable<InvoiceDto>>(page),
-                PageNumber=pageNumber,
+                PageIndex=pageNumber,
                 PageSize=pageSize,
-                OverallSize=invoicesList.Count,
+                MaxPageIndex=invoicesList.Count,
             };
 
             return obj;
@@ -158,9 +158,9 @@ namespace LaundryApi.Repositories
             PagedList<InvoiceDto> obj = new PagedList<InvoiceDto>()
             {
                 Data = mapper.Map<IEnumerable<InvoiceDto>>(page),
-                PageNumber = pageNumber,
+                PageIndex = pageNumber,
                 PageSize = pageSize,
-                OverallSize = invoices.Count,
+                MaxPageIndex = invoices.Count,
             };
 
             return obj;

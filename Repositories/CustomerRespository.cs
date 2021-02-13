@@ -210,9 +210,9 @@ namespace LaundryApi.Repositories
             PagedList<CustomerDto> obj = new PagedList<CustomerDto>()
             {
                 Data = mapper.Map<IEnumerable<CustomerDto>>(page),
-                PageNumber = pageNumber,
+                PageIndex = pageNumber,
                 PageSize = pageSize,
-                OverallSize = customerList.Count,
+                MaxPageIndex = customerList.Count,
             };
 
             return obj;

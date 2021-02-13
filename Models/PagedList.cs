@@ -11,8 +11,8 @@ namespace LaundryApi.Models
 
         public int PageSize { get; set; }
 
-        public int PageNumber { get; set; }
+        public int PageIndex { get; set; }
 
-        public int OverallSize { get; set; }
+        public int MaxPageIndex { get; set; }
     }
 }

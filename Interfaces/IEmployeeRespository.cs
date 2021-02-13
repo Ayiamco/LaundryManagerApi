@@ -21,7 +21,7 @@ namespace LaundryApi.Interfaces
         public  Task<bool> SendEmployeeRegistrationLink(string employeeEmail, string laundryName);
 
         public bool IsEmployeeInTransit(string employeeEmail, Guid laundryId);
-        public PagedList<EmployeeDtoPartial> GetPage(int pageSize, int pageNumber = 1);
+        public PagedList<EmployeeDtoPartial> GetPage(int pageSize, string laundryUsername, int pageNumber = 1, string searchParam = "");
 
 
     }

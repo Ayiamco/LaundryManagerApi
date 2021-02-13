@@ -169,11 +169,13 @@ namespace LaundryApi.Controllers
             try
             {
                 
+                
                 if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner))
                     return Unauthorized(new ResponseDto<IEnumerable<EmployeeDto>>() { message = ErrorMessage.OnlyLaundryOwnerAllowed });
                 var queryParam = Request.Query;
                 var pageNumber = int.Parse(queryParam["page"]);
-                var employees = employeeRepository.GetPage(2,pageNumber);
+                var searchParam = Convert.ToString(queryParam["name"]);
+               var employees = employeeRepository.GetPage(4,HttpContext.User.Identity.Name,pageNumber,searchParam);
                 return Ok(new ResponseDto<PagedList<EmployeeDtoPartial>>() { statusCode = "200", data = employees });
             }
             catch (Exception e)
