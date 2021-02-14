@@ -32,12 +32,12 @@ namespace LaundryApi.Controllers
 
         //GET: api/employee/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmployeeDto>> GetEmployee(Guid id)
+        public async Task<ActionResult> GetEmployee(Guid id)
         {
             try
             {
                 var employee = await employeeRepository.FindEmployeeAsync(id);
-                return employee;
+                return Ok( new ResponseDto<EmployeeDto>() { statusCode="200", data=employee});
             }
             catch (Exception e)
             {
@@ -168,14 +168,12 @@ namespace LaundryApi.Controllers
         {
             try
             {
-                
-                
                 if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner))
                     return Unauthorized(new ResponseDto<IEnumerable<EmployeeDto>>() { message = ErrorMessage.OnlyLaundryOwnerAllowed });
                 var queryParam = Request.Query;
                 var pageNumber = int.Parse(queryParam["page"]);
                 var searchParam = Convert.ToString(queryParam["name"]);
-               var employees = employeeRepository.GetPage(4,HttpContext.User.Identity.Name,pageNumber,searchParam);
+               var employees = employeeRepository.GetPage(2,HttpContext.User.Identity.Name,pageNumber,searchParam);
                 return Ok(new ResponseDto<PagedList<EmployeeDtoPartial>>() { statusCode = "200", data = employees });
             }
             catch (Exception e)

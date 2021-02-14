@@ -27,11 +27,11 @@ namespace LaundryApi.Repositories
             this.repositoryHelper = repositoryHelper;
         }
         
+        
         public async Task<EmployeeDto> FindEmployeeAsync(Guid id)
         {
             try
             {
-                
                 var employee = await _context.Employees.FindAsync(id);
                 if (employee == null)
                     throw new Exception(ErrorMessage.UserDoesNotExist);
@@ -61,7 +61,7 @@ namespace LaundryApi.Repositories
                 employee.UsernameHash = HashPassword(newEmployeeDto.Username);
                 employee.ForgotPasswordTime = null;
                 employee.PasswordResetId = null;
-
+                employee.Name = newEmployeeDto.Name.ToLower();
                 //add employee to db context
                 await _context.Employees.AddAsync(employee);
 
@@ -121,28 +121,7 @@ namespace LaundryApi.Repositories
             return employee;
         }
 
-        public IEnumerable<EmployeeDtoPartial> GetMyEmployees(string laundryUsername)
-        {
-            try
-            {
-                Guid laundryId = repositoryHelper.GetLaundryByUsername(laundryUsername).Id;
-                var employees = _context.Employees.Where(x => x.LaundryId == laundryId && x.IsDeleted==false).ToList();
-                if (employees.Count == 0)
-                    throw new Exception(ErrorMessage.NoEntityMatchesSearch);
-                IEnumerable<EmployeeDtoPartial> employeeDtos = mapper.Map<IEnumerable<EmployeeDtoPartial>>(employees);
-
-                return employeeDtos;
-            }
-            catch (Exception e)
-            {
-                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
-                    throw new Exception(ErrorMessage.NoEntityMatchesSearch);
-
-                throw new Exception(ErrorMessage.FailedDbOperation);
-            }
-            
-        }
-
+       
         public async Task<bool> SendEmployeeRegistrationLink(string employeeEmail,string laundryUsername)
         {
             Laundry laundry = _context.Laundries.SingleOrDefault(x => x.Username == laundryUsername);
@@ -213,9 +192,18 @@ namespace LaundryApi.Repositories
             };
             if ( maxPage < 1)
                 obj.MaxPageIndex = 1;
-            else
+            else 
             {
-                var _num = Convert.ToInt32(Convert.ToString(maxPage).Split(".")[1]);
+                int _num;
+                try
+                {
+                    _num = Convert.ToInt32(Convert.ToString(maxPage).Split(".")[1]);
+                }
+                catch
+                {
+                    _num = 0;
+                }
+                
                 obj.MaxPageIndex = _num > 0 ? Convert.ToInt32(maxPage + 1) : Convert.ToInt32(maxPage);
             }
             

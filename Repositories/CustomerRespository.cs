@@ -43,6 +43,7 @@ namespace LaundryApi.Repositories
                 customer.TotalPurchase = 0;
                 customer.UpdatedAt = DateTime.Now;
                 customer.Debt = 0;
+                customer.Name = customer.Name.ToLower();
 
                 //assign the customer a laundryId and/or employeeId 
                 if (userRole==RoleNames.LaundryEmployee && employee!=null)
@@ -202,19 +203,36 @@ namespace LaundryApi.Repositories
 
         }
 
-        public PagedList<CustomerDto> GetCustomers(int pageSize,int pageNumber=1)
+        public PagedList<CustomerDto> GetPage(int pageSize, string laundryUsername, int pageNumber = 1, string searchParam = "")
         {
-            var customerList = _context.Customers.ToList();
+            var laundry = repositoryHelper.GetLaundryByUsername(laundryUsername);
+            var customerList = _context.Customers.Where(x => x.IsDeleted == false && x.LaundryId == laundry.Id).ToList();
+            if (searchParam != "")
+                customerList = customerList.Where(x => x.Name.Contains(searchParam)).ToList();
             var page = customerList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-
+            var maxPage = customerList.Count / (decimal)pageSize;
             PagedList<CustomerDto> obj = new PagedList<CustomerDto>()
             {
                 Data = mapper.Map<IEnumerable<CustomerDto>>(page),
                 PageIndex = pageNumber,
                 PageSize = pageSize,
-                MaxPageIndex = customerList.Count,
             };
+            if (maxPage < 1)
+                obj.MaxPageIndex = 1;
+            else
+            {
+                int _num;
+                try
+                {
+                    _num = Convert.ToInt32(Convert.ToString(maxPage).Split(".")[1]);
+                }
+                catch
+                {
+                    _num = 0;
+                }
 
+                obj.MaxPageIndex = _num > 0 ? Convert.ToInt32(maxPage + 1) : Convert.ToInt32(maxPage);
+            }
             return obj;
         }
     }

@@ -26,14 +26,28 @@ namespace LaundryApi.Controllers
             this.customerRepository = customerRepository;
         }
 
-        //GET: api/customer/all
-        [HttpGet("all")]
-        public ActionResult GetCustomers()
+        //GET: api/customer
+        [HttpGet]
+        public ActionResult<ResponseDto<IEnumerable<CustomerDto>>> GetLaundryCustomers()
         {
-            var queryParam = Request.Query;
-            var pageNumber=int.Parse(queryParam["page"]);
-            customerRepository.GetCustomers(2,pageNumber);
-            return Ok();
+            try
+            {
+                if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner))
+                    return Unauthorized(new ResponseDto<IEnumerable<EmployeeDto>>() { message = ErrorMessage.OnlyLaundryOwnerAllowed });
+                var queryParam = Request.Query;
+                var pageNumber = int.Parse(queryParam["page"]);
+                var searchParam = Convert.ToString(queryParam["name"]);
+                var employees = customerRepository.GetPage(2, HttpContext.User.Identity.Name, pageNumber, searchParam);
+                return Ok(new ResponseDto<PagedList<CustomerDto>>() { statusCode = "200", data = employees });
+            }
+            catch (Exception e)
+            {
+                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
+                    return NoContent();
+
+                return StatusCode(500);
+            }
+
         }
 
         //POST: api/customer/new

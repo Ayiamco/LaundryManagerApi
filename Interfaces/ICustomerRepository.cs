@@ -15,8 +15,7 @@ namespace LaundryApi.Interfaces
         public  Task<bool> UpdateCustomer(CustomerDto customerDto);
         public CustomerDto GetCustomer(Guid customerId);
         public IEnumerable<CustomerDto> GetCustomer(string customerName,string customerUsername);
-
-        public PagedList<CustomerDto> GetCustomers(int pageSize, int pageNumber = 1);
+        public PagedList<CustomerDto> GetPage(int pageSize, string laundryUsername, int pageNumber = 1, string searchParam = "");
 
 
         /// <summary>

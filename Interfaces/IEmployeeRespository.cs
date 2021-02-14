@@ -16,8 +16,6 @@ namespace LaundryApi.Interfaces
 
         public Task<EmployeeDto> UpdateEmployee(EmployeeDto employee, string laundryUsername);
 
-        public IEnumerable<EmployeeDtoPartial> GetMyEmployees(string laundryUsername);
-
         public  Task<bool> SendEmployeeRegistrationLink(string employeeEmail, string laundryName);
 
         public bool IsEmployeeInTransit(string employeeEmail, Guid laundryId);
