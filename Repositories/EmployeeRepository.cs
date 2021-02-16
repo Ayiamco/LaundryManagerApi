@@ -181,7 +181,7 @@ namespace LaundryApi.Repositories
             var laundry=repositoryHelper.GetLaundryByUsername(laundryUsername);
             var employeeList = _context.Employees.Where(x=> x.IsDeleted==false && x.LaundryId==laundry.Id).ToList();
             if (searchParam != "")
-                employeeList = employeeList.Where(x => x.Name.Contains(searchParam)).ToList();
+                employeeList = employeeList.Where(x => x.Name.Contains(searchParam.ToLower())).ToList();
             var page = employeeList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             var maxPage = employeeList.Count / (decimal)pageSize;
             PagedList<EmployeeDtoPartial> obj = new PagedList<EmployeeDtoPartial>()

@@ -41,10 +41,6 @@ namespace LaundryApi.Infrastructure
                 .HasIndex(x => x.PasswordResetId)
                 .IsUnique();
 
-
-            builder.Entity<Customer>()
-            .HasAlternateKey(s => new { s.Username, s.LaundryId });
-
             builder.Entity<EmployeeInTransit>()
                .HasAlternateKey(s => new { s.Email, s.LaundryId });
 

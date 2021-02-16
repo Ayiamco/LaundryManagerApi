@@ -29,7 +29,6 @@ namespace LaundryApi.Repositories
         {
             try
             {
-                //get application user registering the customer
                 Employee employee=null;
                 Laundry laundry=null;
                 if (userRole == RoleNames.LaundryOwner)
@@ -37,40 +36,36 @@ namespace LaundryApi.Repositories
                 else
                     employee = repositoryHelper.GetEmployeeByUsername(username);
 
-                //map the customerdto to the customer obj and update missing properties
-                Customer customer = mapper.Map<Customer>(newCustomerDto);  
-                customer.CreatedAt = DateTime.Now;
-                customer.TotalPurchase = 0;
-                customer.UpdatedAt = DateTime.Now;
-                customer.Debt = 0;
-                customer.Name = customer.Name.ToLower();
-
-                //assign the customer a laundryId and/or employeeId 
-                if (userRole==RoleNames.LaundryEmployee && employee!=null)
+                var customerInDb = laundry == null 
+                    ?  _context.Customers.SingleOrDefault(x => x.LaundryId 
+                       == employee.LaundryId && x.Username == newCustomerDto.Username)
+                    : _context.Customers.SingleOrDefault(x => x.LaundryId
+                        == laundry.Id && x.Username == newCustomerDto.Username);
+                if (customerInDb != null)
                 {
-                    customer.EmployeeId = employee.Id;
-                    customer.LaundryId = employee.LaundryId;
-                    //updating employee object and laundry object
-                    _context.Laundries.Find(laundry.Id).NoOfCustomers += 1;
-                    _context.Employees.Find(employee.Id).NoOfCustomers += 1;
+                    if (customerInDb.IsDeleted)
+                    {
+                        customerInDb.IsDeleted = false;
+                        customerInDb.Name = newCustomerDto.Name;
+                        customerInDb.PhoneNumber = newCustomerDto.PhoneNumber;
+                        customerInDb.Address = newCustomerDto.Address;
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                        throw new Exception(ErrorMessage.UsernameAlreadyExist);
                 }
                 else
-                {
-                    customer.LaundryId = laundry.Id;
-                    //updating the laundry object
-                    _context.Laundries.Find(laundry.Id).NoOfCustomers += 1;
-                }   
-                await _context.Customers.AddAsync(customer);
-                await _context.SaveChangesAsync();
-                var returnObj = mapper.Map<CustomerDto>(customer);
+                    customerInDb= await AddCustomer(newCustomerDto, userRole, employee, laundry);
+
+                var returnObj = mapper.Map<CustomerDto>(customerInDb);
                 return returnObj;
+
             }
             catch(Exception e)
             {
-                if (e.InnerException.Message.Contains("Violation of UNIQUE KEY constraint 'AK_Customers_Username_LaundryId'"))
+                if (e.Message==ErrorMessage.UsernameAlreadyExist)
                     throw new Exception(ErrorMessage.UsernameAlreadyExist);
                 throw new Exception(ErrorMessage.FailedDbOperation);
-
             }
 
         }
@@ -91,6 +86,7 @@ namespace LaundryApi.Repositories
                 customerInDb.Name = customerDto.Name;
                 customerInDb.PhoneNumber = customerDto.PhoneNumber;
                 customerInDb.UpdatedAt = DateTime.Now;
+                customerInDb.Username = customerDto.Username;
 
                 //save changes
                 await  _context.SaveChangesAsync();
@@ -125,23 +121,17 @@ namespace LaundryApi.Repositories
 
         }
 
-        public async Task<bool> DeleteCustomer(Guid customerId)
+        public void DeleteCustomer(Guid customerId)
         {
             try
             {
-                //get the customer into the context
-                Customer customerInDb = await _context.Customers.FindAsync( customerId);
-                
-                //check if the customer exist in db
+                Customer customerInDb = _context.Customers.Find( customerId);
                 if (customerInDb == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-                //tag the customer as deleted
                 customerInDb.IsDeleted = true;
-
-                //save changes
-                await _context.SaveChangesAsync();
-                return true;
+                 _context.SaveChanges();
+                return;
             }
             catch(Exception e)
             {
@@ -157,7 +147,7 @@ namespace LaundryApi.Repositories
         {
             try
             {
-                var customer = _context.Customers.SingleOrDefault(c => c.Id == customerId && c.IsDeleted);
+                var customer = _context.Customers.SingleOrDefault(c => c.Id == customerId && c.IsDeleted==false);
                 if (customer == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
@@ -190,9 +180,6 @@ namespace LaundryApi.Repositories
             return mapper.Map<IEnumerable<CustomerDto>>(customers);
         }
 
-        /// <summary>
-        /// returns all the debtors in particular laundry
-        /// </summary>
         public IEnumerable<CustomerDto> GetCustomer(string laundryUsername)
         {
             Laundry laundry=repositoryHelper.GetLaundryByUsername(laundryUsername);
@@ -208,7 +195,12 @@ namespace LaundryApi.Repositories
             var laundry = repositoryHelper.GetLaundryByUsername(laundryUsername);
             var customerList = _context.Customers.Where(x => x.IsDeleted == false && x.LaundryId == laundry.Id).ToList();
             if (searchParam != "")
-                customerList = customerList.Where(x => x.Name.Contains(searchParam)).ToList();
+            {
+                customerList = customerList.Where(x => x.Name.Contains(searchParam.ToLower())).ToList();
+                if(customerList.Count() / pageSize <= pageNumber)
+                    pageNumber=  1;
+            }
+               
             var page = customerList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             var maxPage = customerList.Count / (decimal)pageSize;
             PagedList<CustomerDto> obj = new PagedList<CustomerDto>()
@@ -223,17 +215,43 @@ namespace LaundryApi.Repositories
             {
                 int _num;
                 try
-                {
-                    _num = Convert.ToInt32(Convert.ToString(maxPage).Split(".")[1]);
-                }
+                {_num = Convert.ToInt32(Convert.ToString(maxPage).Split(".")[1]);}
                 catch
-                {
-                    _num = 0;
-                }
+                { _num = 0;}
 
                 obj.MaxPageIndex = _num > 0 ? Convert.ToInt32(maxPage + 1) : Convert.ToInt32(maxPage);
             }
             return obj;
+        }
+
+        private async Task<Customer> AddCustomer(NewCustomerDto newCustomerDto,string userRole,Employee employee, Laundry laundry)
+        {
+            //map the customerdto to the customer obj and update missing properties
+            Customer customer = mapper.Map<Customer>(newCustomerDto);
+            customer.CreatedAt = DateTime.Now;
+            customer.TotalPurchase = 0;
+            customer.UpdatedAt = DateTime.Now;
+            customer.Debt = 0;
+            customer.Name = customer.Name.ToLower();
+
+            //assign the customer a laundryId and/or employeeId 
+            if (userRole == RoleNames.LaundryEmployee && employee != null)
+            {
+                customer.EmployeeId = employee.Id;
+                customer.LaundryId = employee.LaundryId;
+                //updating employee object and laundry object
+                _context.Laundries.Find(laundry.Id).NoOfCustomers += 1;
+                _context.Employees.Find(employee.Id).NoOfCustomers += 1;
+            }
+            else
+            {
+                customer.LaundryId = laundry.Id;
+                _context.Laundries.Find(laundry.Id).NoOfCustomers += 1;
+            }
+           
+            await _context.Customers.AddAsync(customer);
+            await _context.SaveChangesAsync();
+            return customer;
         }
     }
 

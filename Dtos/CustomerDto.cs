@@ -25,6 +25,7 @@ namespace LaundryApi.Dtos
         public Guid LaundryId { get; set; }
 
         public decimal Debt { get; set; }
+        public bool IsDeleted { get; set; }
 
     }
 }

@@ -76,7 +76,7 @@ namespace LaundryApi.Controllers
             }
             catch (Exception e)
             {
-                response.statusCode = "404";
+                response.statusCode = "400";
                 if (e.Message == ErrorMessage.InvalidToken)
                 {
                     response.message = ErrorMessage.InvalidToken;
@@ -103,7 +103,7 @@ namespace LaundryApi.Controllers
             try
             {
                 var customer = customerRepository.GetCustomer(id);
-                return Ok(customer);
+                return Ok(new ResponseDto<CustomerDto>() { statusCode="200",data=customer });
             }
             catch (Exception e)
             {
@@ -115,7 +115,7 @@ namespace LaundryApi.Controllers
             }
         }
 
-        //PUT: api/customer
+        //PATCH: api/customer
         [HttpPatch]
         public async Task<ActionResult<CustomerDto>> UpdateCustomer([FromBody] CustomerDto customer)
         {
@@ -124,7 +124,7 @@ namespace LaundryApi.Controllers
             try
             {
                 await customerRepository.UpdateCustomer(customer);
-                return Ok();
+                return Ok(new ResponseDto<string>() { statusCode="200" , message="update successful"});
             }
             catch (Exception e)
             {
@@ -132,7 +132,7 @@ namespace LaundryApi.Controllers
                     return BadRequest(new ResponseDto<CustomerDto>() { message=ErrorMessage.EntityDoesNotExist});
 
                 //if you get to this point something unforseen happened
-                return StatusCode(500);
+                return StatusCode(500,new ResponseDto<string>() { statusCode="500"});
             }
 
         }
@@ -141,45 +141,22 @@ namespace LaundryApi.Controllers
         [HttpDelete("{customerId}")]
         public ActionResult DeleteCustomer(Guid customerId)
         {
-
             try
             {
                 customerRepository.DeleteCustomer(customerId);
-                return Ok();
+                return Ok(new ResponseDto<string>() { statusCode="204"});
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.UserDoesNotExist)
-                    return NotFound();
+                    return NotFound(new ResponseDto<string>() { statusCode = "404",message="customer was not found" });
 
                 //if you get to this point something ususual occured
-                return StatusCode(500);
+                return StatusCode(500,new ResponseDto<string>() { statusCode = "500", message = "server error" });
             }
 
         }
 
-        //GET:  api/customer/search?name={name}
-        [HttpGet("search")]
-        public ActionResult Search(string name,string username)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(name))
-                    return BadRequest(new ResponseDto<string>() { message = ErrorMessage.NoEntityMatchesSearch });
-
-                var customer = customerRepository.GetCustomer(name, username);
-                return Ok(new ResponseDto<IEnumerable<CustomerDto>>() { data = customer, statusCode = "200", });
-            }
-            catch(Exception e)
-            {
-                if(e.Message == ErrorMessage.NoEntityMatchesSearch)
-                    return BadRequest(new ResponseDto<string>() { message = ErrorMessage.NoEntityMatchesSearch });
-
-                //if you get to these point somthing unusual occured
-                return StatusCode(500);
-            }
-            
-        }
 
         [HttpGet("debtors")]
         public ActionResult GetDebtors()
