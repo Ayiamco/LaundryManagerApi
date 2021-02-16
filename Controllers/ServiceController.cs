@@ -56,30 +56,30 @@ namespace laundryapi.controllers
         public async Task<ActionResult<ServiceDto>> Create(ServiceDto serviceDto)
         {
             if (!HttpContext.User.IsInRole(RoleNames.LaundryOwner) )
-                return Unauthorized();
+                return Unauthorized(new ResponseDto<string>() { statusCode="401", message="unauthorized access"});
             
 
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(new ResponseDto<string>() { statusCode="400", message="some feilds are invalid"});
 
             try
             {
-
                 var userEmail = HttpContext.User.Identity.Name;
-
                 serviceDto = await serviceRepository.CreateServiceAsync(serviceDto, userEmail);
-                return CreatedAtAction(nameof(GetService), new { id = serviceDto.Id }, serviceDto);
+                return CreatedAtAction(nameof(GetService), new { id = serviceDto.Id }, 
+                    new ResponseDto<ServiceDto>() { statusCode="201", data=serviceDto});
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.ServiceAlreadyExist)
                     return BadRequest(new ResponseDto<ServiceDto>()
                     {
+                        statusCode="400",
                         message = ErrorMessage.ServiceAlreadyExist
                     });
 
                 //if you got to this point  unforseen happenned
-                return StatusCode(500);
+                return StatusCode(500,new ResponseDto<string>() { statusCode="500"});
             }
 
 

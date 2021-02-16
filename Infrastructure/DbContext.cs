@@ -45,7 +45,7 @@ namespace LaundryApi.Infrastructure
                .HasAlternateKey(s => new { s.Email, s.LaundryId });
 
             builder.Entity<Service>()
-               .HasAlternateKey(s => new { s.Description, s.LaundryId });
+               .HasAlternateKey(s => new { s.Name, s.LaundryId });
 
         }
 

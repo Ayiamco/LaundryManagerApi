@@ -14,7 +14,7 @@ namespace LaundryApi.Entites
         public Guid Id { get; set; }
 
         [Required]
-        public string Description { get; set; }
+        public string Name { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,4)")]

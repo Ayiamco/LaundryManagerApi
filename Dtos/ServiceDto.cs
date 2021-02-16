@@ -13,11 +13,10 @@ namespace LaundryApi.Dtos
         public Guid Id { get; set; }
 
         [Required]
-        public string Description { get; set; }
-
-        [Required]
         [Column(TypeName = "decimal(18,4)")]
         public decimal Price { get; set; }
+
+        public string Name { get; set; }
 
         public LaundryDto Laundry { get; set; }
 

@@ -57,10 +57,13 @@ namespace LaundryApi.Repositories
             }
             catch (Exception e)
             {
-                string errorMessage = e.InnerException.ToString();
-                if (errorMessage.Contains("Violation of UNIQUE KEY constraint 'AK_Services_Description_LaundryId'"))
-                    throw new Exception(ErrorMessage.ServiceAlreadyExist);
-
+                if (e.InnerException !=null)
+                {
+                    string errorMessage = e.InnerException.ToString();
+                    if (errorMessage.Contains("Violation of UNIQUE KEY constraint 'AK_Services_Name_LaundryId'"))
+                        throw new Exception(ErrorMessage.ServiceAlreadyExist);
+                }
+                
                 throw new Exception(ErrorMessage.FailedDbOperation);
             }
 
@@ -77,7 +80,6 @@ namespace LaundryApi.Repositories
 
                 //update the service with the new changes
                 serviceInDb.UpdatedAt = DateTime.Now;
-                serviceInDb.Description = serviceDto.Description;
                 serviceInDb.Price = serviceDto.Price;
 
                 //save changes
