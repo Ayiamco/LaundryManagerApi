@@ -29,6 +29,19 @@ namespace laundryapi.controllers
         }
 
 
+        //GET: api/service
+        [HttpGet]
+        public ActionResult GetLaundryServices()
+        {
+            var queryParam = Request.Query;
+            var pageNumber = int.Parse(queryParam["page"]);
+            var searchParam = Convert.ToString(queryParam["name"]);
+            var userRole = HttpContext.GetUserRole();
+            var services=serviceRepository.GetPage(4, HttpContext.User.Identity.Name,userRole,pageNumber, searchParam);
+            return Ok(new ResponseDto<PagedList<ServiceDto>>() { statusCode="200", data=services});
+        }
+
+
         //GET: api/service/{customerid}
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceDto>> GetService(Guid id)
@@ -37,7 +50,7 @@ namespace laundryapi.controllers
             try
             {
                 servicedto = await serviceRepository.GetService(id);
-                return Ok(servicedto);
+                return Ok( new ResponseDto<ServiceDto>() { statusCode = "200", data = servicedto });
             }
             catch (Exception e)
             {
@@ -45,7 +58,7 @@ namespace laundryapi.controllers
                     return BadRequest(servicedto);
 
                 //if request got to this point some error occured
-                return StatusCode(500);
+                return StatusCode(500,new ResponseDto<string>() { statusCode="500",message="server error"});
             }
 
 
@@ -86,8 +99,8 @@ namespace laundryapi.controllers
         }
 
 
-        //PATCH: api/service/update
-        [HttpPatch("update")]
+        //PATCH: api/service
+        [HttpPatch]
         public async Task<ActionResult<ServiceDto>> UpdateService(ServiceDto servicedto)
         {
             if (!ModelState.IsValid)
@@ -111,47 +124,41 @@ namespace laundryapi.controllers
 
         //DELETE: api/service/{serviceid}
         [HttpDelete("{serviceid}")]
-        public async Task<ActionResult<ResponseDto<ServiceDto>>> Deleteservice(Guid serviceid)
+        public async Task<ActionResult> Deleteservice(Guid serviceid)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseDto<ServiceDto>() { message="service Id must be Guid"});
             try
             {
                 await serviceRepository.DeleteService(serviceid);
-                return StatusCode(204);
+                return Ok(new ResponseDto<string>() { statusCode="200"});
             }
             catch (Exception e)
             {
                 if (e.Message == ErrorMessage.EntityDoesNotExist)
-                    return BadRequest(new ResponseDto<ServiceDto>() { message=ErrorMessage.EntityDoesNotExist});
+                    return BadRequest(new ResponseDto<ServiceDto>() { statusCode="400",message=ErrorMessage.EntityDoesNotExist});
 
                 //if you get to this point something unusual occured
-                return StatusCode(500);
+                return StatusCode(500, new ResponseDto<string>() { statusCode = "500" });
             }
 
         }
 
+        //GET: api/service/all
         [HttpGet("all")]
-        public ActionResult<ResponseDto<IEnumerable<ServiceDtoPartial>>> ReadMyLaundryService()
+        public ActionResult GetAllServices()
         {
-            try
+            var userRole=HttpContext.GetUserRole();
+            if(userRole==RoleNames.LaundryEmployee || userRole==RoleNames.LaundryOwner)
             {
-                string userRole = HttpContext.GetUserRole();
-                if (!(userRole == RoleNames.LaundryOwner || userRole == RoleNames.LaundryEmployee))
-                    return Unauthorized();
-
-                var services=serviceRepository.GetMyLaundryServices(HttpContext.User.Identity.Name,userRole);
-                return Ok(new ResponseDto<IEnumerable<ServiceDtoPartial>>() { data=services});
+                var services=serviceRepository.GetAllServices(HttpContext.User.Identity.Name, userRole);
+                return Ok(new ResponseDto<IEnumerable<ServiceDto>>() { statusCode="200",data=services });
             }
-            catch(Exception e)
-            {
-                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
-                    return NoContent();
-
-                return StatusCode(500);
-
-            }
+            else
+                return Unauthorized(new ResponseDto<string>() { statusCode="401",message="unauthorized access"});
         }
+
+        
 
     }
 }

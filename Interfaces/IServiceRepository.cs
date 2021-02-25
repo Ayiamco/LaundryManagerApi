@@ -1,4 +1,5 @@
 ﻿using LaundryApi.Dtos;
+using LaundryApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace LaundryApi.Interfaces
         public Task<ServiceDto> UpdateService(ServiceDto serviceDto);
         public Task<bool> DeleteService(Guid serviceid);
         public Task<ServiceDto> GetService(Guid id);
-        public IEnumerable<ServiceDtoPartial> GetMyLaundryServices(string username, string userRole);
+        public PagedList<ServiceDto> GetPage(int pageSize, string username, string userRole, int pageNumber = 1, string searchParam = "");
+
+        public IEnumerable<ServiceDto> GetAllServices(string username, string userRole);
     }
 }

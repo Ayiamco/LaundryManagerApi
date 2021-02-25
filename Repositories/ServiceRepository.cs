@@ -131,9 +131,9 @@ namespace LaundryApi.Repositories
             {
                 var service = await _context.Services.FindAsync( id);
 
-                if (service == null)
+                if (service == null || service.IsDeleted)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
-
+                
                 var serviceDto = mapper.Map<ServiceDto>(service);
                 return serviceDto;
             }
@@ -148,60 +148,67 @@ namespace LaundryApi.Repositories
 
         }
 
-        public IEnumerable<ServiceDtoPartial> GetMyLaundryServices(string username,string userRole)
+
+        public PagedList<ServiceDto> GetPage(int pageSize, string username, string userRole, int pageNumber = 1, string searchParam = "")
         {
-            try
-            {
-                IEnumerable<ServiceDtoPartial> serviceDto;
-                ApplicationUser user=repositoryHelper.GetApplicationUser(username);
-                if(userRole ==RoleNames.LaundryEmployee)
-                    serviceDto=GetServicesForLaundryOwner(repositoryHelper.GetLaundryByUsername(username));
-                
-                else
-                    serviceDto = GetServicesForEmployee(repositoryHelper.GetEmployeeByUsername(username));
-
-                return serviceDto;
-            }
-
-            catch(Exception e)
-            {
-                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
-                    throw new Exception(ErrorMessage.NoEntityMatchesSearch);
-                throw new Exception(ErrorMessage.FailedDbOperation);
-            }
-
-
-        }
-
-        private IEnumerable<ServiceDtoPartial> GetServicesForLaundryOwner(Laundry user)
-        {
-            var laundryServices = _context.Services.Where(x => x.LaundryId == user.Id).ToList();
-            if (laundryServices.Count == 0)
-                throw new Exception(ErrorMessage.NoEntityMatchesSearch);
-            List<ServiceDtoPartial> serviceDtos = new List<ServiceDtoPartial>();
-            IEnumerable<ServiceDtoPartial> serviceDto = mapper.Map<IEnumerable<ServiceDtoPartial>>(laundryServices);
-
-            return serviceDto;
-        }
-
-        private IEnumerable<ServiceDtoPartial> GetServicesForEmployee(Employee user)
-        {
-            var laundryServices = _context.Services.Where(x => x.LaundryId == user.LaundryId).ToList();
-            if (laundryServices.Count == 0)
-                throw new Exception(ErrorMessage.NoEntityMatchesSearch);
-
-            List<ServiceDtoPartial> serviceDtos = new List<ServiceDtoPartial>();
-            foreach(Service service  in laundryServices)
-            {
-                var dto=mapper.Map<ServiceDtoPartial>(service);
-                dto.Revenue = 0;
-                serviceDtos.Add(dto);
-            }
-
-            return serviceDtos;
+            var user = repositoryHelper.GetApplicationUser(username);
+            Guid laundryId;
+            if (userRole == RoleNames.LaundryEmployee)
+                laundryId = repositoryHelper.GetEmployeeByUsername(username).LaundryId;
+            else
+                laundryId = repositoryHelper.GetLaundryByUsername(username).Id;
             
+
+            var serviceList = _context.Services.Where(x => x.IsDeleted == false && x.LaundryId == laundryId).ToList();
+            if (searchParam != "")
+            {
+                serviceList = serviceList.Where(x => x.Name.Contains(searchParam.ToLower())).ToList();
+                if (serviceList.Count() / pageSize <= pageNumber)
+                    pageNumber = 1;
+            }
+
+            var page = serviceList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            var maxPage = serviceList.Count / (decimal)pageSize;
+            PagedList<ServiceDto> obj = new PagedList<ServiceDto>()
+            {
+                Data = mapper.Map<IEnumerable<ServiceDto>>(page),
+                PageIndex = pageNumber,
+                PageSize = pageSize,
+            };
+            if (maxPage < 1)
+                obj.MaxPageIndex = 1;
+            else
+            {
+                int _num;
+                int _val;
+                try
+                { _num = Convert.ToInt32(Convert.ToString(maxPage).Split(".")[1]); 
+                    _val= Convert.ToInt32(Convert.ToString(maxPage).Split(".")[0]);
+                }
+                catch
+                { _num = 0;_val = Convert.ToInt32(maxPage); }
+
+                obj.MaxPageIndex = _num > 0 ? _val + 1 : Convert.ToInt32(maxPage);
+            }
+            return obj;
         }
-    }
+
+        public IEnumerable<ServiceDto> GetAllServices(string username,string userRole)
+        {
+            Guid laundryId;
+            if (userRole == RoleNames.LaundryOwner)
+                laundryId = _context.Laundries.SingleOrDefault(x => x.Username == username).Id;
+            else
+                laundryId = _context.Employees.SingleOrDefault(x => x.Username == username).LaundryId;
+
+            var services =_context.Services.Where(x => x.LaundryId == laundryId).ToList();
+
+            var dto=mapper.Map<IEnumerable<ServiceDto>>(services);
+
+            return dto;
+        }
+
+        }
 }
 
 

@@ -22,6 +22,9 @@ namespace LaundryApi.Dtos
 
         public Guid LaundryId { get; set; }
 
+        public DateTime CreatedAt {get;set;}
+        public decimal Revenue { get; set; }
+
 
     }
 }
