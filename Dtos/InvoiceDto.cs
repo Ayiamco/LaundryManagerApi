@@ -31,6 +31,8 @@ namespace LaundryApi.Dtos
 
         public decimal AmountPaid { get; set; }
 
+        public string Remark { get; set; }
+
         
     }
 }

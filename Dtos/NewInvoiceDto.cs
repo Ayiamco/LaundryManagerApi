@@ -18,6 +18,8 @@ namespace LaundryApi.Dtos
         [Column(TypeName = "decimal(18,4)")]
         public decimal AmountPaid { get; set; }
 
+        public string Remark { get; set; }
+
     }
 }
 

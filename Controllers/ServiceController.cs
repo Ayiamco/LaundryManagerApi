@@ -37,7 +37,7 @@ namespace laundryapi.controllers
             var pageNumber = int.Parse(queryParam["page"]);
             var searchParam = Convert.ToString(queryParam["name"]);
             var userRole = HttpContext.GetUserRole();
-            var services=serviceRepository.GetPage(4, HttpContext.User.Identity.Name,userRole,pageNumber, searchParam);
+            var services=serviceRepository.GetPage(6, HttpContext.User.Identity.Name,userRole,pageNumber, searchParam);
             return Ok(new ResponseDto<PagedList<ServiceDto>>() { statusCode="200", data=services});
         }
 

@@ -4,14 +4,16 @@ using LaundryApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LaundryApi.Migrations
 {
     [DbContext(typeof(LaundryApiContext))]
-    partial class LaundryApiContextModelSnapshot : ModelSnapshot
+    [Migration("20210305035049_modifiedTheInvoiceItemsEntity")]
+    partial class modifiedTheInvoiceItemsEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,20 +185,12 @@ namespace LaundryApi.Migrations
                     b.Property<bool>("IsPaidFor")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("LaundryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Remark")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("LaundryId");
 
                     b.ToTable("Invoices");
                 });
@@ -208,9 +202,6 @@ namespace LaundryApi.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<Guid?>("InvoiceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -218,8 +209,6 @@ namespace LaundryApi.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("InvoiceId");
 
                     b.HasIndex("ServiceId");
 
@@ -364,23 +353,11 @@ namespace LaundryApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LaundryApi.Entites.Laundry", "Laundry")
-                        .WithMany()
-                        .HasForeignKey("LaundryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Customer");
-
-                    b.Navigation("Laundry");
                 });
 
             modelBuilder.Entity("LaundryApi.Entites.InvoiceItem", b =>
                 {
-                    b.HasOne("LaundryApi.Entites.Invoice", null)
-                        .WithMany("InvoiceItems")
-                        .HasForeignKey("InvoiceId");
-
                     b.HasOne("LaundryApi.Entites.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -399,11 +376,6 @@ namespace LaundryApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Laundry");
-                });
-
-            modelBuilder.Entity("LaundryApi.Entites.Invoice", b =>
-                {
-                    b.Navigation("InvoiceItems");
                 });
 #pragma warning restore 612, 618
         }

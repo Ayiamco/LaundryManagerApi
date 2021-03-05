@@ -35,6 +35,7 @@ namespace LaundryApi.Infrastructure
 
 
             CreateMap<InvoiceItemDto, InvoiceItem>().ReverseMap();
+            CreateMap<NewInvoiceItemDto, InvoiceItem>();
 
             
         }

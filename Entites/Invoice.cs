@@ -25,6 +25,15 @@ namespace LaundryApi.Entites
         [Required]
         public Guid CustomerId { get; set; }
 
+        public Guid LaundryId { get; set; }
+
+        public Laundry Laundry { get; set; }
+
+
+        [ForeignKey("InvoiceId")]
+        public ICollection<InvoiceItem> InvoiceItems { get; set; }
+
+        public string Remark { get; set; }
         public DateTime UpdatedAt { get; set; }
 
         public bool IsCollected { get; set; }

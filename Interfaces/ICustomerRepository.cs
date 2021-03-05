@@ -16,12 +16,8 @@ namespace LaundryApi.Interfaces
         public CustomerDto GetCustomer(Guid customerId);
         public IEnumerable<CustomerDto> GetCustomer(string customerName,string customerUsername);
         public PagedList<CustomerDto> GetPage(int pageSize, string laundryUsername, int pageNumber = 1, string searchParam = "");
-
-
-        /// <summary>
-        /// returns all the debtors in particular laundry
-        /// </summary>
         public IEnumerable<CustomerDto> GetCustomer(string laundryUsername);
+        public IEnumerable<CustomerDto> SearchForCustomer(string searchParam, string paramType);
 
     }
 }

@@ -15,7 +15,7 @@ namespace LaundryApi.Infrastructure
             decimal total = 0;
             foreach (NewInvoiceItemDto item in invoiceItems)
             {
-                total += item.Service.Price * item.Quantity;
+                //total += item.Service.Price * item.Quantity;
             }
             return total;
         }

@@ -50,7 +50,7 @@ namespace LaundryApi
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   build =>
                                   {
-                                      build.WithOrigins("http://localhost:3000")
+                                      build.WithOrigins("http://localhost:3000", "https://04c62d284968.ngrok.io", "https://avone.netlify.app")
                                            .AllowAnyHeader()
                                            .AllowAnyMethod()
                                            .AllowCredentials();

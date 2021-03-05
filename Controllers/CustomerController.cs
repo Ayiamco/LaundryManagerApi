@@ -176,6 +176,16 @@ namespace LaundryApi.Controllers
             
         }
 
-        
+        [HttpGet("search")]
+        public ActionResult  Search()
+        {
+            var customerInfo = Request.Query["customerInfo"];
+            var infoType = Request.Query["infoType"];
+            var customers=customerRepository.SearchForCustomer(customerInfo, infoType);
+            if (customers.Count() == 1)
+                return Ok(new ResponseDto<IEnumerable<CustomerDto>> { statusCode = "200", data = customers });
+            
+            return BadRequest(new ResponseDto<IEnumerable<CustomerDto>> { statusCode = "400" });
+        }
     }
 }

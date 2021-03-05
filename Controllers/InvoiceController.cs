@@ -115,7 +115,7 @@ namespace LaundryApi.Controllers
 
 
         //POST: api/Invoice/add
-        [HttpPost("new")]
+        [HttpPost("add")]
         public ActionResult<NewInvoiceDto> CreateInvoice(NewInvoiceDto newInvoiceDto)
         {
             if (!ModelState.IsValid)
@@ -125,7 +125,7 @@ namespace LaundryApi.Controllers
             {
                 string role = HttpContext.GetUserRole();
                 if ( !(role==RoleNames.LaundryEmployee || role==RoleNames.LaundryOwner))
-                    return Unauthorized();
+                    return BadRequest( new ResponseDto<string> { statusCode="401"});
 
                 InvoiceDto invoiceDto = invoiceRepository.AddInvoice(newInvoiceDto,role,HttpContext.User.Identity.Name);
                 return CreatedAtAction(nameof(ReadInvoice), new { id = invoiceDto.Id }, invoiceDto);

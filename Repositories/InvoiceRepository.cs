@@ -40,12 +40,10 @@ namespace LaundryApi.Repositories
         {
             try
             {
-                //check if customer exist 
                 var customerInDb = _context.Customers.SingleOrDefault(x => x.Id == newInvoiceDto.CustomerId);
                 if (customerInDb == null)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
 
-                //check if the customer is owned by the current user
                 if (userRole == RoleNames.LaundryOwner)
                 {
                     if ( repositoryHelper.GetLaundryByUsername(username).Id != customerInDb.LaundryId)
@@ -57,9 +55,9 @@ namespace LaundryApi.Repositories
                         throw new Exception(ErrorMessage.InvalidToken);
                 }
 
-                //get the invoice total, update customer,laundry AND EMPLOYEE
-                decimal invoiceTotal = newInvoiceDto.InvoiceItems.GetInvoiceTotal();
+                decimal invoiceTotal = GetInvoiceTotal(newInvoiceDto,customerInDb.LaundryId);
                 customerInDb.Debt += invoiceTotal - newInvoiceDto.AmountPaid;
+
                 if (newInvoiceDto.AmountPaid > 0)
                 {
                     customerInDb.TotalPurchase += newInvoiceDto.AmountPaid;
@@ -72,7 +70,8 @@ namespace LaundryApi.Repositories
                     }
                 }
 
-                //create the invoice object and add the invoice to the db context 
+                //create the invoice object and add the invoice to the db context
+                var invoiceItems=mapper.Map<ICollection<InvoiceItem>>(newInvoiceDto.InvoiceItems);
                 Invoice invoice = new Invoice()
                 {
                     Amount = invoiceTotal,
@@ -80,24 +79,13 @@ namespace LaundryApi.Repositories
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     IsCollected = false,
-                    IsPaidFor = newInvoiceDto.AmountPaid==invoiceTotal,
-                    AmountPaid= newInvoiceDto.AmountPaid
+                    IsPaidFor = customerInDb.Debt<=0,
+                    AmountPaid= newInvoiceDto.AmountPaid,
+                    Remark=newInvoiceDto.Remark,
+                    InvoiceItems= invoiceItems,
+                    LaundryId= customerInDb.LaundryId
                 };
                 _context.Invoices.Add(invoice);
-
-                //create the list of invoice items and add them to the dbcontext
-                List<InvoiceItem> invoiceItems = new List<InvoiceItem>();
-                foreach (NewInvoiceItemDto item in newInvoiceDto.InvoiceItems)
-                {
-                    invoiceItems.Add(new InvoiceItem()
-                    {
-                        ServiceId = item.Service.Id,
-                        Quantity = item.Quantity,
-                        InvoiceId = invoice.Id,
-
-                    });
-                }
-                _context.AddRange(invoiceItems);
 
                 //coomplete transaction
                 _context.SaveChanges();
@@ -171,7 +159,7 @@ namespace LaundryApi.Repositories
             try
             {
                 //read all the invoice items that match the invoiceId
-                var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDtoLight>>(_context.InvoiceItems.Include("Service").Where(x => x.InvoiceId == invoiceId).ToList());
+                var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDtoLight>>(_context.Invoices.Include(x=> x.InvoiceItems).Single(x=>x.Id==invoiceId).InvoiceItems.ToList());
                 if (invoiceItems.Count() == 0)
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
                 //get the invoice that matches the invoice Id 
@@ -249,6 +237,17 @@ namespace LaundryApi.Repositories
                     break;
 
             }
+        }
+
+        private  decimal GetInvoiceTotal(NewInvoiceDto dto,Guid laundryId )
+        {
+            var services = _context.Services.Where(x => x.LaundryId == laundryId);
+            decimal total = 0;
+            foreach(NewInvoiceItemDto _dto in dto.InvoiceItems)
+            {
+                total +=services.Single(x=> x.Id==_dto.ServiceId).Price * _dto.Quantity;
+            }
+            return total;
         }
 
     }

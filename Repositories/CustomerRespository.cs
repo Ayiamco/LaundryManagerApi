@@ -253,6 +253,21 @@ namespace LaundryApi.Repositories
             await _context.SaveChangesAsync();
             return customer;
         }
+    
+        public IEnumerable<CustomerDto> SearchForCustomer(string searchParam,string paramType)
+        {
+            List<Customer> customer;
+            if (paramType == "email")
+                customer = _context.Customers.Where(x => x.Username.Contains(searchParam)).ToList();
+            else if (paramType == "name")
+                customer = _context.Customers.Where(x => x.Name.Contains( searchParam)).ToList();
+            else
+                customer = _context.Customers.Where(x => x.PhoneNumber.Contains(searchParam)).ToList();
+
+            IEnumerable<CustomerDto> customers=mapper.Map<IEnumerable<CustomerDto>>(customer);
+            return customers;
+                
+        }
     }
 
 }
