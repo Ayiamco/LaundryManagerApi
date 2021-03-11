@@ -9,6 +9,7 @@ using LaundryApi.Dtos;
 using LaundryApi.Entites;
 using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LaundryApi.Repositories
 {
@@ -135,6 +136,9 @@ namespace LaundryApi.Repositories
                     throw new Exception(ErrorMessage.EntityDoesNotExist);
                 
                 var serviceDto = mapper.Map<ServiceDto>(service);
+                var revenue=_context.InvoiceItems.Include(x => x.Service)
+                    .Where(x => x.ServiceId == serviceDto.Id).Sum(x=> x.Quantity * x.Service.Price);
+                serviceDto.Revenue = revenue;
                 return serviceDto;
             }
             catch(Exception e)
@@ -168,6 +172,11 @@ namespace LaundryApi.Repositories
             }
 
             var page = serviceList.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            foreach (Service service in page)
+            {
+                service.Revenue = _context.InvoiceItems.Include(x => x.Service)
+                     .Where(x => x.ServiceId == service.Id).Sum(x => x.Quantity * x.Service.Price);
+            }
             var maxPage = serviceList.Count / (decimal)pageSize;
             PagedList<ServiceDto> obj = new PagedList<ServiceDto>()
             {
@@ -202,7 +211,11 @@ namespace LaundryApi.Repositories
                 laundryId = _context.Employees.SingleOrDefault(x => x.Username == username).LaundryId;
 
             var services =_context.Services.Where(x => x.LaundryId == laundryId).ToList();
-
+            foreach(Service service in services)
+            {
+                service.Revenue= _context.InvoiceItems.Include(x => x.Service)
+                     .Where(x => x.ServiceId == service.Id).Sum(x => x.Quantity * x.Service.Price);
+            }
             var dto=mapper.Map<IEnumerable<ServiceDto>>(services);
 
             return dto;

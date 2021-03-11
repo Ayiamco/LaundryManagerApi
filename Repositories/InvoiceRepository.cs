@@ -124,7 +124,7 @@ namespace LaundryApi.Repositories
 
             return obj;
         }
-        public PagedList<InvoiceDto> GetInvoices(int pageNumber, int pageSize,string username,string userRole)
+        public PagedList<Invoice> GetInvoices(int pageNumber, int pageSize,string username,string userRole)
         {
             //get the laundry 
             Guid laundryId;
@@ -134,21 +134,17 @@ namespace LaundryApi.Repositories
                 laundryId = _context.Laundries.SingleOrDefault(x => x.Username == username).Id;
 
             //get the laundry customers and use the customers to get the invoices from the invoice table
-            IEnumerable<Customer> customers = _context.Customers.Where(x => x.LaundryId == laundryId);
-            List<Invoice> invoices= new List<Invoice>();
-            foreach(Customer customer in customers)
-            {
-                invoices.AddRange(_context.Invoices.Where(x=> x.CustomerId==customer.Id));
-            }
+            IEnumerable<Invoice> invoices = _context.Invoices.Include(x=>x.Customer).Include(x=> x.InvoiceItems).Where(x => x.LaundryId == laundryId);
+           
             
             //do the pagination and select 
             var page = invoices.OrderBy(x => x.Amount).Skip((pageNumber - 1) * pageSize).Take(pageSize);
-            PagedList<InvoiceDto> obj = new PagedList<InvoiceDto>()
+            PagedList<Invoice> obj = new PagedList<Invoice>()
             {
-                Data = mapper.Map<IEnumerable<InvoiceDto>>(page),
+                Data = page,
                 PageIndex = pageNumber,
                 PageSize = pageSize,
-                MaxPageIndex = invoices.Count,
+                MaxPageIndex = invoices.Count(),
             };
 
             return obj;

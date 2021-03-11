@@ -32,7 +32,7 @@ namespace LaundryApi.Interfaces
         /// <param name="username"></param>
         /// <param name="userRole"></param>
         /// <returns></returns>
-        public PagedList<InvoiceDto> GetInvoices(int pageNumber, int pageSize, string username, string userRole);
+        public PagedList<Invoice> GetInvoices(int pageNumber, int pageSize, string username, string userRole);
 
         public void DepositCustomerPayment(Guid customerId, decimal amtDeposited);
 

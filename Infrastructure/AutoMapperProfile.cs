@@ -29,8 +29,7 @@ namespace LaundryApi.Infrastructure
             CreateMap<ServiceDtoPartial, Service>().ReverseMap();
 
             CreateMap<NewInvoiceDto, Invoice>().ReverseMap();
-            CreateMap<InvoiceDto, Invoice>().ReverseMap().ForMember(x=> x.Customer,opt=> opt.Ignore());
-            CreateMap<InvoiceItemDtoLight, InvoiceItem>().ReverseMap();
+            CreateMap<InvoiceDto, Invoice>().ReverseMap();
 
 
 

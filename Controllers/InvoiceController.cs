@@ -29,18 +29,18 @@ namespace LaundryApi.Controllers
 
         }
 
-        //GET: api/invoice?pageindex={int}&pagesize={int}
+        //GET: api/invoice?page={int}&name={string}
         [HttpGet]
-        public ActionResult GetPaginatedLaundryInvoices(int pageSize,int pageIndex)
+        public ActionResult GetPaginatedLaundryInvoices(int page,string name)
         {
             string role = HttpContext.GetUserRole();
             if ( !(role==RoleNames.LaundryOwner || role == RoleNames.LaundryEmployee))
             {
                 return StatusCode(401);
             }
-            PagedList<InvoiceDto> invoices=invoiceRepository.GetInvoices(pageIndex,pageSize,HttpContext.User.Identity.Name,role);
+            PagedList<Invoice> invoices=invoiceRepository.GetInvoices(page,3,HttpContext.User.Identity.Name,role);
 
-            return Ok(new ResponseDto<PagedList<InvoiceDto>>() { data=invoices,statusCode="200"});
+            return Ok(new ResponseDto<PagedList<Invoice>>() { data=invoices,statusCode="200"});
         }
 
 
