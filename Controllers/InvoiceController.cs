@@ -22,11 +22,9 @@ namespace LaundryApi.Controllers
     {
 
         private readonly IInvoiceRepository invoiceRepository;
-
         public InvoiceController(IInvoiceRepository invoiceRepository)
         {
             this.invoiceRepository = invoiceRepository;
-
         }
 
         //GET: api/invoice?page={int}&name={string}
@@ -48,10 +46,10 @@ namespace LaundryApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InvoiceDto>> ReadInvoice(Guid id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest();
                 var invoice = await invoiceRepository.ReadInvoice(id);
                 return Ok(invoice);
             }
@@ -86,32 +84,7 @@ namespace LaundryApi.Controllers
         }
 
 
-        //GET: api/invoice/items/{id}
-        [HttpGet("invoiceItems/{invoiceId}")]
-        public async Task<ActionResult<InvoiceDto>> ReadInvoiceItems(Guid invoiceId)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(new ResponseDto<InvoiceDto>() { message = ErrorMessage.InvalidModel });
-
-                //get the full invoice including all associated invoice items
-                var invoiceDto = await invoiceRepository.ReadCompleteInvoiceAsync(invoiceId);
-
-                //return value
-                return Ok(invoiceDto);
-            }
-            catch (Exception e)
-            {
-                if (e.Message == ErrorMessage.EntityDoesNotExist)
-                    return BadRequest(new ResponseDto<InvoiceDto>() { message = ErrorMessage.EntityDoesNotExist });
-
-                // if you get to this point something unforseen happened
-                return StatusCode(500);
-            }
-
-
-        }
+        
 
 
         //POST: api/Invoice/add

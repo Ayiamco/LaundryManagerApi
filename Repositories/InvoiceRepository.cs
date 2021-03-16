@@ -7,8 +7,6 @@ using LaundryApi.Interfaces;
 using LaundryApi.Infrastructure;
 using AutoMapper;
 using LaundryApi.Entites;
-using static LaundryApi.Infrastructure.LaundryApiExtenstionMethods;
-using static LaundryApi.Infrastructure.HelperMethods;
 using Microsoft.EntityFrameworkCore;
 using LaundryApi.Models;
 
@@ -30,8 +28,11 @@ namespace LaundryApi.Repositories
 
         public async Task<InvoiceDto> ReadInvoice(Guid invoiceId)
         {
-
-            var invoice = await _context.Invoices.Include("Customer").FirstOrDefaultAsync(x => x.Id == invoiceId);
+            
+            var invoice = await _context.Invoices.Include(x=> x.Customer)
+                                                 .Include(x=> x.InvoiceItems)
+                                                 .ThenInclude(x=> x.Service)
+                                                 .FirstOrDefaultAsync(x => x.Id == invoiceId);
             var invoiceDto = mapper.Map<InvoiceDto>(invoice);
             return invoiceDto;
         }
@@ -55,7 +56,8 @@ namespace LaundryApi.Repositories
                         throw new Exception(ErrorMessage.InvalidToken);
                 }
 
-                decimal invoiceTotal = GetInvoiceTotal(newInvoiceDto,customerInDb.LaundryId);
+                var invoiceTotal = GetInvoiceItemsPrices(newInvoiceDto,customerInDb.LaundryId).Sum();
+               
                 customerInDb.Debt += invoiceTotal - newInvoiceDto.AmountPaid;
 
                 if (newInvoiceDto.AmountPaid > 0)
@@ -92,7 +94,8 @@ namespace LaundryApi.Repositories
 
                 //create return obj
                 InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
-                invoiceDto.Customer = mapper.Map<CustomerDto>(customerInDb);
+                invoiceDto.CustomerId = newInvoiceDto.CustomerId;
+                
                 return invoiceDto;
             }
             catch (Exception e)
@@ -150,21 +153,12 @@ namespace LaundryApi.Repositories
             return obj;
         }
 
-        public async Task<InvoiceDto> ReadCompleteInvoiceAsync(Guid invoiceId)
+        public InvoiceDto ReadCompleteInvoiceAsync(Guid invoiceId)
         {
             try
             {
-                //read all the invoice items that match the invoiceId
-                var invoiceItems = mapper.Map<IEnumerable<InvoiceItemDtoLight>>(_context.Invoices.Include(x=> x.InvoiceItems).Single(x=>x.Id==invoiceId).InvoiceItems.ToList());
-                if (invoiceItems.Count() == 0)
-                    throw new Exception(ErrorMessage.EntityDoesNotExist);
-                //get the invoice that matches the invoice Id 
-                var invoice = await _context.Invoices.FindAsync(invoiceId);
-
-                //map concrete Invoice object to Dto
+                var invoice =  _context.Invoices.Include(x => x.Customer).Include(x => x.InvoiceItems).SingleOrDefault(x => x.Id==invoiceId);
                 InvoiceDto invoiceDto = mapper.Map<InvoiceDto>(invoice);
-                invoiceDto.InvoiceItems = invoiceItems;
-
                 return invoiceDto;
             }
             catch (Exception e)
@@ -235,15 +229,11 @@ namespace LaundryApi.Repositories
             }
         }
 
-        private  decimal GetInvoiceTotal(NewInvoiceDto dto,Guid laundryId )
+        private  IEnumerable<decimal> GetInvoiceItemsPrices(NewInvoiceDto dto,Guid laundryId )
         {
             var services = _context.Services.Where(x => x.LaundryId == laundryId);
-            decimal total = 0;
             foreach(NewInvoiceItemDto _dto in dto.InvoiceItems)
-            {
-                total +=services.Single(x=> x.Id==_dto.ServiceId).Price * _dto.Quantity;
-            }
-            return total;
+                yield return services.Single(x=> x.Id==_dto.ServiceId).Price * _dto.Quantity;
         }
 
     }

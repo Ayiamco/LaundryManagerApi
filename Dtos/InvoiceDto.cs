@@ -10,29 +10,40 @@ namespace LaundryApi.Dtos
 {
     public class InvoiceDto
     {
+        
         public Guid Id { set; get; }
 
         [Required]
         [Column(TypeName = "decimal(18,4)")]
         public decimal Amount { get; set; }
 
-        public CustomerDto Customer { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
+
+        public Customer Customer { get; set; }
 
         [Required]
         public Guid CustomerId { get; set; }
 
-        public IEnumerable<InvoiceItemDtoLight> InvoiceItems { get; set; }
+        public Guid LaundryId { get; set; }
 
-        [Required]
-        public bool IsPaidFor { set; get; }
+        public Laundry Laundry { get; set; }
 
-        [Required]
-        public bool IsCollected { set; get; }
 
-        public decimal AmountPaid { get; set; }
+        [ForeignKey("InvoiceId")]
+        public ICollection<InvoiceItem> InvoiceItems { get; set; }
 
         public string Remark { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
-        
+        public bool IsCollected { get; set; }
+
+        public bool IsPaidFor { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal AmountPaid { get; set; }
+
+
     }
 }

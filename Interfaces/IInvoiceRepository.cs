@@ -22,7 +22,7 @@ namespace LaundryApi.Interfaces
         /// <returns></returns>
         public PagedList<InvoiceDto> GetInvoices(int pageNumber, int pageSize);
 
-        public Task<InvoiceDto> ReadCompleteInvoiceAsync(Guid invoiceId);
+        public InvoiceDto ReadCompleteInvoiceAsync(Guid invoiceId);
 
         /// <summary>
         /// gets the paginated invoice of aparticular laundry ordered by the date in descending order
