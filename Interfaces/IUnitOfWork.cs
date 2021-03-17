@@ -19,5 +19,6 @@ namespace LaundryApi.Interfaces
         public IJwtAuthenticationManager JwtAuthenticationManager { get; }
         public IManagerRepository ManagerRepository { get; }
 
+        public IDashboardRepo DashoardRepo { get; }
     }
 }
