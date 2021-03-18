@@ -11,6 +11,7 @@ namespace LaundryApi.Infrastructure
     {
         public ICustomerRepository CustomerRepository { get; }
 
+        public IDashboardRepo DashboardRepo { get; }
         public IServiceRepository ServiceRepository { get; }
 
         public IInvoiceRepository InvoiceRepository { get; }
@@ -29,11 +30,14 @@ namespace LaundryApi.Infrastructure
 
         public IManagerRepository ManagerRepository { get; }
 
+       
+
         public UnitOfWork(ICustomerRepository CustomerRepository,IManagerRepository ManagerRepository,
             IMapper Mapper, IMailService MailService, IRepositoryHelper RepositoryHelper,
             IServiceRepository ServiceRepository, IEmployeeRepository EmployeeRepository,
              ILaundryRepository LaundryRepository,IInvoiceRepository InvoiceRepository,
-             IJwtAuthenticationManager JwtAuthenticationManager )
+             IJwtAuthenticationManager JwtAuthenticationManager,
+             IDashboardRepo DashboardRepo)
         {
             this.CustomerRepository = CustomerRepository;
             this.EmployeeRepository = EmployeeRepository;
@@ -45,6 +49,7 @@ namespace LaundryApi.Infrastructure
             this.InvoiceRepository = InvoiceRepository;
             this.JwtAuthenticationManager = JwtAuthenticationManager;
             this.LaundryRepository = LaundryRepository;
+            this.DashboardRepo = DashboardRepo;
 
         }
        

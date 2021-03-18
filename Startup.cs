@@ -87,6 +87,7 @@ namespace LaundryApi
             services.AddTransient<IUnitOfWork,UnitOfWork>();
             services.AddScoped<IRepositoryHelper,RepositoryHelper>();
             services.AddScoped<IServiceRepository,ServiceRepository>();
+            services.AddScoped<IDashboardRepo,DashboardRepo>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();
