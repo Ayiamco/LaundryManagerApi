@@ -27,15 +27,17 @@ namespace LaundryApi.Repositories
             var invoices = _context.Invoices.Where(x => x.LaundryId == laundry.Id).AsQueryable();
             var customers = _context.Customers.Where(x => x.LaundryId == laundry.Id).OrderBy(x=> x.TotalPurchase).AsQueryable();
             var services = _context.Services.Where(x => x.LaundryId == laundry.Id).OrderBy(x=> x.Revenue).AsQueryable();
+            var topService = services.Count() != 0 ? 
+                _mapper.Map<ServiceDto>(services.First()).Name : "Not Available" ;
             var dto = new DashboardDto
             {
                 Name = laundry.Name,
-                InvoiceAmount = invoices.Select(x => x.Amount).Sum(),
+                InvoiceAmount = invoices.Select(x => x.Amount).Count()==0 ? 0 : invoices.Select(x => x.Amount).Sum(),
                 InvoiceCount = invoices.Count(),
                 CustomerCount = customers.Count(),
-                TopService= _mapper.Map<ServiceDto>(services.First()).Name,
+                TopService= topService,
                 NoOfEmployees= employees.Count(),
-                Revenue=invoices.Select(x=> x.AmountPaid).Sum()
+                Revenue=invoices.Select(x=> x.AmountPaid).Count()==0?0: invoices.Select(x => x.AmountPaid).Sum()
             };
             return dto;
         }

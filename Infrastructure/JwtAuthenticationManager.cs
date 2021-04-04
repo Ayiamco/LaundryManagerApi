@@ -36,7 +36,7 @@ namespace LaundryApi.Infrastructure
                     new Claim(ClaimTypes.Role, roleName)
                     
                 }),
-                Expires = DateTime.UtcNow.AddDays(60),
+                Expires = DateTime.UtcNow.AddSeconds(20),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256)
             };
