@@ -66,19 +66,19 @@ namespace LaundryApi.Controllers
 
         //POST: api/invoice
         [HttpPost("deposit")]
-        public ActionResult MakePayment([FromBody] decimal amount,Guid customerId)
+        public ActionResult MakePayment([FromBody] PaymentDto dto)
         {
             try
             {
-                invoiceRepository.DepositCustomerPayment(customerId, amount);
+                invoiceRepository.DepositCustomerPayment(dto.CustomerId, dto.Amount);
                 return Ok();
             }
             catch(Exception e)
             {
-                if (e.Message == ErrorMessage.NoEntityMatchesSearch)
-                    return BadRequest(new ResponseDto<string>() { message = "customer has no unpaid invoice" });
+                if (e.Message == ErrorMessage.CustomerIsNotOwing)
+                    return BadRequest(new ResponseDto<string>() { message = ErrorMessage.CustomerIsNotOwing ,statusCode="400"});
 
-                return StatusCode(500);
+                return BadRequest(new ResponseDto<string>() { message = ErrorMessage.FailedDbOperation, statusCode = "500" });
             }
            
         }

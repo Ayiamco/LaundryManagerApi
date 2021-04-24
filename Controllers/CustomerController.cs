@@ -20,7 +20,7 @@ namespace LaundryApi.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerRepository customerRepository;
-
+        private readonly int _PAGESIZE = 2;
         public CustomerController(ICustomerRepository customerRepository)
         {
             this.customerRepository = customerRepository;
@@ -37,7 +37,7 @@ namespace LaundryApi.Controllers
                 var queryParam = Request.Query;
                 var pageNumber = int.Parse(queryParam["page"]);
                 var searchParam = Convert.ToString(queryParam["name"]);
-                var employees = customerRepository.GetPage(2, HttpContext.User.Identity.Name, pageNumber, searchParam);
+                var employees = customerRepository.GetPage(_PAGESIZE, HttpContext.User.Identity.Name, pageNumber, searchParam);
                 return Ok(new ResponseDto<PagedList<CustomerDto>>() { statusCode = "200", data = employees });
             }
             catch (Exception e)
@@ -139,7 +139,7 @@ namespace LaundryApi.Controllers
 
         //DELETE: api/customer/{customerId}
         [HttpDelete("{customerId}")]
-        public ActionResult DeleteCustomer(Guid customerId)
+        public ActionResult DeleteCustomer(Guid customerId)  
         {
             try
             {

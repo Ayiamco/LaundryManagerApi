@@ -176,9 +176,9 @@ namespace LaundryApi.Repositories
         public void DepositCustomerPayment(Guid customerId, decimal amtDeposited)
         {
             IEnumerable<Invoice> invoices = _context.Invoices
-                .Where(x => x.Id == customerId && !x.IsPaidFor).OrderBy(x => x.CreatedAt);
+                .Where(x => x.CustomerId == customerId && !x.IsPaidFor).OrderBy(x => x.CreatedAt);
             if (invoices.Count() == 0)
-                throw new Exception(ErrorMessage.NoEntityMatchesSearch);
+                throw new Exception(ErrorMessage.CustomerIsNotOwing);
 
             //loop thru the invoices to find unpaid invoices
             UpdateInvoicesWIthDeposit(invoices, amtDeposited);

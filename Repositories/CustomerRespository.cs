@@ -219,7 +219,7 @@ namespace LaundryApi.Repositories
                 catch
                 { _num = 0;}
 
-                obj.MaxPageIndex = _num > 0 ? Convert.ToInt32(maxPage + 1) : Convert.ToInt32(maxPage);
+                obj.MaxPageIndex = _num > 0 ? Convert.ToInt32(maxPage + 1) - 1 : Convert.ToInt32(maxPage);
             }
             return obj;
         }

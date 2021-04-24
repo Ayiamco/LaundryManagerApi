@@ -21,5 +21,11 @@ namespace LaundryApi.Dtos
         public string Remark { get; set; }
 
     }
+
+    public class PaymentDto
+    {
+        public decimal Amount { get; set; }
+        public Guid CustomerId { get; set; }
+    }
 }
 
