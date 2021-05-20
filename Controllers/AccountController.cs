@@ -20,13 +20,21 @@ namespace LaundryApi.Controllers
     {
 
         private readonly IUnitOfWork unitOfWork;
+        private readonly IPaymentService catolog;
       
-        public AccountController(IUnitOfWork unitOfWork)
+        public AccountController(IUnitOfWork unitOfWork,IPaymentService catolog)
         {
             this.unitOfWork = unitOfWork;
+            this.catolog = catolog;
         }
 
-        //Tested
+       
+        [HttpGet("catalog")]
+        public async  Task<ActionResult> GetCatalog()
+        {
+            var data = await catolog.InitiazlizePayment();
+            return Ok(data);
+        }
         //POST: api/laundry/login
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] UserLoginDto user)

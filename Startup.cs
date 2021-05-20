@@ -1,26 +1,19 @@
  using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using LaundryApi.Entites;
 using LaundryApi.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using LaundryApi.Interfaces;
 using System.Text;
-using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using LaundryApi.Repositories;
+using System.Net.Http.Headers;
 
 namespace LaundryApi
 {
@@ -77,6 +70,12 @@ namespace LaundryApi
                 };
             });
 
+            services.AddHttpClient<IPaymentService, PaymentService>( client=>
+                client.DefaultRequestHeaders.Authorization= new AuthenticationHeaderValue("Basic",
+                        Convert.ToBase64String(Encoding.UTF8.GetBytes(Configuration["LaundryManagerApi:monnifyApiKey"])))
+            );
+            
+
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
             services.AddScoped<IManagerRepository, ManagerRepository>();
             services.AddScoped<IMailService,MailService>();
@@ -114,7 +113,7 @@ namespace LaundryApi
             //added by me
             app.UseCors(MyAllowSpecificOrigins);
             //#####################
-            app.UseAuthentication();
+            app.UseAuthentication(); 
 
             app.UseAuthorization();
 
