@@ -16,7 +16,7 @@ namespace LaundryApi.Entites
         [Required]
         public Guid ServiceId { get; set; }
 
-        public Service Service { get; set; }
+        public LaundryService Service { get; set; }
 
         [Required]
         public int Quantity { get; set; }

@@ -6,8 +6,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using LaundryApi.Interfaces;
+using System.Linq;
+using System.Security.Cryptography;
+using System;
 
-namespace LaundryApi.Service
+namespace LaundryApi.Services
 {
     public class PaymentService : IPaymentService
     {
@@ -28,7 +31,7 @@ namespace LaundryApi.Service
                 customerName = "Stephen Ikhane",
                 customerEmail = "stephen@ikhane.com",
                 paymentDescription = "Trial transaction",
-                paymentReference = "1234567890",
+                paymentReference = "ref" + GetPaymentReference(),
                 currencyCode = "NGN",
                 contractCode = config["LaundryManagerApi:monnifyContractCode"],
                 redirectUrl = "https://my-merchants-page.com/transaction/confirm",
@@ -42,9 +45,18 @@ namespace LaundryApi.Service
             return resp;
          }
 
-       
-
         
+        private string GetPaymentReference()
+        {
+            var randomNumber = new byte[10];
+            using (var generator = RandomNumberGenerator.Create())
+            {
+                generator.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
     }
+        
+    
 
 }

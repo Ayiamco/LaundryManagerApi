@@ -11,6 +11,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
 
 namespace LaundryApi.Controllers
 {
@@ -19,25 +21,27 @@ namespace LaundryApi.Controllers
     public class AccountController : ControllerBase
     {
 
-        private readonly IUnitOfWork unitOfWork;
-        private readonly IPaymentService catolog;
-      
-        public AccountController(IUnitOfWork unitOfWork,IPaymentService catolog)
+        private readonly IUnitOfWork _unitOfWork;
+        private IJwtAuthenticationManager _jwtMananager;
+        private IConfiguration _configManager;
+        private readonly UserManager<Models.ApplicationUser> _userManager;
+        private readonly SignInManager<Models.ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public AccountController(IUnitOfWork unitOfWork, IConfiguration configuration,
+            UserManager<Models.ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            SignInManager<Models.ApplicationUser> signInManager)
         {
-            this.unitOfWork = unitOfWork;
-            this.catolog = catolog;
+            _unitOfWork = unitOfWork;
+            _configManager = configuration;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
        
-        [HttpGet("catalog")]
-        public async  Task<ActionResult> GetCatalog()
-        {
-            var data = await catolog.InitiazlizePayment();
-            return Ok(data);
-        }
         //POST: api/laundry/login
         [HttpPost("login")]
-        public ActionResult<string> Login([FromBody] UserLoginDto user)
+        public async Task<ActionResult> Login([FromBody] UserLoginDto user)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -47,46 +51,16 @@ namespace LaundryApi.Controllers
                 statusCode = "200",
                 message = "login details are correct"
             };
-            try
-            {
-                //get login resp
-                LoginResponseDto resp;
-                if (string.IsNullOrWhiteSpace(user.Role)) 
-                    resp = unitOfWork.ManagerRepository.GetLoginResponse(user.Username, user.Password);
-                else
-                    resp = unitOfWork.ManagerRepository.GetLoginResponse(user.Username, user.Password,user.Role);
 
-                string token = unitOfWork.JwtAuthenticationManager.GetToken(user,resp.UserRole);
+            var result = await _signInManager.PasswordSignInAsync(user.Username, user.Password, false, false);
+            if (result.Succeeded)
+            {
+                string token = _unitOfWork.JwtAuthenticationManager.GetToken(user,RoleNames.LaundryOwner);
                 response.data = token;
                 return Ok(response);
             }
-            catch(Exception e)
-            {
-                response.statusCode = "400";
-                if (e.Message == ErrorMessage.InCorrectPassword)
-                {
-                    response.message = ErrorMessage.InCorrectPassword;
-                    return BadRequest(response);
-                }
-                else if (e.Message == ErrorMessage.PasswordChanged)
-                {
-                    response.message = ErrorMessage.PasswordChanged;
-                    return BadRequest(response);
-                }
-                else if (e.Message == ErrorMessage.UserDoesNotExist)
-                {
-                    response.message = ErrorMessage.UserDoesNotExist;
-                    return BadRequest(response);
-                }
-                else if (e.Message == ErrorMessage.UserHasTwoRoles)
-                {
-                    response.message = ErrorMessage.UserHasTwoRoles;
-                    return BadRequest(response);
-                }
-
-                else
-                    return StatusCode(500);
-            }
+            else
+                return StatusCode(500);
 
         }
 
@@ -99,7 +73,7 @@ namespace LaundryApi.Controllers
             try
             {
                 //send passwoord reset link to email
-                await unitOfWork.ManagerRepository.SendPasswordReset(dto);
+                await _unitOfWork.ManagerRepository.SendPasswordReset(dto);
                 return Ok(new ResponseDto<string>() { statusCode="200",message=$"password reset link has being sent to {dto.Username}"});
             }
             catch (Exception e)
@@ -129,7 +103,7 @@ namespace LaundryApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
             //check if id matches username
-            if (!unitOfWork.ManagerRepository.IsPasswordResetLinkValid( id))
+            if (!_unitOfWork.ManagerRepository.IsPasswordResetLinkValid( id))
                 return BadRequest(new ResponseDto<ForgotPasswordDto>()
                 {
                     statusCode="400",
@@ -139,7 +113,7 @@ namespace LaundryApi.Controllers
             //reset password
             try
             {
-                unitOfWork.ManagerRepository.ResetPassword(dto, id);
+                _unitOfWork.ManagerRepository.ResetPassword(dto, id);
             }
             catch (Exception e)
             {

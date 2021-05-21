@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,50 +8,41 @@ using System.Threading.Tasks;
 
 namespace LaundryApi.Models
 {
-    public class ApplicationUser
+    public class ApplicationUser: IdentityUser
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        
+        //[Required]
+        //public string Name { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+        //[Required]
+        //[EmailAddress]
+        //public string Username { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string Username { get; set; }
 
-        [Required]
-        public string PasswordHash { get; set; }
+        //[Required]
+        //public string Address { get; set; }
 
-        [Required]
-        [StringLength(11)]
-        public string PhoneNumber { get; set; }
+        //[Required]
+        //[Column(TypeName = "decimal(18,4)")]
+        //public decimal Revenue { get; set; }
 
-        [Required]
-        public string Address { get; set; }
+        //public DateTime? ForgotPasswordTime { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(18,4)")]
-        public decimal Revenue { get; set; }
+        //public string PasswordResetId { get; set; }
 
-        public DateTime? ForgotPasswordTime { get; set; }
+        //[Required]
+        //public DateTime CreatedAt { get; set; }
 
-        public string PasswordResetId { get; set; }
+        //[Required]
+        //public DateTime UpdatedAt { get; set; }
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        //[Required]
+        //public int NoOfCustomers { get; set; }
 
-        [Required]
-        public DateTime UpdatedAt { get; set; }
+        //public bool IsDeleted { get; set; }
 
-        [Required]
-        public int NoOfCustomers { get; set; }
-
-        public bool IsDeleted { get; set; }
-
-        [Required]
-        public string UsernameHash { get; set; }
+        //[Required]
+        //public string UsernameHash { get; set; }
 
         
 

@@ -14,13 +14,15 @@ using System.Text;
 using AutoMapper;
 using LaundryApi.Repositories;
 using System.Net.Http.Headers;
+using LaundryApi.Services;
+using LaundryApi.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace LaundryApi
 {
     public class Startup
     {
         private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-        private readonly LaundryApiContext laundryApiContext = new LaundryApiContext(new DbContextOptions<LaundryApiContext>());
 
         public Startup(IConfiguration configuration)
         {
@@ -33,8 +35,10 @@ namespace LaundryApi
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<LaundryApiContext>(options =>
+            services.AddDbContext<ApplicationDbContext >(options =>
                         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+               .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
             //allow my react app

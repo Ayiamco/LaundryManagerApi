@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LaundryApi.Entites
 {
-    public class Service
+    public class LaundryService
     {
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
