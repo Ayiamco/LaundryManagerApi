@@ -29,8 +29,8 @@ namespace LaundryApi.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(IUnitOfWork unitOfWork, IConfiguration configuration,
-            UserManager<Models.ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            SignInManager<Models.ApplicationUser> signInManager)
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _unitOfWork = unitOfWork;
             _configManager = configuration;
@@ -60,9 +60,28 @@ namespace LaundryApi.Controllers
                 return Ok(response);
             }
             else
-                return StatusCode(500);
+                return StatusCode(500, result.ToString());
 
         }
+
+        [HttpPost("register")]
+        public async Task<ActionResult> Register([FromBody] UserLoginDto user)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var result = await _userManager.CreateAsync(new ApplicationUser() { UserName=user.Username,Email=user.Username}, user.Password);
+            var passwordHasher = _userManager.PasswordHasher;
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            else
+                return StatusCode(500, result.ToString());
+
+        }
+
+
 
         //Tested
         //POST: api/account/forgotpassword

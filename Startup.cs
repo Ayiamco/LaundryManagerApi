@@ -17,6 +17,7 @@ using System.Net.Http.Headers;
 using LaundryApi.Services;
 using LaundryApi.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace LaundryApi
 {
@@ -101,7 +102,7 @@ namespace LaundryApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -125,6 +126,8 @@ namespace LaundryApi
             {
                 endpoints.MapControllers();
             });
+
+            await SeedData.EnsurePopulated(app);
         }
     }
 }
