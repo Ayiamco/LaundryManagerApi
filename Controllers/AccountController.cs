@@ -24,8 +24,8 @@ namespace LaundryApi.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private IJwtAuthenticationManager _jwtMananager;
         private IConfiguration _configManager;
-        private readonly UserManager<Models.ApplicationUser> _userManager;
-        private readonly SignInManager<Models.ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(IUnitOfWork unitOfWork, IConfiguration configuration,

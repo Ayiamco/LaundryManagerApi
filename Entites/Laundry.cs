@@ -8,13 +8,14 @@ using LaundryApi.Models;
 
 namespace LaundryApi.Entites
 {
-    public class Laundry:ApplicationUser
+    public class Laundry
     {
-        [Required]
+        public Guid Id { get; set; }
         public int NoOfEmployees { get; set; }  
-
-        [Required ]
-        public string LaundryName { get; set; }
+        public string Name { get; set; }
+        public ICollection<UserProfle> Employees { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
     }
 }

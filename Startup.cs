@@ -18,6 +18,7 @@ using LaundryApi.Services;
 using LaundryApi.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using LaundryApi.Entites;
 
 namespace LaundryApi
 {
@@ -79,7 +80,7 @@ namespace LaundryApi
                 client.DefaultRequestHeaders.Authorization= new AuthenticationHeaderValue("Basic",
                         Convert.ToBase64String(Encoding.UTF8.GetBytes(Configuration["LaundryManagerApi:monnifyApiKey"])))
             );
-            
+
 
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
             services.AddScoped<IManagerRepository, ManagerRepository>();

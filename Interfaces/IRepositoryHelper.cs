@@ -11,7 +11,7 @@ namespace LaundryApi.Interfaces
     {
         public ApplicationUser GetApplicationUser(string username);
 
-        public Employee GetEmployeeByUsername(string username);
+        public UserProfle GetEmployeeByUsername(string username);
 
         public Laundry GetLaundryByUsername(string username);
     }

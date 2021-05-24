@@ -50,33 +50,7 @@ namespace LaundryApi.Controllers
 
         }
 
-        //Tested
-        //POST: api/laundry/new
-        [HttpPost("new")]
-        [AllowAnonymous]
-        public async Task<ActionResult<LaundryDto>> RegisterLaundry([FromBody] NewLaundryDto user)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-            
-            try
-            {
-                //save new laundry to database
-                LaundryDto laundryDto = await unitOfWork.LaundryRepository.CreateLaundryAsync(user);
-                return CreatedAtAction("GetLaundry", "Laundry", new { id = laundryDto.Id }, new ResponseDto<LaundryDto>() {data=laundryDto,statusCode="201" });
-            }
-            catch (Exception e)
-            {
-                if (e.Message == ErrorMessage.UsernameAlreadyExist)
-                    return BadRequest(new ResponseDto<LaundryDto>()
-                    {
-                        message = ErrorMessage.UsernameAlreadyExist,
-                        statusCode = "400"
-                    });
-                return StatusCode(500,new ResponseDto<string>() { statusCode="500",message= "server error" });
-
-            }
-        }
+       
 
         //DELETE: api/laundry/{laundryId}
         [HttpDelete("delete/{laundryId}")]

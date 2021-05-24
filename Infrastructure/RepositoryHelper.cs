@@ -86,7 +86,7 @@ namespace LaundryApi.Infrastructure
             throw new NotImplementedException();
         }
 
-        public Employee GetEmployeeByUsername(string username)
+        public UserProfle GetEmployeeByUsername(string username)
         {
             throw new NotImplementedException();
         }
