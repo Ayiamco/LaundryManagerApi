@@ -19,6 +19,7 @@ namespace LaundryApi.Infrastructure
 
         public DbSet<Laundry> Laundries { get; set; }
         public DbSet<UserProfle> UserProfiles { get; set; }
+        public DbSet<Location> Locations { get; set; }
         //public DbSet<Customer> Customers { get; set; }
         //public DbSet<Employee> Employees { get; set; }
         //public DbSet<EmployeeInTransit> EmployeesInTransit { get; set; }

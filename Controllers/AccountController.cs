@@ -13,6 +13,7 @@ using static LaundryApi.Infrastructure.HelperMethods;
 using LaundryApi.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
+using System.Diagnostics;
 
 namespace LaundryApi.Controllers
 {
@@ -22,7 +23,6 @@ namespace LaundryApi.Controllers
     {
 
         private readonly IUnitOfWork _unitOfWork;
-        private IJwtAuthenticationManager _jwtMananager;
         private IConfiguration _configManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -65,13 +65,20 @@ namespace LaundryApi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] UserLoginDto user)
+        public async Task<ActionResult> Register([FromBody] NewUserDto user)
         {
             if (!ModelState.IsValid)
+            {
+                var errors = ModelState.AsEnumerable();
+                foreach(var error in errors)
+                {
+                    Debug.WriteLine($"{error.Key}:{error.Value}");
+                }
                 return BadRequest();
+            }
+               
 
             var result = await _userManager.CreateAsync(new ApplicationUser() { UserName=user.Username,Email=user.Username}, user.Password);
-            var passwordHasher = _userManager.PasswordHasher;
             if (result.Succeeded)
             {
                 return Ok();
@@ -80,8 +87,6 @@ namespace LaundryApi.Controllers
                 return StatusCode(500, result.ToString());
 
         }
-
-
 
         //Tested
         //POST: api/account/forgotpassword
@@ -114,7 +119,6 @@ namespace LaundryApi.Controllers
             }
         }
 
-       
         //POST: api/account/forgotpassword/{id}
         [HttpPost("forgotpassword/{id}")]
         public ActionResult PasswordReset([FromBody] ForgotPasswordDto dto,string id)

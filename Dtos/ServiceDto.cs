@@ -8,14 +8,8 @@ using System.Threading.Tasks;
 
 namespace LaundryApi.Dtos
 {
-    public class ServiceDto
+    public class ServiceDto:ServiceDtoPartial
     {
-        public Guid Id { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(18,4)")]
-        public decimal Price { get; set; }
-
         public string Name { get; set; }
 
         public LaundryDto Laundry { get; set; }
@@ -23,8 +17,22 @@ namespace LaundryApi.Dtos
         public Guid LaundryId { get; set; }
 
         public DateTime CreatedAt {get;set;}
+
+    }
+
+    public class ServiceDtoPartial
+    {
+        public Guid Id { get; set; }
+
+        [Required]
+        public string Description { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal Price { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,4)")]
         public decimal Revenue { get; set; }
-
-
     }
 }

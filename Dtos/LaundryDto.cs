@@ -9,20 +9,11 @@ namespace LaundryApi.Dtos
 {
     public class LaundryDto
     {
-        
         public Guid Id { get; set; }
-
-        [EmailAddress]
-        public string Username { get; set; }
-
-        [Required]
-        public string Name { get; set; }
-
-        [Required]
-        [StringLength(11)]
+   
+        [Phone]
         public string PhoneNumber { get; set; }
 
-        [Required]
         public string Address { get; set; }
 
         public string LaundryName { get; set; }
@@ -30,5 +21,13 @@ namespace LaundryApi.Dtos
         public int NoOfCustomers { get; set; }
         public int NoOfEmployees { get; set; }
         public decimal Revenue { get; set; }
+    }
+
+    public class NewLaundryDto:LaundryDto
+    {
+        public string Password { get; set; }
+
+        [Compare("Password")]
+        public string ConfirmPassword { get; set; }
     }
 }

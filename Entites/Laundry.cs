@@ -16,6 +16,7 @@ namespace LaundryApi.Entites
         public ICollection<UserProfle> Employees { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public Location Address { get; set; }
 
     }
 }

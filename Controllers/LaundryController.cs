@@ -50,8 +50,6 @@ namespace LaundryApi.Controllers
 
         }
 
-       
-
         //DELETE: api/laundry/{laundryId}
         [HttpDelete("delete/{laundryId}")]
         public async Task<ActionResult> DeleteLaundry(Guid laundryId)
